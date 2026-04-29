@@ -9,7 +9,8 @@ const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:5173",
-      "https://chatapp-jwmdfmzq3-sominenivenkatarajeshs-projects.vercel.app"
+      "https://chatapp-j2i7cbzyd-sominenivenkatarajeshs-projects.vercel.app",
+      "https://chatapp-gu12g03ne-sominenivenkatarajeshs-projects.vercel.app"
     ],
   },
 });

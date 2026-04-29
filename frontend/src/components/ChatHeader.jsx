@@ -1,16 +1,30 @@
-import { Phone, Video, X } from "lucide-react";
+import { Phone, Video, X, UserMinus } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useCallStore } from "../store/useCallStore";
+import { axiosInstance } from "../lib/axios";
+import toast from "react-hot-toast";
 
 const ChatHeader = () => {
   const { selectedUser, setSelectedUser } = useChatStore();
-  const { onlineUsers } = useAuthStore();
+  const { onlineUsers, checkAuth } = useAuthStore();
   const { initiateStream, callUser } = useCallStore();
 
   const handleCall = async () => {
     await initiateStream();
     callUser(selectedUser._id);
+  };
+
+  const handleRemoveFriend = async () => {
+    if (!window.confirm(`Are you sure you want to remove ${selectedUser.fullName} from your friends?`)) return;
+    try {
+      await axiosInstance.delete(`/users/remove/${selectedUser._id}`);
+      toast.success("Friend removed");
+      setSelectedUser(null);
+      checkAuth();
+    } catch (error) {
+      toast.error("Failed to remove friend");
+    }
   };
 
   return (
@@ -40,6 +54,9 @@ const ChatHeader = () => {
           </button>
           <button className="btn btn-sm hover:bg-white/10" onClick={handleCall}>
             <Video className="size-5" />
+          </button>
+          <button className="btn btn-sm hover:text-red-500 hover:bg-red-500/10" onClick={handleRemoveFriend}>
+            <UserMinus className="size-5" />
           </button>
           <button className="btn btn-sm hover:bg-white/10" onClick={() => setSelectedUser(null)}>
             <X className="size-5" />

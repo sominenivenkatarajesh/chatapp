@@ -102,9 +102,23 @@ export const useAuthStore = create((set, get) => ({
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
+
+    socket.on("newFriendRequest", ({ from }) => {
+      toast.success(`${from.fullName} sent you a friend request!`);
+      get().checkAuth(); // Refresh user data to show the request
+    });
+
+    socket.on("friendRequestAccepted", ({ fullName }) => {
+      toast.success(`${fullName} accepted your friend request!`);
+      get().checkAuth(); // Refresh user data to update friend list
+    });
   },
 
   disconnectSocket: () => {
-    if (get().socket?.connected) get().socket.disconnect();
+    if (get().socket?.connected) {
+      get().socket.off("newFriendRequest");
+      get().socket.off("friendRequestAccepted");
+      get().socket.disconnect();
+    }
   },
 }));

@@ -65,23 +65,48 @@ const DashboardPage = () => {
           </form>
 
           <div className="mt-8 space-y-4">
-            {searchResults.map((user) => (
-              <div key={user._id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-glass-border">
-                <div className="flex items-center gap-3">
-                  <img src={user.profilePic || "/avatar.png"} alt="" className="size-10 rounded-full object-cover" />
-                  <div>
-                    <div className="font-medium">{user.fullName}</div>
-                    <div className="text-sm text-text-secondary">{user.email}</div>
+            {searchResults.map((user) => {
+              const isFriend = authUser?.friends?.includes(user._id);
+              const isPending = authUser?.friendRequests?.some(r => r.from === user._id);
+              
+              return (
+                <div key={user._id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-glass-border">
+                  <div className="flex items-center gap-3">
+                    <img src={user.profilePic || "/avatar.png"} alt="" className="size-10 rounded-full object-cover" />
+                    <div>
+                      <div className="font-medium">{user.fullName}</div>
+                      <div className="text-sm text-text-secondary">{user.email}</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {isFriend ? (
+                      <button 
+                        onClick={async () => {
+                          try {
+                            await axiosInstance.delete(`/users/remove/${user._id}`);
+                            toast.success("Friend removed");
+                            checkAuth();
+                          } catch (error) {
+                            toast.error("Failed to remove friend");
+                          }
+                        }}
+                        className="btn btn-sm bg-red-500/20 text-red-500 hover:bg-red-500/30"
+                      >
+                        Remove
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => sendRequest(user._id)}
+                        className="btn btn-sm hover:bg-white/10"
+                        disabled={isPending}
+                      >
+                        {isPending ? "Pending" : <UserPlus size={18} />}
+                      </button>
+                    )}
                   </div>
                 </div>
-                <button 
-                  onClick={() => sendRequest(user._id)}
-                  className="btn btn-sm hover:bg-white/10"
-                >
-                  <UserPlus size={18} />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 

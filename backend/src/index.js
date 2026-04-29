@@ -16,15 +16,24 @@ const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://chatapp-jwmdfmzq3-sominenivenkatarajeshs-projects.vercel.app"
-    ],
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://chatapp-jwmdfmzq3-sominenivenkatarajeshs-projects.vercel.app"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps, Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("CORS not allowed"));
+    }
+  },
+  credentials: true
+}));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);

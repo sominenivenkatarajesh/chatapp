@@ -17,7 +17,8 @@ const PORT = process.env.PORT || 5001;
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://chatapp-j2i7cbzyd-sominenivenkatarajeshs-projects.vercel.app"
+    "https://chatapp-j2i7cbzyd-sominenivenkatarajeshs-projects.vercel.app",
+    "https://chatapp-gu12g03ne-sominenivenkatarajeshs-projects.vercel.app"
   ],
   credentials: true
 }));

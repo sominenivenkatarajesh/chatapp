@@ -15,11 +15,18 @@ dotenv.config();
 const PORT = process.env.PORT || 5001;
 
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://chatapp-j2i7cbzyd-sominenivenkatarajeshs-projects.vercel.app",
-    "https://chatapp-gu12g03ne-sominenivenkatarajeshs-projects.vercel.app"
-  ],
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    const isVercel = origin.startsWith("https://chatapp") && origin.endsWith(".vercel.app");
+    const isLocal = origin === "http://localhost:5173";
+    
+    if (isVercel || isLocal) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 

@@ -28,38 +28,44 @@ const ChatHeader = () => {
   };
 
   return (
-    <div className="p-2.5 border-b border-glass-border">
+    <div className="px-6 py-4 border-b border-glass-border bg-bg-card shadow-sm z-20">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           {/* Avatar */}
-          <div className="avatar">
-            <div className="size-10 rounded-full relative">
-              <img src={selectedUser.profilePic || "/avatar.png"} alt={selectedUser.fullName} className="rounded-full" />
-            </div>
+          <div className="relative cursor-pointer hover:opacity-80 transition-opacity">
+            <img 
+              src={selectedUser.profilePic || "/avatar.png"} 
+              alt={selectedUser.fullName} 
+              className="size-11 rounded-full object-cover border border-glass-border" 
+            />
+            {onlineUsers.includes(selectedUser._id) && (
+              <span className="absolute bottom-0 right-0 size-3.5 bg-green-500 border-2 border-bg-card rounded-full"></span>
+            )}
           </div>
 
           {/* User info */}
           <div>
-            <h3 className="font-medium">{selectedUser.fullName}</h3>
-            <p className="text-sm text-text-muted">
-              {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
+            <h3 className="font-bold text-[16px] leading-tight tracking-wide">{selectedUser.fullName}</h3>
+            <p className={`text-[13px] font-medium mt-0.5 ${onlineUsers.includes(selectedUser._id) ? "text-primary" : "text-text-muted"}`}>
+              {onlineUsers.includes(selectedUser._id) ? "Active Now" : "Offline"}
             </p>
           </div>
         </div>
 
         {/* Action buttons */}
         <div className="flex items-center gap-2">
-          <button className="btn btn-sm hover:bg-white/10" onClick={handleCall}>
-            <Phone className="size-5" />
+          <button className="p-2.5 rounded-full hover:bg-white/10 text-primary transition-colors cursor-pointer" onClick={handleCall}>
+            <Phone className="size-[22px]" />
           </button>
-          <button className="btn btn-sm hover:bg-white/10" onClick={handleCall}>
-            <Video className="size-5" />
+          <button className="p-2.5 rounded-full hover:bg-white/10 text-primary transition-colors cursor-pointer" onClick={handleCall}>
+            <Video className="size-[22px]" />
           </button>
-          <button className="btn btn-sm hover:text-red-500 hover:bg-red-500/10" onClick={handleRemoveFriend}>
+          <div className="w-px h-6 bg-glass-border mx-1"></div>
+          <button className="p-2.5 rounded-full hover:bg-red-500/10 text-text-muted hover:text-red-500 transition-colors cursor-pointer" onClick={handleRemoveFriend} title="Remove Friend">
             <UserMinus className="size-5" />
           </button>
-          <button className="btn btn-sm hover:bg-white/10" onClick={() => setSelectedUser(null)}>
-            <X className="size-5" />
+          <button className="p-2.5 rounded-full hover:bg-white/10 text-text-muted transition-colors cursor-pointer" onClick={() => setSelectedUser(null)}>
+            <X className="size-[22px]" />
           </button>
         </div>
       </div>

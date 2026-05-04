@@ -48,33 +48,33 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="p-4 w-full">
+    <div className="p-4 w-full bg-bg-dark border-t border-glass-border">
       {imagePreview && (
         <div className="mb-3 flex items-center gap-2">
           <div className="relative">
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-glass-border"
+              className="w-20 h-20 object-cover rounded-xl border border-glass-border"
             />
             <button
               onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500
-              flex items-center justify-center transition-colors"
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white
+              flex items-center justify-center transition-colors shadow-md hover:bg-red-600 cursor-pointer"
               type="button"
             >
-              <X className="size-3" />
+              <X className="size-4" />
             </button>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex-1 flex gap-2">
+      <form onSubmit={handleSendMessage} className="flex items-center gap-3">
+        <div className="flex-1 flex items-center bg-[#262626] rounded-full px-4 py-2 border border-transparent focus-within:border-[#363636] focus-within:bg-[#1a1a1a] transition-all">
           <input
             type="text"
-            className="input-field"
-            placeholder="Type a message..."
+            className="flex-1 bg-transparent border-none outline-none text-white placeholder-text-muted text-[15px]"
+            placeholder="Message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
@@ -85,22 +85,23 @@ const MessageInput = () => {
             ref={fileInputRef}
             onChange={handleImageChange}
           />
-
           <button
             type="button"
-            className={`btn hover:bg-white/10 ${imagePreview ? "text-primary" : "text-text-muted"}`}
+            className={`p-2 rounded-full cursor-pointer transition-colors ${imagePreview ? "text-primary" : "text-text-muted hover:text-white"}`}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Image size={20} />
+            <Image size={22} />
           </button>
         </div>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={!text.trim() && !imagePreview}
-        >
-          <Send size={22} />
-        </button>
+        
+        {text.trim() || imagePreview ? (
+          <button
+            type="submit"
+            className="w-12 h-12 flex-shrink-0 rounded-full bg-primary text-white flex items-center justify-center hover:bg-[#0077c5] transition-colors cursor-pointer"
+          >
+            <Send size={20} className="ml-1" />
+          </button>
+        ) : null}
       </form>
     </div>
   );

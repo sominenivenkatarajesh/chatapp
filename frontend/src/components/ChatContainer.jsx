@@ -35,7 +35,7 @@ const ChatContainer = () => {
 
   if (isMessagesLoading) {
     return (
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex-1 flex flex-col overflow-auto bg-black/50">
         <ChatHeader />
         <MessageSkeleton />
         <MessageInput />
@@ -44,10 +44,10 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
+    <div className="flex-1 flex flex-col overflow-auto bg-black/50">
       <ChatHeader />
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
         {messages.map((message) => (
           <div
             key={message._id}
@@ -56,22 +56,23 @@ const ChatContainer = () => {
           >
             <div className={`flex flex-col gap-1 max-w-[70%]`}>
               <div
-                className={`p-3 rounded-2xl text-sm ${
+                className={`p-3 px-4 rounded-2xl text-[15px] font-medium leading-relaxed ${
                   message.senderId === authUser._id
-                    ? "bg-primary text-white rounded-br-none"
-                    : "bg-white/10 text-white rounded-bl-none"
+                    ? "bg-primary text-white rounded-br-sm"
+                    : "bg-white/10 text-white rounded-bl-sm"
                 }`}
+                style={message.senderId === authUser._id ? { background: 'var(--accent-gradient)' } : {}}
               >
                 {message.image && (
                   <img
                     src={message.image}
                     alt="Attachment"
-                    className="sm:max-w-[200px] rounded-md mb-2"
+                    className="sm:max-w-[200px] rounded-xl mb-2 object-cover"
                   />
                 )}
                 {message.text && <p>{message.text}</p>}
               </div>
-              <div className="text-[10px] opacity-50 px-1">
+              <div className={`text-[10px] text-text-muted px-1 font-medium ${message.senderId === authUser._id ? "text-right" : "text-left"}`}>
                 {formatMessageTime(message.createdAt)}
               </div>
             </div>

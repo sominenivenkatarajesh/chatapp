@@ -28,6 +28,8 @@ const DashboardPage = () => {
     try {
       await axiosInstance.post(`/users/request/${userId}`);
       toast.success("Friend request sent!");
+      // Update local state to immediately disable the button
+      setSearchResults(prev => prev.map(u => u._id === userId ? { ...u, requestSent: true } : u));
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to send request");
     }
@@ -107,7 +109,8 @@ const DashboardPage = () => {
               )}
               {searchResults.map((user) => {
                 const isFriend = authUser?.friends?.includes(user._id);
-                const isPending = authUser?.friendRequests?.some(r => r.from === user._id);
+                // The user has sent a request to us, OR we have sent a request to them
+                const isPending = user.requestSent || authUser?.friendRequests?.some(r => r.from === user._id);
                 
                 return (
                   <div key={user._id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-glass-border hover:bg-white/10 transition-colors">

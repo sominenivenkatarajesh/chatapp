@@ -17,7 +17,15 @@ export const searchUsers = async (req, res) => {
       ],
     }).select("-password");
 
-    res.status(200).json(users);
+    const usersWithStatus = users.map((user) => {
+      const userObj = user.toObject();
+      userObj.requestSent = user.friendRequests.some(
+        (req) => req.from.toString() === myId.toString()
+      );
+      return userObj;
+    });
+
+    res.status(200).json(usersWithStatus);
   } catch (error) {
     console.error("Error in searchUsers:", error);
     res.status(500).json({ message: "Internal server error" });

@@ -44,39 +44,60 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
+    <div className="flex-1 flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-bg-main via-bg-main to-black/20 overflow-hidden relative">
       <ChatHeader />
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message._id}
-            className={`flex ${message.senderId === authUser._id ? "justify-end" : "justify-start"}`}
-            ref={messageEndRef}
-          >
-            <div className={`flex flex-col gap-1 max-w-[70%]`}>
-              <div
-                className={`p-3 rounded-2xl text-sm ${
-                  message.senderId === authUser._id
-                    ? "bg-primary text-white rounded-br-none"
-                    : "bg-white/10 text-white rounded-bl-none"
-                }`}
-              >
-                {message.image && (
-                  <img
-                    src={message.image}
-                    alt="Attachment"
-                    className="sm:max-w-[200px] rounded-md mb-2"
-                  />
-                )}
-                {message.text && <p>{message.text}</p>}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 custom-scrollbar relative z-10">
+        {messages.map((message, idx) => {
+          const isSentByMe = message.senderId === authUser._id;
+          const showAvatar = idx === messages.length - 1 || messages[idx + 1]?.senderId !== message.senderId;
+
+          return (
+            <div
+              key={message._id}
+              className={`flex ${isSentByMe ? "justify-end" : "justify-start"} items-end gap-2`}
+              ref={messageEndRef}
+            >
+              {!isSentByMe && (
+                <div className={`size-8 rounded-full overflow-hidden flex-shrink-0 border border-white/10 ${!showAvatar && 'opacity-0'}`}>
+                  <img src={selectedUser.profilePic || "/avatar.png"} alt="avatar" className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              <div className={`flex flex-col gap-1.5 max-w-[75%] sm:max-w-[65%]`}>
+                <div
+                  className={`px-4 py-3 text-sm sm:text-base shadow-md backdrop-blur-sm ${
+                    isSentByMe
+                      ? "bg-gradient-to-br from-primary to-primary/80 text-white rounded-3xl rounded-br-sm border border-primary/50"
+                      : "bg-white/10 text-white rounded-3xl rounded-bl-sm border border-white/10"
+                  }`}
+                >
+                  {message.image && (
+                    <img
+                      src={message.image}
+                      alt="Attachment"
+                      className="max-w-full sm:max-w-[250px] rounded-xl mb-2 border border-white/10 shadow-sm object-cover"
+                    />
+                  )}
+                  {message.text && (
+                    <p className={`leading-relaxed tracking-wide ${message.text.includes('📞') ? 'font-medium italic text-center' : ''}`}>
+                      {message.text}
+                    </p>
+                  )}
+                </div>
+                <div className={`text-[10px] sm:text-xs text-text-muted px-2 font-medium tracking-wider ${isSentByMe ? 'text-right' : 'text-left'}`}>
+                  {formatMessageTime(message.createdAt)}
+                </div>
               </div>
-              <div className="text-[10px] opacity-50 px-1">
-                {formatMessageTime(message.createdAt)}
-              </div>
+
+              {isSentByMe && (
+                <div className={`size-8 rounded-full overflow-hidden flex-shrink-0 border border-white/10 ${!showAvatar && 'opacity-0'}`}>
+                  <img src={authUser.profilePic || "/avatar.png"} alt="avatar" className="w-full h-full object-cover" />
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <MessageInput />

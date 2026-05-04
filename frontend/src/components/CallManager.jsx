@@ -8,10 +8,9 @@ const CallManager = () => {
     callAccepted,
     callEnded,
     stream,
+    remoteStream,
     answerCall,
     leaveCall,
-    setMyVideo,
-    setUserVideo,
   } = useCallStore();
 
   const [incomingCall, setIncomingCall] = useState(null);
@@ -32,9 +31,16 @@ const CallManager = () => {
   }, [socket]);
 
   useEffect(() => {
-    if (myVideoRef.current) setMyVideo(myVideoRef.current);
-    if (userVideoRef.current) setUserVideo(userVideoRef.current);
-  }, [setMyVideo, setUserVideo, stream]);
+    if (myVideoRef.current && stream) {
+      myVideoRef.current.srcObject = stream;
+    }
+  }, [stream]);
+
+  useEffect(() => {
+    if (userVideoRef.current && remoteStream) {
+      userVideoRef.current.srcObject = remoteStream;
+    }
+  }, [remoteStream, callAccepted]);
 
   if (!stream && !incomingCall) return null;
 

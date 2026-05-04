@@ -7,19 +7,14 @@ export const useCallStore = create((set, get) => ({
   callAccepted: false,
   callEnded: false,
   stream: null,
+  remoteStream: null,
   name: "",
-  myVideo: null,
-  userVideo: null,
   connectionRef: null,
-
-  setMyVideo: (ref) => set({ myVideo: ref }),
-  setUserVideo: (ref) => set({ userVideo: ref }),
 
   initiateStream: async () => {
     try {
       const currentStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       set({ stream: currentStream });
-      if (get().myVideo) get().myVideo.srcObject = currentStream;
       return currentStream;
     } catch (err) {
       console.error("Failed to get local stream", err);
@@ -28,7 +23,7 @@ export const useCallStore = create((set, get) => ({
 
   answerCall: (incomingCall) => {
     set({ callAccepted: true });
-    const { stream, myVideo, userVideo } = get();
+    const { stream } = get();
     const socket = useAuthStore.getState().socket;
 
     const peer = new Peer({ initiator: false, trickle: false, stream });
@@ -38,7 +33,7 @@ export const useCallStore = create((set, get) => ({
     });
 
     peer.on("stream", (currentStream) => {
-      if (userVideo) userVideo.srcObject = currentStream;
+      set({ remoteStream: currentStream });
     });
 
     peer.signal(incomingCall.signal);
@@ -47,7 +42,7 @@ export const useCallStore = create((set, get) => ({
   },
 
   callUser: (id) => {
-    const { stream, userVideo } = get();
+    const { stream } = get();
     const socket = useAuthStore.getState().socket;
     const authUser = useAuthStore.getState().authUser;
 
@@ -63,7 +58,7 @@ export const useCallStore = create((set, get) => ({
     });
 
     peer.on("stream", (currentStream) => {
-      if (userVideo) userVideo.srcObject = currentStream;
+      set({ remoteStream: currentStream });
     });
 
     socket.on("callAccepted", (signal) => {

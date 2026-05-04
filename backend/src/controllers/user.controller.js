@@ -87,12 +87,17 @@ export const handleFriendRequest = async (req, res) => {
     me.friendRequests.splice(requestIndex, 1);
     await me.save();
 
-    // Notify sender via socket if accepted
-    if (action === "accepted") {
-      const { getReceiverSocketId, io } = await import("../lib/socket.js");
-      const senderSocketId = getReceiverSocketId(request.from);
-      if (senderSocketId) {
+    // Notify sender via socket
+    const { getReceiverSocketId, io } = await import("../lib/socket.js");
+    const senderSocketId = getReceiverSocketId(request.from);
+    if (senderSocketId) {
+      if (action === "accepted") {
         io.to(senderSocketId).emit("friendRequestAccepted", { 
+          friendId: myId,
+          fullName: me.fullName 
+        });
+      } else if (action === "rejected") {
+        io.to(senderSocketId).emit("friendRequestRejected", { 
           friendId: myId,
           fullName: me.fullName 
         });

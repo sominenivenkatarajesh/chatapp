@@ -109,8 +109,13 @@ export const useAuthStore = create((set, get) => ({
     });
 
     socket.on("friendRequestAccepted", ({ fullName }) => {
-      toast.success(`${fullName} accepted your friend request!`);
+      toast.success(`You and ${fullName} have become friends!`);
       get().checkAuth(); // Refresh user data to update friend list
+    });
+
+    socket.on("friendRequestRejected", ({ fullName }) => {
+      toast.error(`${fullName} rejected your friend request.`);
+      get().checkAuth();
     });
   },
 
@@ -118,6 +123,7 @@ export const useAuthStore = create((set, get) => ({
     if (get().socket?.connected) {
       get().socket.off("newFriendRequest");
       get().socket.off("friendRequestAccepted");
+      get().socket.off("friendRequestRejected");
       get().socket.disconnect();
     }
   },

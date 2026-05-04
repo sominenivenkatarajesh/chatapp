@@ -81,7 +81,11 @@ const CallManager = () => {
                 </button>
                 <button
                   className="btn bg-red-500 hover:bg-red-600 text-white p-4 rounded-full"
-                  onClick={() => setIncomingCall(null)}
+                  onClick={() => {
+                    useCallStore.setState({ callPartnerId: incomingCall.from });
+                    leaveCall();
+                    setIncomingCall(null);
+                  }}
                 >
                   <PhoneOff size={24} />
                 </button>

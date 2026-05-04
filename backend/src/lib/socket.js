@@ -54,10 +54,29 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("endCall", ({ to }) => {
+  socket.on("endCall", async ({ to, accepted }) => {
     const receiverSocketId = getReceiverSocketId(to);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("callEnded");
+    }
+
+    try {
+      if (!userId || !to) return;
+      const Message = (await import("../models/message.model.js")).default;
+      const text = accepted ? "📞 Video Call Ended" : "Missed Video Call 📞";
+      const newMessage = new Message({
+        senderId: userId,
+        receiverId: to,
+        text,
+      });
+      await newMessage.save();
+
+      io.to(socket.id).emit("newMessage", newMessage);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newMessage", newMessage);
+      }
+    } catch (error) {
+      console.log("Error saving call log:", error);
     }
   });
 

@@ -10,6 +10,7 @@ export const useCallStore = create((set, get) => ({
   remoteStream: null,
   name: "",
   connectionRef: null,
+  callPartnerId: null,
 
   initiateStream: async () => {
     try {
@@ -22,7 +23,7 @@ export const useCallStore = create((set, get) => ({
   },
 
   answerCall: (incomingCall) => {
-    set({ callAccepted: true });
+    set({ callAccepted: true, callPartnerId: incomingCall.from });
     const { stream } = get();
     const socket = useAuthStore.getState().socket;
 
@@ -42,6 +43,7 @@ export const useCallStore = create((set, get) => ({
   },
 
   callUser: (id) => {
+    set({ callPartnerId: id });
     const { stream } = get();
     const socket = useAuthStore.getState().socket;
     const authUser = useAuthStore.getState().authUser;
@@ -69,15 +71,17 @@ export const useCallStore = create((set, get) => ({
     set({ connectionRef: peer });
   },
 
-  leaveCall: (to) => {
+  leaveCall: () => {
     set({ callEnded: true });
-    const { connectionRef, stream } = get();
+    const { connectionRef, stream, callPartnerId, callAccepted } = get();
     const socket = useAuthStore.getState().socket;
 
     if (connectionRef) connectionRef.destroy();
     if (stream) stream.getTracks().forEach(track => track.stop());
     
-    socket.emit("endCall", { to });
+    if (callPartnerId) {
+      socket.emit("endCall", { to: callPartnerId, accepted: callAccepted });
+    }
     
     window.location.reload(); // Simplest way to reset all states
   },

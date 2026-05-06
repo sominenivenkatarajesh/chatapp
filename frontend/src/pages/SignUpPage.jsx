@@ -135,24 +135,51 @@ const SignUpPage = () => {
       </div>
 
       {/* Right side - Visual */}
-      <div className="hidden lg:flex items-center justify-center bg-white/02 p-12 relative overflow-hidden">
-        <div className="max-w-md text-center space-y-6 relative z-10">
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            {[...Array(9)].map((_, i) => (
-              <div
-                key={i}
-                className={`aspect-square rounded-2xl glass-morphism flex items-center justify-center
-                ${i % 2 === 0 ? "animate-pulse" : "animate-float"}`}
-                style={{ animationDelay: `${i * 0.2}s`, background: `rgba(99, 102, 241, ${0.05 + (i * 0.02)})` }}
-              >
-                <div className="size-4 rounded-full bg-primary/20" />
+      <div className="hidden lg:flex items-center justify-center bg-black p-12 relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-black to-black opacity-50"></div>
+        
+        <div className="w-full max-w-lg relative z-10">
+          {/* Mock Chat UI */}
+          <div className="glass-morphism p-6 rounded-3xl relative mb-10 shadow-2xl shadow-primary/10">
+            <div className="absolute -top-6 -left-6 size-24 bg-primary/30 rounded-full blur-2xl animate-pulse"></div>
+            <div className="absolute -bottom-6 -right-6 size-24 bg-primary/20 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1s'}}></div>
+            
+            <div className="space-y-5">
+              {/* Message 1 */}
+              <div className="flex gap-3 items-end">
+                <div className="size-8 rounded-full bg-zinc-800 flex-shrink-0"></div>
+                <div className="bg-[#1a1a1a] p-4 rounded-2xl rounded-bl-sm w-3/4 border border-glass-border">
+                  <div className="h-2.5 bg-zinc-700 rounded w-1/2 mb-2"></div>
+                  <div className="h-2.5 bg-zinc-700/50 rounded w-full mb-2"></div>
+                  <div className="h-2.5 bg-zinc-700/50 rounded w-4/5"></div>
+                </div>
               </div>
-            ))}
+
+              {/* Message 2 */}
+              <div className="flex gap-3 items-end justify-end">
+                <div className="bg-primary/10 p-4 rounded-2xl rounded-br-sm w-2/3 border border-primary/20">
+                  <div className="h-2.5 bg-primary/40 rounded w-3/4 mb-2"></div>
+                  <div className="h-2.5 bg-primary/30 rounded w-full"></div>
+                </div>
+              </div>
+              
+              {/* Message 3 */}
+              <div className="flex gap-3 items-end">
+                <div className="size-8 rounded-full bg-zinc-800 flex-shrink-0"></div>
+                <div className="bg-[#1a1a1a] p-4 rounded-2xl rounded-bl-sm w-1/2 border border-glass-border">
+                  <div className="h-2.5 bg-zinc-700 rounded w-3/4"></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <h2 className="text-4xl font-bold font-outfit">Connect with the <br/><span className="text-primary">Future of Chat</span></h2>
-          <p className="text-text-secondary text-lg">
-            Experience real-time communication wrapped in a seamless, glassmorphic interface designed for the modern web.
-          </p>
+          
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl font-bold font-outfit leading-tight">Connect with the <br/><span className="text-primary">Future of Chat</span></h2>
+            <p className="text-text-secondary text-lg">
+              Experience real-time communication wrapped in a seamless, glassmorphic interface designed for the modern web.
+            </p>
+          </div>
         </div>
       </div>
     </div>

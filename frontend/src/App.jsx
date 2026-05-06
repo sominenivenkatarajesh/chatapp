@@ -44,7 +44,28 @@ const App = () => {
         </Routes>
       </main>
 
-      <Toaster />
+      <Toaster 
+        toastOptions={{
+          style: {
+            background: '#262626',
+            color: '#fff',
+            borderRadius: '12px',
+            border: '1px solid #333',
+          },
+          success: {
+            iconTheme: {
+              primary: '#25D366',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ed4956',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     </div>
   );
 };

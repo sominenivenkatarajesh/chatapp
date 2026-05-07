@@ -20,25 +20,35 @@ const CallManager = () => {
 
   useEffect(() => {
     if (socket) {
-      socket.on("incomingCall", (data) => {
+      const handleIncomingCall = (data) => {
         setIncomingCall(data);
-      });
-
-      socket.on("callEnded", () => {
+      };
+      
+      const handleCallEnded = () => {
         window.location.reload();
-      });
+      };
+
+      socket.on("incomingCall", handleIncomingCall);
+      socket.on("callEnded", handleCallEnded);
+
+      return () => {
+        socket.off("incomingCall", handleIncomingCall);
+        socket.off("callEnded", handleCallEnded);
+      };
     }
   }, [socket]);
 
   useEffect(() => {
     if (myVideoRef.current && stream) {
       myVideoRef.current.srcObject = stream;
+      myVideoRef.current.play().catch(e => console.log("Play error:", e));
     }
   }, [stream]);
 
   useEffect(() => {
     if (userVideoRef.current && remoteStream) {
       userVideoRef.current.srcObject = remoteStream;
+      userVideoRef.current.play().catch(e => console.log("Play error:", e));
     }
   }, [remoteStream, callAccepted]);
 

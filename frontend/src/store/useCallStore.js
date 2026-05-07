@@ -27,7 +27,18 @@ export const useCallStore = create((set, get) => ({
     const { stream } = get();
     const socket = useAuthStore.getState().socket;
 
-    const peer = new Peer({ initiator: false, trickle: false, stream });
+    const peer = new Peer({ 
+      initiator: false, 
+      trickle: false, 
+      stream,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      }
+    });
 
     peer.on("signal", (data) => {
       socket.emit("answerCall", { signal: data, to: incomingCall.from });
@@ -48,7 +59,18 @@ export const useCallStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
     const authUser = useAuthStore.getState().authUser;
 
-    const peer = new Peer({ initiator: true, trickle: false, stream });
+    const peer = new Peer({ 
+      initiator: true, 
+      trickle: false, 
+      stream,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      }
+    });
 
     peer.on("signal", (data) => {
       socket.emit("callUser", {
@@ -63,6 +85,7 @@ export const useCallStore = create((set, get) => ({
       set({ remoteStream: currentStream });
     });
 
+    socket.off("callAccepted");
     socket.on("callAccepted", (signal) => {
       set({ callAccepted: true });
       peer.signal(signal);

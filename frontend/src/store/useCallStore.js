@@ -107,19 +107,35 @@ export const useCallStore = create((set, get) => ({
     }));
   },
 
-  leaveCall: () => {
-    set({ callEnded: true });
-    const { peers, stream } = get();
+  leaveCall: (userId) => {
+    const { peers, stream, callAccepted } = get();
     const socket = useAuthStore.getState().socket;
 
-    peers.forEach(({ peer, userId }) => {
-      if (peer) peer.destroy();
-      socket.emit("endCall", { to: userId, accepted: get().callAccepted });
-    });
+    // Notify all peers or a specific user (if declining)
+    if (userId) {
+      socket.emit("endCall", { to: userId, accepted: false });
+    } else {
+      peers.forEach(({ peer, userId: pId }) => {
+        if (peer) peer.destroy();
+        socket.emit("endCall", { to: pId, accepted: callAccepted });
+      });
+    }
 
     if (stream) stream.getTracks().forEach(track => track.stop());
     
-    window.location.reload(); 
+    get().resetCallState();
+  },
+
+  resetCallState: () => {
+    set({
+      peers: [],
+      stream: null,
+      callAccepted: false,
+      callEnded: false,
+      callPartnerId: null,
+      isMuted: false,
+      isCameraOff: false,
+    });
   },
 
   toggleAudio: () => {

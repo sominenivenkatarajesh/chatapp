@@ -41,6 +41,7 @@ const CallManager = () => {
     isCameraOff,
     toggleAudio,
     toggleVideo,
+    resetCallState,
   } = useCallStore();
 
   const { users } = useChatStore();
@@ -57,7 +58,9 @@ const CallManager = () => {
       };
       
       const handleCallEnded = () => {
-        window.location.reload();
+        toast("Call disconnected", { icon: "📞" });
+        resetCallState();
+        setIncomingCall(null);
       };
 
       socket.on("incomingCall", handleIncomingCall);
@@ -68,7 +71,7 @@ const CallManager = () => {
         socket.off("callEnded", handleCallEnded);
       };
     }
-  }, [socket]);
+  }, [socket, resetCallState]);
 
   useEffect(() => {
     if (myVideoRef.current && stream) {
@@ -194,8 +197,7 @@ const CallManager = () => {
                   <button
                     className="p-4 rounded-full bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 transition-all"
                     onClick={() => {
-                      useCallStore.setState({ callPartnerId: incomingCall.from });
-                      leaveCall();
+                      leaveCall(incomingCall.from);
                       setIncomingCall(null);
                     }}
                   >

@@ -9,8 +9,10 @@ export const useCallStore = create((set, get) => ({
   stream: null,
   remoteStream: null,
   name: "",
-  connectionRef: null,
+  peers: [], // Array of { peer, userId, stream }
   callPartnerId: null,
+  isMuted: false,
+  isCameraOff: false,
 
   initiateStream: async () => {
     try {
@@ -45,16 +47,22 @@ export const useCallStore = create((set, get) => ({
     });
 
     peer.on("stream", (currentStream) => {
-      set({ remoteStream: currentStream });
+      set((state) => ({
+        peers: [...state.peers.filter(p => p.userId !== incomingCall.from), { peer, userId: incomingCall.from, stream: currentStream }]
+      }));
     });
 
     peer.signal(incomingCall.signal);
 
-    set({ connectionRef: peer });
+    set((state) => ({
+        peers: [...state.peers, { peer, userId: incomingCall.from }]
+    }));
   },
 
   callUser: (id) => {
-    set({ callPartnerId: id });
+    // Check if already in call with this person
+    if (get().peers.find(p => p.userId === id)) return;
+
     const { stream } = get();
     const socket = useAuthStore.getState().socket;
     const authUser = useAuthStore.getState().authUser;
@@ -82,30 +90,55 @@ export const useCallStore = create((set, get) => ({
     });
 
     peer.on("stream", (currentStream) => {
-      set({ remoteStream: currentStream });
+      set((state) => ({
+        peers: [...state.peers.filter(p => p.userId !== id), { peer, userId: id, stream: currentStream }]
+      }));
     });
 
-    socket.off("callAccepted");
-    socket.on("callAccepted", (signal) => {
-      set({ callAccepted: true });
+    const handleCallAccepted = (signal) => {
       peer.signal(signal);
-    });
+      set({ callAccepted: true });
+    };
 
-    set({ connectionRef: peer });
+    socket.on("callAccepted", handleCallAccepted);
+
+    set((state) => ({
+        peers: [...state.peers, { peer, userId: id }]
+    }));
   },
 
   leaveCall: () => {
     set({ callEnded: true });
-    const { connectionRef, stream, callPartnerId, callAccepted } = get();
+    const { peers, stream } = get();
     const socket = useAuthStore.getState().socket;
 
-    if (connectionRef) connectionRef.destroy();
+    peers.forEach(({ peer, userId }) => {
+      if (peer) peer.destroy();
+      socket.emit("endCall", { to: userId, accepted: get().callAccepted });
+    });
+
     if (stream) stream.getTracks().forEach(track => track.stop());
     
-    if (callPartnerId) {
-      socket.emit("endCall", { to: callPartnerId, accepted: callAccepted });
+    window.location.reload(); 
+  },
+
+  toggleAudio: () => {
+    const { stream, isMuted } = get();
+    if (stream) {
+      stream.getAudioTracks().forEach(track => {
+        track.enabled = !track.enabled;
+      });
+      set({ isMuted: !isMuted });
     }
-    
-    window.location.reload(); // Simplest way to reset all states
+  },
+
+  toggleVideo: () => {
+    const { stream, isCameraOff } = get();
+    if (stream) {
+      stream.getVideoTracks().forEach(track => {
+        track.enabled = !track.enabled;
+      });
+      set({ isCameraOff: !isCameraOff });
+    }
   },
 }));

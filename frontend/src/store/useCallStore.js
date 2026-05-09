@@ -13,6 +13,8 @@ export const useCallStore = create((set, get) => ({
   callPartnerId: null,
   isMuted: false,
   isCameraOff: false,
+  isMinimized: false,
+  showCallUI: false,
 
   initiateStream: async () => {
     try {
@@ -55,7 +57,9 @@ export const useCallStore = create((set, get) => ({
     peer.signal(incomingCall.signal);
 
     set((state) => ({
-        peers: [...state.peers, { peer, userId: incomingCall.from }]
+        peers: [...state.peers, { peer, userId: incomingCall.from }],
+        showCallUI: true,
+        isMinimized: false
     }));
   },
 
@@ -103,7 +107,9 @@ export const useCallStore = create((set, get) => ({
     socket.on("callAccepted", handleCallAccepted);
 
     set((state) => ({
-        peers: [...state.peers, { peer, userId: id }]
+        peers: [...state.peers, { peer, userId: id }],
+        showCallUI: true,
+        isMinimized: false
     }));
   },
 
@@ -135,8 +141,14 @@ export const useCallStore = create((set, get) => ({
       callPartnerId: null,
       isMuted: false,
       isCameraOff: false,
+      isMinimized: false,
+      showCallUI: false,
     });
   },
+
+  toggleMinimize: () => set((state) => ({ isMinimized: !state.isMinimized })),
+  setShowCallUI: (val) => set({ showCallUI: val }),
+  setMinimized: (val) => set({ isMinimized: val }),
 
   toggleAudio: () => {
     const { stream, isMuted } = get();

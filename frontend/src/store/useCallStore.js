@@ -54,13 +54,13 @@ export const useCallStore = create((set, get) => ({
       }));
     });
 
-    peer.signal(incomingCall.signal);
-
     set((state) => ({
-        peers: [...state.peers, { peer, userId: incomingCall.from }],
+        peers: [...state.peers.filter(p => p.userId !== incomingCall.from), { peer, userId: incomingCall.from }],
         showCallUI: true,
         isMinimized: false
     }));
+
+    peer.signal(incomingCall.signal);
   },
 
   callUser: (id) => {
@@ -100,14 +100,15 @@ export const useCallStore = create((set, get) => ({
     });
 
     const handleCallAccepted = (signal) => {
+      if (peer.destroyed) return;
       peer.signal(signal);
       set({ callAccepted: true });
     };
 
-    socket.on("callAccepted", handleCallAccepted);
+    socket.once("callAccepted", handleCallAccepted);
 
     set((state) => ({
-        peers: [...state.peers, { peer, userId: id }],
+        peers: [...state.peers.filter(p => p.userId !== id), { peer, userId: id }],
         showCallUI: true,
         isMinimized: false
     }));

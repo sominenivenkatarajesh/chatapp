@@ -14,6 +14,7 @@ const PeerVideo = ({ peerData, isMinimized }) => {
   useEffect(() => {
     if (videoRef.current && peerData.stream) {
       videoRef.current.srcObject = peerData.stream;
+      videoRef.current.play().catch(e => console.log("Play error:", e));
     }
   }, [peerData.stream]);
 
@@ -33,7 +34,6 @@ const PeerVideo = ({ peerData, isMinimized }) => {
 const CallManager = () => {
   const {
     callAccepted,
-    callEnded,
     stream,
     peers,
     answerCall,
@@ -46,9 +46,7 @@ const CallManager = () => {
     resetCallState,
     isMinimized,
     showCallUI,
-    toggleMinimize,
-    setShowCallUI,
-    setMinimized
+    toggleMinimize
   } = useCallStore();
 
   const { users } = useChatStore();
@@ -81,11 +79,11 @@ const CallManager = () => {
   }, [socket, resetCallState]);
 
   useEffect(() => {
-    if (myVideoRef.current && stream) {
+    if (myVideoRef.current && stream && !isCameraOff) {
       myVideoRef.current.srcObject = stream;
       myVideoRef.current.play().catch(e => console.log("Play error:", e));
     }
-  }, [stream]);
+  }, [stream, isCameraOff]);
 
   if (!stream && !incomingCall) return null;
 

@@ -193,6 +193,10 @@ h1, h2, h3, .font-outfit {
   background: #1a1a1a;
 }
 
+.input-field.pl-10 {
+  padding-left: 2.8rem;
+}
+
 .btn {
   padding: 0.625rem 1.25rem;
   border-radius: 999px; /* Pill-shaped buttons */

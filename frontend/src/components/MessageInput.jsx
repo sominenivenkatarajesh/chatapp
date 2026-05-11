@@ -71,7 +71,7 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="p-4 w-full bg-bg-dark border-t border-glass-border relative z-40">
+    <div className="p-3 w-full bg-[#111b21] border-t border-white/5 relative z-40">
       {(imagePreview || filePreview) && (
         <div className="mb-4 flex items-center gap-3 p-3 bg-black/40 backdrop-blur-md rounded-2xl border border-white/5 shadow-lg w-fit animate-in slide-in-from-bottom-2 fade-in">
           <div className="relative group">
@@ -158,11 +158,11 @@ const MessageInput = () => {
           disabled={!text.trim() && !imagePreview && !filePreview}
           className={`w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
             text.trim() || imagePreview || filePreview
-              ? "bg-primary text-white hover:bg-[#0077c5] hover:scale-105 cursor-pointer hover:shadow-primary/20"
+              ? "bg-[#00a884] text-white hover:scale-105 cursor-pointer shadow-md"
               : "bg-white/5 text-white/30 cursor-not-allowed"
           }`}
         >
-          <Send size={20} className={`${text.trim() || imagePreview || filePreview ? 'ml-1' : ''} transition-all`} />
+          <Send size={20} className={`${text.trim() || imagePreview || filePreview ? 'ml-1' : ''}`} />
         </button>
       </form>
     </div>

@@ -1,7 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 import { connectDB } from "./lib/db.js";
 
@@ -9,8 +16,6 @@ import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import userRoutes from "./routes/user.route.js";
 import { app, server } from "./lib/socket.js";
-
-dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 

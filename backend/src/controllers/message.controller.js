@@ -37,7 +37,7 @@ export const getMessages = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image } = req.body;
+    const { text, image, file, fileName } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
@@ -48,11 +48,19 @@ export const sendMessage = async (req, res) => {
       imageUrl = uploadResponse.secure_url;
     }
 
+    let fileUrl;
+    if (file) {
+      const uploadResponse = await cloudinary.uploader.upload(file, { resource_type: "auto" });
+      fileUrl = uploadResponse.secure_url;
+    }
+
     const newMessage = new Message({
       senderId,
       receiverId,
       text,
       image: imageUrl,
+      fileUrl,
+      fileName,
     });
 
     await newMessage.save();

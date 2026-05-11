@@ -70,6 +70,19 @@ const ChatContainer = () => {
                     className="sm:max-w-[200px] rounded-xl mb-2 object-cover"
                   />
                 )}
+                {message.fileUrl && (
+                  <a
+                    href={message.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 p-3 bg-black/20 rounded-xl mb-2 hover:bg-black/30 transition-colors"
+                  >
+                    <div className="p-2 bg-primary/20 rounded-lg text-primary">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    <span className="text-sm font-medium underline underline-offset-2 break-all">{message.fileName || "Attachment"}</span>
+                  </a>
+                )}
                 {message.text && <p>{message.text}</p>}
               </div>
               <div className={`text-[10px] text-text-muted px-1 font-medium ${message.senderId === authUser._id ? "text-right" : "text-left"}`}>

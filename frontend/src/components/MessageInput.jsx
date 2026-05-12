@@ -54,7 +54,6 @@ const MessageInput = () => {
 
       await sendMessage(messageData);
 
-      // Clear form
       setText("");
       setImagePreview(null);
       setFilePreview(null);
@@ -77,30 +76,30 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="w-full bg-[#202c33] px-4 py-2 relative z-40 flex flex-col">
+    <div className="w-full bg-wa-panel px-4 py-2 relative z-40 flex flex-col">
       {/* Attachment Preview */}
       {(imagePreview || filePreview) && (
-        <div className="absolute bottom-full left-0 right-0 p-4 bg-[#0b141a] border-t border-white/5 animate-in slide-in-from-bottom-2">
-          <div className="flex items-center gap-4 bg-[#202c33] p-4 rounded-xl shadow-2xl max-w-md">
+        <div className="absolute bottom-full left-0 right-0 p-4 bg-wa-bg border-t border-wa-border animate-in">
+          <div className="flex items-center gap-4 bg-wa-panel p-4 rounded-xl shadow-2xl max-w-md">
             <div className="relative">
               {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border border-white/10" />
+                <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border border-wa-border" />
               ) : (
-                <div className="w-24 h-24 bg-zinc-800 rounded-lg flex flex-col items-center justify-center text-white p-2">
-                  <FileText size={32} className="text-[#00a884] mb-2" />
+                <div className="w-24 h-24 bg-wa-bg rounded-lg flex flex-col items-center justify-center text-wa-primary p-2">
+                  <FileText size={32} className="text-wa-accent mb-2" />
                   <span className="text-[10px] truncate w-full text-center">{filePreview.name}</span>
                 </div>
               )}
               <button
                 onClick={removeAttachment}
-                className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-[#ed4956] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-[#ed4956] text-white flex items-center justify-center shadow-lg"
               >
                 <X size={14} />
               </button>
             </div>
             <div className="flex-1">
-              <p className="text-white text-sm font-medium">Attachment Ready</p>
-              <p className="text-zinc-400 text-xs mt-1">Press send to share</p>
+              <p className="text-wa-primary text-sm font-medium">Ready to send</p>
+              <p className="text-wa-secondary text-xs mt-1">Add a caption or press send</p>
             </div>
           </div>
         </div>
@@ -110,7 +109,7 @@ const MessageInput = () => {
         <div className="flex items-center gap-1">
           <button
             type="button"
-            className={`p-2 rounded-full hover:bg-white/5 transition-colors ${showEmojiPicker ? "text-[#00a884]" : "text-[#8696a0]"}`}
+            className={`wa-icon-btn ${showEmojiPicker ? "active" : ""}`}
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           >
             <Smile size={26} />
@@ -118,7 +117,7 @@ const MessageInput = () => {
           
           <button
             type="button"
-            className="p-2 rounded-full hover:bg-white/5 transition-colors text-[#8696a0]"
+            className="wa-icon-btn"
             onClick={() => fileInputRef.current?.click()}
           >
             <Plus size={26} />
@@ -141,7 +140,7 @@ const MessageInput = () => {
           )}
           
           <textarea
-            className="w-full bg-[#2a3942] text-[#d1d7db] rounded-lg px-4 py-2.5 outline-none resize-none max-h-32 text-[15px] placeholder-[#8696a0]"
+            className="w-full bg-wa-input text-wa-primary rounded-lg px-4 py-2.5 outline-none resize-none max-h-32 text-[15px] placeholder-wa-muted"
             placeholder="Type a message"
             rows="1"
             value={text}
@@ -154,12 +153,12 @@ const MessageInput = () => {
           {text.trim() || imagePreview || filePreview ? (
             <button
               onClick={handleSendMessage}
-              className="p-2.5 text-[#8696a0] hover:text-[#00a884] transition-colors"
+              className="wa-icon-btn active"
             >
               <Send size={24} />
             </button>
           ) : (
-            <button className="p-2.5 text-[#8696a0]">
+            <button className="wa-icon-btn">
               <Mic size={24} />
             </button>
           )}
@@ -170,4 +169,5 @@ const MessageInput = () => {
 };
 
 export default MessageInput;
+
 

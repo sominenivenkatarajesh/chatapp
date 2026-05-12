@@ -4,8 +4,27 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>Chatly</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#00a884',
+              'bg-main': '#0b141a',
+              'wa-panel': '#202c33',
+              'wa-sidebar': '#111b21',
+              'wa-incoming': '#202c33',
+              'wa-outgoing': '#005c4b',
+              'glass-border': 'rgba(255, 255, 255, 0.1)',
+            }
+          }
+        }
+      }
+    </script>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

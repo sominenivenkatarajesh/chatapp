@@ -1,4 +1,4 @@
-import { Phone, Video, X, UserMinus } from "lucide-react";
+import { Phone, Video, X, UserMinus, Search, MoreVertical } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useCallStore } from "../store/useCallStore";
@@ -28,49 +28,48 @@ const ChatHeader = () => {
   };
 
   return (
-    <div className="px-4 py-3 border-b border-white/5 bg-[#202c33] shadow-md z-20">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          {/* Avatar */}
-          <div className="relative cursor-pointer hover:opacity-80 transition-opacity">
-            <img 
-              src={selectedUser.profilePic || "/avatar.png"} 
-              alt={selectedUser.fullName} 
-              className="size-11 rounded-full object-cover border border-glass-border" 
-            />
-            {onlineUsers.includes(selectedUser._id) && (
-              <span className="absolute bottom-0 right-0 size-3.5 bg-green-500 border-2 border-bg-card rounded-full"></span>
-            )}
-          </div>
-
-          {/* User info */}
-          <div>
-            <h3 className="font-bold text-[16px] leading-tight tracking-wide">{selectedUser.fullName}</h3>
-            <p className={`text-[13px] font-medium mt-0.5 ${onlineUsers.includes(selectedUser._id) ? "text-primary" : "text-text-muted"}`}>
-              {onlineUsers.includes(selectedUser._id) ? "Active Now" : "Offline"}
-            </p>
-          </div>
+    <div className="h-[60px] px-4 border-b border-[#313d45] bg-[#202c33] z-20 flex items-center justify-between">
+      <div className="flex items-center gap-4 flex-1">
+        {/* Avatar */}
+        <div className="relative cursor-pointer hover:opacity-90 transition-opacity">
+          <img 
+            src={selectedUser.profilePic || "/avatar.png"} 
+            alt={selectedUser.fullName} 
+            className="size-10 rounded-full object-cover" 
+          />
         </div>
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-2">
-          <button className="p-2.5 rounded-full hover:bg-white/10 text-primary transition-colors cursor-pointer" onClick={handleCall}>
-            <Phone className="size-[22px]" />
-          </button>
-          <button className="p-2.5 rounded-full hover:bg-white/10 text-primary transition-colors cursor-pointer" onClick={handleCall}>
-            <Video className="size-[22px]" />
-          </button>
-          <div className="w-px h-6 bg-glass-border mx-1"></div>
-          <button className="p-2.5 rounded-full hover:bg-red-500/10 text-text-muted hover:text-red-500 transition-colors cursor-pointer" onClick={handleRemoveFriend} title="Remove Friend">
-            <UserMinus className="size-5" />
-          </button>
-          <button className="p-2.5 rounded-full hover:bg-white/10 text-text-muted transition-colors cursor-pointer" onClick={() => setSelectedUser(null)}>
-            <X className="size-[22px]" />
-          </button>
+        {/* User info */}
+        <div className="flex flex-col min-w-0">
+          <h3 className="font-medium text-[#d1d7db] text-[16px] leading-tight truncate">{selectedUser.fullName}</h3>
+          <p className={`text-[13px] mt-0.5 ${onlineUsers.includes(selectedUser._id) ? "text-[#00a884]" : "text-[#8696a0]"}`}>
+            {onlineUsers.includes(selectedUser._id) ? "online" : "offline"}
+          </p>
         </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex items-center gap-3 text-[#aebac1]">
+        <button className="p-2 rounded-full hover:bg-white/5 transition-colors" onClick={handleCall} title="Voice Call">
+          <Phone className="size-5" />
+        </button>
+        <button className="p-2 rounded-full hover:bg-white/5 transition-colors" onClick={handleCall} title="Video Call">
+          <Video className="size-6" />
+        </button>
+        <div className="w-px h-6 bg-[#313d45] mx-1"></div>
+        <button className="p-2 rounded-full hover:bg-white/5 transition-colors" title="Search Message">
+          <Search className="size-5" />
+        </button>
+        <button className="p-2 rounded-full hover:bg-red-500/10 hover:text-red-500 transition-colors" onClick={handleRemoveFriend} title="Remove Friend">
+          <UserMinus className="size-5" />
+        </button>
+        <button className="p-2 rounded-full hover:bg-white/5 transition-colors" onClick={() => setSelectedUser(null)} title="Close Chat">
+          <X className="size-6" />
+        </button>
       </div>
     </div>
   );
 };
 
 export default ChatHeader;
+

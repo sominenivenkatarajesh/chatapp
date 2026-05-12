@@ -8,16 +8,15 @@ const HomePage = () => {
   const { selectedUser } = useChatStore();
 
   return (
-    <div className="h-screen bg-bg-main pt-20">
-      <div className="flex items-center justify-center px-4 h-[calc(100vh-8rem)]">
-        <div className="glass-morphism w-full max-w-6xl h-full flex overflow-hidden">
-          <Sidebar />
+    <div className="h-screen bg-[#111b21] flex items-center justify-center overflow-hidden">
+      <div className="w-full h-full lg:h-[95vh] lg:w-[98%] lg:max-w-[1600px] flex shadow-2xl overflow-hidden bg-[#222e35]">
+        <Sidebar />
 
-          {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
-        </div>
+        {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
       </div>
     </div>
   );
 };
 
 export default HomePage;
+

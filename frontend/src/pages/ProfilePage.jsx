@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Camera, Mail, User, Shield } from "lucide-react";
+import { Camera, Mail, User, Shield, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ProfilePage = () => {
-  const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
+  const { authUser, isUpdatingProfile, updateProfile, deleteAccount } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm("Are you sure you want to delete your account? This action is permanent and will delete all your messages.")) {
+      await deleteAccount();
+    }
+  };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -163,6 +169,19 @@ const ProfilePage = () => {
                       {authUser?.friends?.length || 0}
                     </span>
                   </div>
+
+                  <div className="pt-4 mt-auto">
+                    <button
+                      onClick={handleDeleteAccount}
+                      className="w-full flex items-center justify-center gap-2 p-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-2xl transition-all duration-300 font-bold group"
+                    >
+                      <Trash2 size={20} className="transition-transform group-hover:scale-110" />
+                      Delete Account
+                    </button>
+                    <p className="text-[10px] text-red-500/60 text-center mt-2 font-medium">
+                      Warning: This action is irreversible.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -171,6 +190,7 @@ const ProfilePage = () => {
         </div>
       </div>
     </div>
+
   );
 };
 

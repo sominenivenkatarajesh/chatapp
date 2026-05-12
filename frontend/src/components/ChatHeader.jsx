@@ -1,4 +1,4 @@
-import { Phone, Video, X, UserMinus, Search, MoreVertical } from "lucide-react";
+import { Phone, Video, X, UserMinus, Search, MoreVertical, ArrowLeft } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useCallStore } from "../store/useCallStore";
@@ -29,9 +29,18 @@ const ChatHeader = () => {
 
   return (
     <div className="h-[60px] px-4 border-b border-[#313d45] bg-[#202c33] z-20 flex items-center justify-between">
-      <div className="flex items-center gap-4 flex-1">
+      <div className="flex items-center gap-2 sm:gap-4 flex-1">
+        {/* Back Button (Mobile only) */}
+        <button 
+          className="lg:hidden p-2 -ml-2 text-[#aebac1] hover:bg-white/5 rounded-full transition-colors"
+          onClick={() => setSelectedUser(null)}
+        >
+          <ArrowLeft className="size-6" />
+        </button>
+
         {/* Avatar */}
         <div className="relative cursor-pointer hover:opacity-90 transition-opacity">
+
           <img 
             src={selectedUser.profilePic || "/avatar.png"} 
             alt={selectedUser.fullName} 

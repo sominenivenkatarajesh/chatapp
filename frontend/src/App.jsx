@@ -31,35 +31,19 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-bg-main text-text-main">
-      <Routes>
-        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
-        <Route path="/signup" element={!authUser ? (
-          <>
-            <Navbar />
-            <main className="pt-4"><SignUpPage /></main>
-          </>
-        ) : <Navigate to="/" />} />
-        <Route path="/login" element={!authUser ? (
-          <>
-            <Navbar />
-            <main className="pt-4"><LoginPage /></main>
-          </>
-        ) : <Navigate to="/" />} />
-        <Route path="/profile" element={authUser ? (
-          <>
-            <Navbar />
-            <main className="pt-4"><ProfilePage /></main>
-          </>
-        ) : <Navigate to="/login" />} />
-        <Route path="/dashboard" element={authUser ? (
-          <>
-            <Navbar />
-            <main className="pt-4"><DashboardPage /></main>
-          </>
-        ) : <Navigate to="/login" />} />
-      </Routes>
-
+      <Navbar />
       <CallManager />
+
+      <main className="pt-20">
+        <Routes>
+          <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
+          <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
+          <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
+          <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+          <Route path="/dashboard" element={authUser ? <DashboardPage /> : <Navigate to="/login" />} />
+        </Routes>
+      </main>
+
 
 
 

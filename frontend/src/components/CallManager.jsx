@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useCallStore } from "../store/useCallStore";
 import { useAuthStore } from "../store/useAuthStore";
-import { Phone, PhoneOff, Video, VideoOff, Maximize2, Minimize2, UserPlus, X } from "lucide-react";
+import { Phone, PhoneOff, Video, VideoOff, Maximize2, Minimize2, UserPlus, X, User } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,7 +20,16 @@ const PeerVideo = ({ peerData, isMinimized }) => {
 
   return (
     <div className={`relative bg-zinc-900 rounded-2xl overflow-hidden border border-glass-border shadow-xl ${isMinimized ? 'aspect-square' : 'aspect-video'}`}>
-      <video playsInline ref={videoRef} autoPlay className="w-full h-full object-cover" />
+      {peerData.stream ? (
+        <video playsInline ref={videoRef} autoPlay className="w-full h-full object-cover" />
+      ) : (
+        <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-800/50 backdrop-blur-sm">
+           <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 animate-pulse">
+              <User className="size-8 text-primary/50" />
+           </div>
+           <p className="mt-4 text-xs text-zinc-400 font-medium animate-pulse uppercase tracking-widest">Connecting...</p>
+        </div>
+      )}
       {!isMinimized && (
         <div className="absolute bottom-4 left-4 px-3 py-1 bg-black/50 backdrop-blur-md rounded-lg text-xs border border-white/10 flex items-center gap-2">
           <div className="size-2 rounded-full bg-green-500 animate-pulse" />
@@ -209,7 +218,7 @@ const CallManager = () => {
                 </div>
 
                 {peers.map((peerData) => (
-                  peerData.stream && <PeerVideo key={peerData.userId} peerData={peerData} isMinimized={isMinimized} />
+                   <PeerVideo key={peerData.userId} peerData={peerData} isMinimized={isMinimized} />
                 ))}
               </div>
             </div>

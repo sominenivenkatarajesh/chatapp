@@ -9,12 +9,21 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  unreadCounts: {}, // { userId: count }
 
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/users");
-      set({ users: res.data });
+      const users = res.data;
+      set({ users });
+
+      // Initialize unread counts from server
+      const counts = {};
+      users.forEach(user => {
+        counts[user._id] = user.unreadCount || 0;
+      });
+      set({ unreadCounts: counts });
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
@@ -22,11 +31,14 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/messages/${userId}`);
       set({ messages: res.data });
+      // When opening chat, mark as seen
+      get().markMessagesAsSeen(userId);
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
@@ -44,26 +56,62 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  subscribeToMessages: () => {
-    const { selectedUser } = get();
-    if (!selectedUser) return;
+  markMessagesAsSeen: async (userId) => {
+    try {
+      await axiosInstance.post(`/messages/mark-seen/${userId}`);
+      // Clear local unread count
+      set((state) => ({
+        unreadCounts: { ...state.unreadCounts, [userId]: 0 }
+      }));
+    } catch (error) {
+      console.log("Error in markMessagesAsSeen:", error);
+    }
+  },
 
+  subscribeToMessages: () => {
     const socket = useAuthStore.getState().socket;
+    if (!socket) return;
 
     socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-      if (!isMessageSentFromSelectedUser) return;
+      const { selectedUser, messages, unreadCounts } = get();
+      
+      if (selectedUser && newMessage.senderId === selectedUser._id) {
+        set({ messages: [...messages, newMessage] });
+        get().markMessagesAsSeen(selectedUser._id);
+      } else {
+        // Increment unread count for the sender
+        set({
+          unreadCounts: {
+            ...unreadCounts,
+            [newMessage.senderId]: (unreadCounts[newMessage.senderId] || 0) + 1
+          }
+        });
+      }
+    });
 
-      set({
-        messages: [...get().messages, newMessage],
-      });
+    socket.on("messagesSeen", ({ seenBy }) => {
+      const { selectedUser, messages } = get();
+      if (selectedUser && seenBy === selectedUser._id) {
+        set({
+          messages: messages.map((m) => ({ ...m, isSeen: true }))
+        });
+      }
     });
   },
 
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
-    socket.off("newMessage");
+    if (socket) {
+      socket.off("newMessage");
+      socket.off("messagesSeen");
+    }
   },
 
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
+  setSelectedUser: (selectedUser) => {
+    set({ selectedUser });
+    if (selectedUser) {
+      get().markMessagesAsSeen(selectedUser._id);
+    }
+  },
+
 }));

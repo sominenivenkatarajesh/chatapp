@@ -94,16 +94,24 @@ const Sidebar = () => {
                     {user.fullName}
                   </span>
                   <span className={`text-[12px] ${isOnline ? "text-wa-accent font-medium" : "text-wa-muted"}`}>
-                    {isOnline ? "online" : "offline"}
-                  </span>
-                </div>
-                <div className="text-[14px] truncate text-wa-secondary mt-0.5">
+                  {isOnline ? "online" : "offline"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center mt-0.5">
+                <div className="text-[14px] truncate text-wa-secondary flex-1">
                   {isOnline ? "Active now" : "Last seen recently"}
                 </div>
+                {unreadCounts[user._id] > 0 && (
+                  <div className="bg-wa-accent text-white text-[11px] font-bold min-w-[20px] h-[20px] rounded-full flex items-center justify-center px-1 animate-in zoom-in duration-300">
+                    {unreadCounts[user._id]}
+                  </div>
+                )}
               </div>
-            </button>
-          );
-        })}
+            </div>
+          </button>
+        );
+      })}
+
 
         {filteredUsers.length === 0 && (
           <div className="text-center text-wa-muted py-12 px-6">

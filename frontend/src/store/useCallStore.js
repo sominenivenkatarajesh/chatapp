@@ -45,13 +45,20 @@ export const useCallStore = create((set, get) => ({
     });
 
     peer.on("signal", (data) => {
+      console.log("Receiver: Signaling...");
       socket.emit("answerCall", { signal: data, to: incomingCall.from });
     });
 
     peer.on("stream", (currentStream) => {
+      console.log("Receiver: Stream received!", currentStream);
       set((state) => ({
-        peers: [...state.peers.filter(p => p.userId !== incomingCall.from), { peer, userId: incomingCall.from, stream: currentStream }]
+        peers: state.peers.map(p => p.userId === incomingCall.from ? { ...p, stream: currentStream } : p)
       }));
+    });
+
+    peer.on("error", (err) => {
+      console.error("Receiver: Peer error:", err);
+      toast.error("Connection error");
     });
 
     set((state) => ({
@@ -64,12 +71,13 @@ export const useCallStore = create((set, get) => ({
   },
 
   callUser: (id) => {
-    // Check if already in call with this person
     if (get().peers.find(p => p.userId === id)) return;
 
     const { stream } = get();
     const socket = useAuthStore.getState().socket;
     const authUser = useAuthStore.getState().authUser;
+
+    console.log("Initiating call to:", id);
 
     const peer = new Peer({ 
       initiator: true, 
@@ -85,6 +93,7 @@ export const useCallStore = create((set, get) => ({
     });
 
     peer.on("signal", (data) => {
+      console.log("Initiator: Signaling...");
       socket.emit("callUser", {
         userToCall: id,
         signalData: data,
@@ -94,12 +103,19 @@ export const useCallStore = create((set, get) => ({
     });
 
     peer.on("stream", (currentStream) => {
+      console.log("Initiator: Stream received!", currentStream);
       set((state) => ({
-        peers: [...state.peers.filter(p => p.userId !== id), { peer, userId: id, stream: currentStream }]
+        peers: state.peers.map(p => p.userId === id ? { ...p, stream: currentStream } : p)
       }));
     });
 
+    peer.on("error", (err) => {
+      console.error("Initiator: Peer error:", err);
+      toast.error("Failed to connect");
+    });
+
     const handleCallAccepted = (signal) => {
+      console.log("Initiator: Call accepted by receiver");
       if (peer.destroyed) return;
       peer.signal(signal);
       set({ callAccepted: true });

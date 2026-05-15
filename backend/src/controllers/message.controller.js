@@ -9,12 +9,24 @@ export const getUsersForSidebar = async (req, res) => {
     const loggedInUserId = req.user._id;
     const user = await User.findById(loggedInUserId).populate("friends", "-password");
 
-    res.status(200).json(user.friends);
+    const usersWithUnreadCounts = await Promise.all(
+      user.friends.map(async (friend) => {
+        const unreadCount = await Message.countDocuments({
+          senderId: friend._id,
+          receiverId: loggedInUserId,
+          isSeen: false,
+        });
+        return { ...friend.toObject(), unreadCount };
+      })
+    );
+
+    res.status(200).json(usersWithUnreadCounts);
   } catch (error) {
     console.error("Error in getUsersForSidebar: ", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const getMessages = async (req, res) => {
   try {
@@ -76,3 +88,26 @@ export const sendMessage = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const markMessagesAsSeen = async (req, res) => {
+  try {
+    const { id: userToChatId } = req.params;
+    const myId = req.user._id;
+
+    await Message.updateMany(
+      { senderId: userToChatId, receiverId: myId, isSeen: false },
+      { $set: { isSeen: true } }
+    );
+
+    const senderSocketId = getReceiverSocketId(userToChatId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("messagesSeen", { seenBy: myId });
+    }
+
+    res.status(200).json({ message: "Messages marked as seen" });
+  } catch (error) {
+    console.log("Error in markMessagesAsSeen controller: ", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+

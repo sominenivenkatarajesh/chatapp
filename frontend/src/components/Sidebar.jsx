@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { Search, User } from "lucide-react";
+import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 
 const Sidebar = () => {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, unreadCounts } = useChatStore();
@@ -25,7 +26,7 @@ const Sidebar = () => {
 
   const onlineCount = users.filter(u => onlineUsers.includes(u._id)).length;
 
-  if (isUsersLoading) return <div className="w-full lg:w-[400px] border-r border-wa-border flex flex-col bg-wa-sidebar"></div>;
+  if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
     <aside className="h-full w-full lg:w-[400px] flex flex-col transition-all duration-300 bg-wa-sidebar z-10 border-r border-wa-border">

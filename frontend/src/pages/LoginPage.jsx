@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
+import { motion } from "framer-motion";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);

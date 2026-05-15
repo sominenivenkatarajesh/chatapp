@@ -52,7 +52,7 @@ const App = () => {
     );
 
   return (
-    <div className="min-h-screen bg-bg-main text-text-main">
+    <div className="min-h-screen bg-bg-main text-[#d1d7db]">
       <Navbar />
       <CallManager />
 

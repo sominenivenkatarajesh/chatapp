@@ -15,6 +15,12 @@ export const useAuthStore = create((set, get) => ({
   socket: null,
 
   checkAuth: async () => {
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+      set({ authUser: null, isCheckingAuth: false });
+      return;
+    }
+
     try {
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data });

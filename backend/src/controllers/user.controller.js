@@ -19,8 +19,8 @@ export const searchUsers = async (req, res) => {
 
     const usersWithStatus = users.map((user) => {
       const userObj = user.toObject();
-      userObj.requestSent = user.friendRequests.some(
-        (req) => req.from.toString() === myId.toString()
+      userObj.requestSent = (user.friendRequests || []).some(
+        (req) => req.from?.toString() === myId.toString()
       );
       return userObj;
     });
@@ -40,8 +40,9 @@ export const sendFriendRequest = async (req, res) => {
     const targetUser = await User.findById(userId);
     if (!targetUser) return res.status(404).json({ message: "User not found" });
 
+    if (!targetUser.friendRequests) targetUser.friendRequests = [];
     const alreadySent = targetUser.friendRequests.some(
-      (req) => req.from.toString() === myId.toString()
+      (req) => req.from?.toString() === myId.toString()
     );
     if (alreadySent) return res.status(400).json({ message: "Request already sent" });
 
@@ -70,8 +71,9 @@ export const handleFriendRequest = async (req, res) => {
     const myId = req.user._id;
 
     const me = await User.findById(myId);
+    if (!me.friendRequests) me.friendRequests = [];
     const requestIndex = me.friendRequests.findIndex(
-      (req) => req._id.toString() === requestId
+      (req) => req._id?.toString() === requestId
     );
 
     if (requestIndex === -1) return res.status(404).json({ message: "Request not found" });

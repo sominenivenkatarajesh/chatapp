@@ -15,16 +15,16 @@ const Sidebar = () => {
 
   // Sort and filter users
   const filteredUsers = users
-    .filter((user) => user.fullName.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter((user) => (user?.fullName || "").toLowerCase().includes((searchTerm || "").toLowerCase()))
     .sort((a, b) => {
-      const aOnline = onlineUsers.includes(a._id);
-      const bOnline = onlineUsers.includes(b._id);
+      const aOnline = onlineUsers?.includes(a._id);
+      const bOnline = onlineUsers?.includes(b._id);
       if (aOnline && !bOnline) return -1;
       if (!aOnline && bOnline) return 1;
       return 0;
     });
 
-  const onlineCount = users.filter(u => onlineUsers.includes(u._id)).length;
+  const onlineCount = users.filter(u => onlineUsers?.includes(u._id)).length;
 
   if (isUsersLoading) return <SidebarSkeleton />;
 
@@ -65,7 +65,7 @@ const Sidebar = () => {
       {/* User List */}
       <div className="overflow-y-auto w-full custom-scrollbar flex-1 bg-wa-sidebar">
         {filteredUsers.map((user) => {
-          const isOnline = onlineUsers.includes(user._id);
+          const isOnline = onlineUsers?.includes(user._id);
           return (
             <button
               key={user._id}

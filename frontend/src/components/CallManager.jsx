@@ -252,7 +252,7 @@ const CallManager = () => {
                       <div className="absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-80 glass-morphism p-4 border border-glass-border shadow-2xl z-[110] animate-in slide-in-from-bottom-2">
                         <h4 className="text-sm font-semibold mb-4 border-b border-white/5 pb-3">Invite to Session</h4>
                         <div className="max-h-60 overflow-y-auto custom-scrollbar flex flex-col gap-2">
-                          {users.filter(u => onlineUsers.includes(u._id) && !peers.find(p => p.userId === u._id)).map(user => (
+                          {users.filter(u => onlineUsers?.includes(u._id) && !peers.find(p => p.userId === u._id)).map(user => (
                             <button
                               key={user._id}
                               onClick={() => {

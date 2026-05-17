@@ -63,6 +63,8 @@ const App = () => {
           <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
           <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
           <Route path="/dashboard" element={authUser ? <DashboardPage /> : <Navigate to="/login" />} />
+          {/* Fallback wildcard to redirect mistyped routes like /homepage */}
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
 

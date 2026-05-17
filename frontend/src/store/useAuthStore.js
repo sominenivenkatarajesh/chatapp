@@ -5,6 +5,31 @@ import { io } from "socket.io-client";
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : import.meta.env.VITE_API_URL;
 
+const isTokenExpired = (token) => {
+  try {
+    const payloadBase64 = token.split(".")[1];
+    if (!payloadBase64) return true;
+    
+    // Decode base64url safely
+    const normalizedPayload = payloadBase64.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(normalizedPayload)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    
+    const { exp } = JSON.parse(jsonPayload);
+    if (!exp) return false;
+    
+    const currentTime = Math.floor(Date.now() / 1000);
+    return exp < currentTime;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return true; // Treat as expired on error
+  }
+};
+
 export const useAuthStore = create((set, get) => ({
   authUser: null,
   isSigningUp: false,
@@ -16,7 +41,8 @@ export const useAuthStore = create((set, get) => ({
 
   checkAuth: async () => {
     const token = localStorage.getItem("jwt");
-    if (!token) {
+    if (!token || token === "undefined" || token === "null" || isTokenExpired(token)) {
+      localStorage.removeItem("jwt");
       set({ authUser: null, isCheckingAuth: false });
       return;
     }

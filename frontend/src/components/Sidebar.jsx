@@ -29,23 +29,30 @@ const Sidebar = () => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full w-full lg:w-[400px] flex flex-col transition-all duration-300 bg-wa-sidebar z-10 border-r border-wa-border">
+    <aside className="h-full w-full lg:w-[360px] flex flex-col bg-[#0f0f13]/80 backdrop-blur-2xl z-10 border-r border-white/5 transition-all duration-300">
       {/* Sidebar Header */}
-      <div className="h-[60px] bg-wa-panel px-4 flex items-center justify-between">
-        <h2 className="text-wa-primary font-bold text-lg">Chats</h2>
-        <div className="flex items-center gap-2 text-wa-secondary">
-          <User size={20} />
+      <div className="h-[72px] px-6 flex items-center justify-between border-b border-white/5 bg-transparent">
+        <h2 className="text-white font-extrabold text-xl tracking-tight flex items-center gap-2">
+          <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4 text-white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </span>
+          Messages
+        </h2>
+        <div className="flex items-center gap-3 text-white/50">
+          <button className="hover:text-white hover:bg-white/10 p-2 rounded-full transition-all">
+            <User size={20} />
+          </button>
         </div>
       </div>
 
       {/* Search Bar */}
-      <div className="px-3 py-2 bg-wa-sidebar border-b border-wa-border/30">
-        <div className="relative flex items-center bg-wa-panel rounded-lg px-3 py-1.5 focus-within:bg-wa-active transition-colors">
-          <Search className="size-4 text-wa-secondary mr-4" />
+      <div className="px-5 py-4 border-b border-white/5 bg-transparent">
+        <div className="relative flex items-center bg-black/20 border border-white/5 rounded-2xl px-4 py-2.5 focus-within:bg-black/40 focus-within:border-indigo-500/50 focus-within:shadow-[0_0_15px_rgba(99,102,241,0.15)] transition-all">
+          <Search className="size-4.5 text-white/40 mr-3" />
           <input
             type="text"
-            placeholder="Search contacts..."
-            className="bg-transparent border-none outline-none text-wa-primary text-[14px] w-full placeholder-wa-muted"
+            placeholder="Search conversations..."
+            className="bg-transparent border-none outline-none text-white text-[14px] w-full placeholder-white/30"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -53,71 +60,78 @@ const Sidebar = () => {
       </div>
 
       {/* Stats Summary */}
-      <div className="px-4 py-3 bg-wa-sidebar border-b border-wa-border/10 flex justify-between items-center">
-        <span className="text-[12px] text-wa-accent font-bold uppercase tracking-wider">
+      <div className="px-6 py-3 flex justify-between items-center text-xs font-semibold tracking-wider uppercase text-white/40 bg-transparent">
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
           {onlineCount} Online
         </span>
-        <span className="text-[12px] text-wa-muted font-bold uppercase tracking-wider">
+        <span>
           {users.length} Total
         </span>
       </div>
 
       {/* User List */}
-      <div className="overflow-y-auto w-full custom-scrollbar flex-1 bg-wa-sidebar">
+      <div className="overflow-y-auto w-full custom-scrollbar flex-1 px-3 space-y-1 pb-4">
         {filteredUsers.map((user) => {
           const isOnline = onlineUsers?.includes(user._id);
+          const isSelected = selectedUser?._id === user._id;
+          
           return (
             <button
               key={user._id}
               onClick={() => setSelectedUser(user)}
               className={`
-                w-full h-[72px] px-3 flex items-center gap-3 cursor-pointer
-                transition-colors duration-100
-                ${selectedUser?._id === user._id ? "bg-wa-active" : "hover:bg-wa-hover"}
+                w-full p-3 flex items-center gap-3 cursor-pointer rounded-2xl
+                transition-all duration-200 border border-transparent
+                ${isSelected 
+                  ? "bg-white/10 border-white/10 shadow-lg backdrop-blur-md" 
+                  : "hover:bg-white/5 hover:border-white/5"}
               `}
             >
-              <div className="relative flex-shrink-0 ml-1">
+              <div className="relative flex-shrink-0">
                 <img
                   src={user.profilePic || "/avatar.png"}
                   alt={user.fullName}
-                  className="size-12 object-cover rounded-full"
+                  className={`size-12 object-cover rounded-2xl transition-transform duration-300 ${isSelected ? "scale-105 shadow-md" : ""}`}
                 />
-                <span
-                  className={`absolute bottom-0.5 right-0.5 size-3 rounded-full border-2 border-wa-sidebar
-                    ${isOnline ? "bg-wa-accent" : "bg-[#3b4a54]"}
-                  `}
-                />
-              </div>
-
-              <div className="flex flex-col text-left min-w-0 flex-1 h-full justify-center border-b border-wa-border/30 pr-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-normal truncate text-wa-primary text-[17px]">
-                    {user.fullName}
-                  </span>
-                  <span className={`text-[12px] ${isOnline ? "text-wa-accent font-medium" : "text-wa-muted"}`}>
-                  {isOnline ? "online" : "offline"}
-                </span>
-              </div>
-              <div className="flex justify-between items-center mt-0.5">
-                <div className="text-[14px] truncate text-wa-secondary flex-1">
-                  {isOnline ? "Active now" : "Last seen recently"}
-                </div>
-                {(unreadCounts?.[user._id] || 0) > 0 && (
-                  <div className="bg-wa-accent text-white text-[11px] font-bold min-w-[20px] h-[20px] rounded-full flex items-center justify-center px-1 animate-in zoom-in duration-300">
-                    {unreadCounts[user._id]}
-                  </div>
+                {isOnline && (
+                  <span className="absolute -bottom-1 -right-1 size-3.5 rounded-full bg-emerald-500 border-2 border-[#0f0f13] shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                 )}
               </div>
-            </div>
-          </button>
-        );
-      })}
+
+              <div className="flex flex-col text-left min-w-0 flex-1 justify-center pr-1">
+                <div className="flex justify-between items-center mb-0.5">
+                  <span className={`font-semibold truncate text-[15px] ${isSelected ? "text-white" : "text-white/90"}`}>
+                    {user.fullName}
+                  </span>
+                  <span className={`text-[11px] font-medium tracking-wide ${isOnline ? "text-emerald-400" : "text-white/30"}`}>
+                    {isOnline ? "ONLINE" : "OFFLINE"}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div className={`text-[13px] truncate flex-1 ${isSelected ? "text-indigo-200" : "text-white/50"}`}>
+                    {isOnline ? "Active now" : "Last seen recently"}
+                  </div>
+                  {(unreadCounts?.[user._id] || 0) > 0 && (
+                    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[11px] font-bold min-w-[20px] h-[20px] rounded-full flex items-center justify-center px-1.5 shadow-[0_2px_8px_rgba(99,102,241,0.5)] animate-in zoom-in duration-300">
+                      {unreadCounts[user._id]}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </button>
+          );
+        })}
 
 
         {filteredUsers.length === 0 && (
-          <div className="text-center text-wa-muted py-12 px-6">
-            <p className="text-sm font-medium">No contacts found</p>
-            <p className="text-xs mt-1">Try a different search term</p>
+          <div className="text-center text-white/40 py-16 px-6 flex flex-col items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+              <Search size={24} className="opacity-50" />
+            </div>
+            <p className="text-sm font-semibold text-white/70">No conversations found</p>
+            <p className="text-xs mt-1.5 opacity-70">Try searching for a different name</p>
           </div>
         )}
       </div>

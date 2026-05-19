@@ -28,52 +28,51 @@ const ChatHeader = () => {
   };
 
   return (
-    <div className="h-[60px] px-4 border-b border-white/5 bg-transparent z-20 flex items-center justify-between">
-      <div className="flex items-center gap-2 sm:gap-4 flex-1">
+    <div className="h-[72px] px-6 border-b border-white/5 bg-white/5 backdrop-blur-md z-20 flex items-center justify-between shadow-sm">
+      <div className="flex items-center gap-3 sm:gap-4 flex-1">
         {/* Back Button (Mobile only) */}
         <button 
-          className="lg:hidden p-2 -ml-2 text-indigo-200/70 hover:bg-white/5 rounded-full transition-colors"
+          className="lg:hidden p-2.5 -ml-3 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-all"
           onClick={() => setSelectedUser(null)}
         >
-          <ArrowLeft className="size-6" />
+          <ArrowLeft className="size-5" />
         </button>
 
         {/* Avatar */}
-        <div className="relative cursor-pointer hover:opacity-90 transition-opacity">
-
+        <div className="relative cursor-pointer hover:opacity-90 transition-all hover:scale-105">
           <img 
             src={selectedUser.profilePic || "/avatar.png"} 
             alt={selectedUser.fullName} 
-            className="size-10 rounded-full object-cover" 
+            className="size-11 rounded-2xl object-cover shadow-md shadow-black/20" 
           />
+          {onlineUsers.includes(selectedUser._id) && (
+            <span className="absolute -bottom-1 -right-1 size-3.5 rounded-full bg-emerald-500 border-2 border-[#1e1e24] shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+          )}
         </div>
 
         {/* User info */}
-        <div className="flex flex-col min-w-0">
-          <h3 className="font-bold text-white text-[16px] leading-tight truncate">{selectedUser.fullName}</h3>
-          <p className={`text-[13px] mt-0.5 ${onlineUsers.includes(selectedUser._id) ? "text-indigo-400" : "text-indigo-200/60"}`}>
+        <div className="flex flex-col min-w-0 justify-center">
+          <h3 className="font-bold text-white text-[16px] tracking-wide leading-tight truncate">{selectedUser.fullName}</h3>
+          <p className={`text-[12px] font-medium tracking-wider uppercase mt-1 ${onlineUsers.includes(selectedUser._id) ? "text-emerald-400" : "text-white/40"}`}>
             {onlineUsers.includes(selectedUser._id) ? "online" : "offline"}
           </p>
         </div>
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center gap-3 text-indigo-200/70">
-        <button className="p-2 rounded-full hover:bg-white/5 transition-colors" onClick={handleCall} title="Voice Call">
-          <Phone className="size-5" />
+      <div className="flex items-center gap-2 sm:gap-3 text-white/50">
+        <button className="p-2.5 rounded-full hover:bg-white/10 hover:text-white transition-all shadow-sm" onClick={handleCall} title="Voice Call">
+          <Phone className="size-[18px]" />
         </button>
-        <button className="p-2 rounded-full hover:bg-white/5 transition-colors" onClick={handleCall} title="Video Call">
-          <Video className="size-6" />
+        <button className="p-2.5 rounded-full hover:bg-white/10 hover:text-white transition-all shadow-sm" onClick={handleCall} title="Video Call">
+          <Video className="size-5" />
         </button>
         <div className="w-px h-6 bg-white/10 mx-1"></div>
-        <button className="p-2 rounded-full hover:bg-white/5 transition-colors" title="Search Message">
-          <Search className="size-5" />
+        <button className="p-2.5 rounded-full hover:bg-white/10 hover:text-white transition-all shadow-sm" title="Search Message">
+          <Search className="size-[18px]" />
         </button>
-        <button className="p-2 rounded-full hover:bg-red-500/10 hover:text-red-500 transition-colors" onClick={handleRemoveFriend} title="Remove Friend">
-          <UserMinus className="size-5" />
-        </button>
-        <button className="p-2 rounded-full hover:bg-white/5 transition-colors" onClick={() => setSelectedUser(null)} title="Close Chat">
-          <X className="size-6" />
+        <button className="p-2.5 rounded-full hover:bg-red-500/10 hover:text-red-500 transition-all shadow-sm" onClick={handleRemoveFriend} title="Remove Friend">
+          <UserMinus className="size-[18px]" />
         </button>
       </div>
     </div>

@@ -76,7 +76,7 @@ const MessageInput = () => {
   };
 
   return (
-    <div className="w-full bg-wa-panel px-4 py-2 relative z-40 flex flex-col">
+    <div className="w-full p-4 relative z-40 flex flex-col bg-transparent">
       {/* Attachment Preview */}
       {(imagePreview || filePreview) && (
         <div className="absolute bottom-full left-0 right-0 p-4 bg-wa-bg border-t border-wa-border animate-in">
@@ -105,22 +105,22 @@ const MessageInput = () => {
         </div>
       )}
 
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-white/10 p-2 rounded-[2rem] shadow-lg">
+        <div className="flex items-center gap-1 pl-2">
           <button
             type="button"
-            className={`wa-icon-btn ${showEmojiPicker ? "active" : ""}`}
+            className={`p-2 rounded-full transition-colors ${showEmojiPicker ? "bg-indigo-500/20 text-indigo-400" : "text-white/50 hover:bg-white/10 hover:text-white"}`}
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           >
-            <Smile size={26} />
+            <Smile size={22} />
           </button>
           
           <button
             type="button"
-            className="wa-icon-btn"
+            className="p-2 rounded-full text-white/50 hover:bg-white/10 hover:text-white transition-colors"
             onClick={() => fileInputRef.current?.click()}
           >
-            <Plus size={26} />
+            <Plus size={22} />
           </button>
           <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
         </div>
@@ -140,8 +140,8 @@ const MessageInput = () => {
           )}
           
           <textarea
-            className="w-full bg-wa-input text-wa-primary rounded-lg px-4 py-2.5 outline-none resize-none max-h-32 text-[15px] placeholder-wa-muted"
-            placeholder="Type a message"
+            className="w-full bg-transparent text-white px-2 py-2.5 outline-none resize-none max-h-32 text-[15px] placeholder-white/40"
+            placeholder="Type a message..."
             rows="1"
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -149,17 +149,17 @@ const MessageInput = () => {
           />
         </div>
 
-        <div className="flex items-center justify-center w-12 h-12">
+        <div className="flex items-center justify-center pr-2">
           {text.trim() || imagePreview || filePreview ? (
             <button
               onClick={handleSendMessage}
-              className="wa-icon-btn active"
+              className="p-2.5 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white transition-all shadow-lg hover:shadow-indigo-500/25 hover:scale-105 active:scale-95"
             >
-              <Send size={24} />
+              <Send size={18} className="translate-x-[1px]" />
             </button>
           ) : (
-            <button className="wa-icon-btn">
-              <Mic size={24} />
+            <button className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors">
+              <Mic size={18} />
             </button>
           )}
         </div>

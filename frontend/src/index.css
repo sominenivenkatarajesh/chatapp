@@ -168,3 +168,95 @@ body {
 .text-text-secondary {
   color: var(--wa-text-secondary);
 }
+
+/* Premium Enhancements & Interactive Elements */
+
+/* Smooth scrollbar fallback for Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+/* Premium Glassmorphism Overlays */
+.glass-panel {
+  background: rgba(17, 27, 33, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Interactive Hover Elevation */
+.hover-elevate {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-elevate:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Soft Glowing Accent Pulse */
+@keyframes accentPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 168, 132, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px 4px rgba(0, 168, 132, 0.2);
+  }
+}
+
+.pulse-accent {
+  animation: accentPulse 2s infinite ease-in-out;
+}
+
+/* Shimmer Loading Animations for Skeletons */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 37%, rgba(255, 255, 255, 0.03) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite ease-in-out;
+}
+
+/* Premium Gradient Primary Button */
+.btn-premium {
+  background: linear-gradient(135deg, var(--wa-accent) 0%, #00d6a8 100%);
+  color: white;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 14px rgba(0, 168, 132, 0.3);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-premium:hover {
+  box-shadow: 0 6px 20px rgba(0, 168, 132, 0.4);
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.btn-premium:active {
+  transform: translateY(0);
+}
+
+/* Page entrance slide-up animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}

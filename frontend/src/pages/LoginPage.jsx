@@ -18,60 +18,69 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-bg-main overflow-hidden">
+    <div className="h-full grid lg:grid-cols-2 bg-[#060b0d] overflow-hidden relative">
+      {/* Dynamic Background Glows */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[150px]"></div>
+      </div>
+
       {/* Left Side - Form */}
       <div className="flex flex-col justify-center items-center p-6 sm:p-12 relative z-10">
         <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-full max-w-md space-y-8 glass-morphism p-10 rounded-[2rem] border-white/5"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md space-y-8 glass-morphism p-10 rounded-[2.5rem]"
         >
           {/* Logo */}
-          <div className="text-center mb-8">
+          <div className="text-center">
             <div className="flex flex-col items-center gap-4 group">
               <div
-                className="size-16 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20
-              transition-all duration-500 group-hover:rotate-12 group-hover:scale-110 border border-primary/20"
+                className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20
+              transition-all duration-500 group-hover:rotate-6 group-hover:scale-105 border border-primary/20"
               >
-                <MessageSquare className="size-8 text-primary" />
+                <MessageSquare className="size-7 text-primary" />
               </div>
-              <div className="space-y-1">
-                <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
-                <p className="text-text-muted">Sign in to your account</p>
+              <div className="space-y-1.5 mt-2">
+                <h1 className="text-3xl font-extrabold tracking-tight text-white">Welcome Back</h1>
+                <p className="text-text-secondary text-sm">Sign in to continue your conversations</p>
               </div>
             </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-sm font-semibold ml-1 text-zinc-400">Email Address</label>
+              <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">Email Address</label>
               <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary">
-                  <Mail className="size-5 text-zinc-500" />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-500 transition-colors group-focus-within:text-primary">
+                  <Mail className="size-5" />
                 </div>
                 <input
                   type="email"
-                  className="input-field pl-12 bg-white/5 border-white/10 focus:border-primary/50"
+                  className="input-field pl-12"
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold ml-1 text-zinc-400">Password</label>
+              <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">Password</label>
               <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary">
-                  <Lock className="size-5 text-zinc-500" />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-500 transition-colors group-focus-within:text-primary">
+                  <Lock className="size-5" />
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="input-field pl-12 bg-white/5 border-white/10 focus:border-primary/50"
+                  className="input-field pl-12"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required
                 />
                 <button
                   type="button"
@@ -89,24 +98,24 @@ const LoginPage = () => {
 
             <button 
               type="submit" 
-              className="btn btn-primary w-full h-12 rounded-xl shadow-lg shadow-primary/20 flex justify-center" 
+              className="btn btn-primary w-full h-12 flex justify-center items-center mt-4" 
               disabled={isLoggingIn}
             >
               {isLoggingIn ? (
                 <>
                   <Loader2 className="size-5 animate-spin mr-2" />
-                  Authenticating...
+                  Signing In...
                 </>
               ) : (
-                "Sign in"
+                "Sign In"
               )}
             </button>
           </form>
 
           <div className="text-center pt-2">
-            <p className="text-text-muted text-sm">
+            <p className="text-text-secondary text-sm">
               Don&apos;t have an account?{" "}
-              <Link to="/signup" className="text-primary font-semibold hover:underline transition-all">
+              <Link to="/signup" className="text-primary font-bold hover:underline transition-all">
                 Create account
               </Link>
             </p>
@@ -114,46 +123,77 @@ const LoginPage = () => {
         </motion.div>
       </div>
 
-      {/* Right Side - Visual */}
-      <div className="hidden lg:flex items-center justify-center bg-[#080808] p-12 relative overflow-hidden">
-        {/* Background glow effects */}
-        <div className="absolute top-0 right-0 size-[500px] bg-primary/10 rounded-full blur-[120px] -mr-64 -mt-64"></div>
-        <div className="absolute bottom-0 left-0 size-[400px] bg-primary/5 rounded-full blur-[100px] -ml-48 -mb-48"></div>
+      {/* Right Side - Visual Interactive Chat Mockup */}
+      <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-[#0c161a] via-[#090f12] to-[#12232a] p-12 relative overflow-hidden">
+        {/* Abstract Glowing Orbs */}
+        <div className="absolute top-1/4 right-0 w-80 h-80 bg-primary/10 rounded-full blur-[120px] -mr-40"></div>
+        <div className="absolute bottom-1/4 left-0 w-96 h-96 bg-purple-500/5 rounded-full blur-[140px] -ml-48"></div>
         
-        <div className="w-full max-w-lg relative z-10">
-          {/* Animated Mock Chat UI */}
+        <div className="w-full max-w-md relative z-10">
+          {/* Mock Chat Dashboard Window */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="glass-morphism p-8 rounded-[2.5rem] relative mb-12 shadow-2xl shadow-primary/5 border-white/5 backdrop-blur-2xl"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="glass-morphism rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/5"
           >
-            <div className="absolute -top-10 -left-10 size-32 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
-            
-            <div className="space-y-6">
-              {/* Message 1 */}
-              <div className="flex gap-4 items-end">
-                <div className="size-10 rounded-2xl bg-gradient-to-tr from-zinc-800 to-zinc-700 flex-shrink-0 shadow-lg border border-white/5"></div>
-                <div className="bg-zinc-900/80 p-5 rounded-2xl rounded-bl-sm w-[85%] border border-white/5 shadow-xl">
-                  <div className="h-2.5 bg-zinc-700 rounded-full w-1/3 mb-3"></div>
-                  <div className="h-2.5 bg-zinc-700/40 rounded-full w-full mb-3"></div>
-                  <div className="h-2.5 bg-zinc-700/40 rounded-full w-4/5"></div>
+            {/* Header */}
+            <div className="px-6 py-4 bg-white/5 border-b border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <div className="size-10 rounded-full bg-gradient-to-tr from-primary/30 to-purple-500/30 flex items-center justify-center font-bold text-white text-sm border border-white/10">
+                    SJ
+                  </div>
+                  <span className="absolute bottom-0.5 right-0.5 size-2.5 bg-green-500 rounded-full border-2 border-[#162129]" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-sm">Sarah Jenkins</h3>
+                  <p className="text-green-400 text-xs font-semibold flex items-center gap-1">
+                    <span className="size-1.5 rounded-full bg-green-500 animate-ping inline-block" /> Active now
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+                <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+              </div>
+            </div>
+
+            {/* Chat Messages Panel */}
+            <div className="p-6 space-y-4 bg-black/10">
+              {/* Incoming Message */}
+              <div className="flex gap-3 items-end">
+                <div className="size-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400 border border-white/5">
+                  SJ
+                </div>
+                <div className="bg-[#202c33] p-4.5 rounded-[1.25rem] rounded-bl-sm max-w-[80%] border border-white/5 shadow-md">
+                  <p className="text-zinc-200 text-sm leading-relaxed">
+                    Hey! Did you check out the new design update? It looks incredible! 🔥
+                  </p>
+                  <span className="text-[10px] text-zinc-500 font-semibold block text-right mt-1.5">09:41 AM</span>
                 </div>
               </div>
 
-              {/* Message 2 */}
-              <div className="flex gap-4 items-end justify-end">
-                <div className="bg-primary/20 p-5 rounded-2xl rounded-br-sm w-[75%] border border-primary/20 shadow-xl backdrop-blur-md">
-                  <div className="h-2.5 bg-primary/40 rounded-full w-3/4 mb-3"></div>
-                  <div className="h-2.5 bg-primary/30 rounded-full w-full"></div>
+              {/* Outgoing Message */}
+              <div className="flex gap-3 items-end justify-end">
+                <div className="bg-[#005c4b] p-4.5 rounded-[1.25rem] rounded-br-sm max-w-[80%] border border-white/5 shadow-md">
+                  <p className="text-white text-sm leading-relaxed">
+                    Oh wow! Just signing in. The smooth micro-animations and colors are absolutely top-tier! 🚀
+                  </p>
+                  <span className="text-[10px] text-emerald-300/60 font-semibold block text-right mt-1.5">09:42 AM</span>
                 </div>
               </div>
-              
-              {/* Message 3 */}
-              <div className="flex gap-4 items-end">
-                <div className="size-10 rounded-2xl bg-gradient-to-tr from-zinc-800 to-zinc-700 flex-shrink-0 shadow-lg border border-white/5"></div>
-                <div className="bg-zinc-900/80 p-5 rounded-2xl rounded-bl-sm w-[60%] border border-white/5 shadow-xl">
-                  <div className="h-2.5 bg-zinc-700 rounded-full w-2/3"></div>
+
+              {/* Incoming Message 2 */}
+              <div className="flex gap-3 items-end">
+                <div className="size-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400 border border-white/5">
+                  SJ
+                </div>
+                <div className="bg-[#202c33] p-4.5 rounded-[1.25rem] rounded-bl-sm max-w-[80%] border border-white/5 shadow-md">
+                  <p className="text-zinc-200 text-sm leading-relaxed">
+                    Exactly! Real-time messaging has never felt this refined. Welcome back!
+                  </p>
+                  <span className="text-[10px] text-zinc-500 font-semibold block text-right mt-1.5">09:42 AM</span>
                 </div>
               </div>
             </div>
@@ -162,21 +202,20 @@ const LoginPage = () => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="text-center space-y-4"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-center mt-10 space-y-3"
           >
-            <h2 className="text-5xl font-bold leading-tight tracking-tight bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
-              Welcome back!
+            <h2 className="text-4xl font-extrabold leading-tight tracking-tight bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">
+              Connect Seamlessly.
             </h2>
-            <p className="text-text-secondary text-lg max-w-sm mx-auto font-medium">
-              Join millions of users worldwide and start your secure communication journey today.
+            <p className="text-text-secondary text-[15px] max-w-xs mx-auto leading-relaxed">
+              Experience the next generation of beautiful, secure, real-time messaging.
             </p>
           </motion.div>
         </div>
       </div>
     </div>
   );
-
 };
 
 export default LoginPage;

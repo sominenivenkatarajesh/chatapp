@@ -52,11 +52,11 @@ const App = () => {
     );
 
   return (
-    <div className="min-h-screen bg-bg-main text-[#d1d7db]">
+    <div className="h-screen flex flex-col bg-bg-main text-[#d1d7db] overflow-hidden">
       <Navbar />
       <CallManager />
 
-      <main className="pt-20">
+      <main className="flex-1 min-h-0 relative">
         <Routes>
           <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
           <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />

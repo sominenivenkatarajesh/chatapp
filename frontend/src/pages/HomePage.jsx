@@ -8,7 +8,7 @@ const HomePage = () => {
   const { selectedUser } = useChatStore();
 
   return (
-    <div className="h-[calc(100dvh-64px)] bg-wa-bg overflow-hidden">
+    <div className="h-full bg-wa-bg overflow-hidden">
       <div className="flex items-center justify-center h-full">
         <div className="bg-wa-sidebar w-full h-full lg:shadow-2xl flex overflow-hidden relative">
           {/* Sidebar: Show on desktop always, on mobile only if NO user is selected */}

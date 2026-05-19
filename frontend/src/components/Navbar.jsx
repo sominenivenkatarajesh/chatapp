@@ -6,7 +6,7 @@ const Navbar = () => {
   const { logout, authUser } = useAuthStore();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
+    <header className="w-full z-50 px-4 pt-4 pb-2">
       <nav className="glass-morphism max-w-7xl mx-auto h-16 px-6 flex items-center justify-between rounded-2xl border-white/5 shadow-2xl shadow-black/20">
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-all group">

@@ -35,7 +35,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-10 bg-bg-main flex justify-center items-start">
+    <div className="h-full py-8 overflow-y-auto bg-bg-main flex justify-center items-start custom-scrollbar">
       <div className="w-full max-w-4xl px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="glass-morphism rounded-3xl overflow-hidden border border-glass-border shadow-2xl">
           
@@ -44,9 +44,9 @@ const ProfilePage = () => {
             <div className="absolute inset-0 bg-black/20" />
             
             {/* Avatar Section (overlapping) */}
-            <div className="absolute -bottom-16 left-6 sm:left-12 flex items-end gap-6 w-full">
-              <div className="relative group">
-                <div className="size-32 sm:size-40 rounded-full overflow-hidden border-4 border-bg-main shadow-2xl bg-zinc-800">
+            <div className="absolute -bottom-16 left-6 right-6 sm:left-12 sm:right-12 flex items-end gap-6">
+              <div className="relative group flex-shrink-0">
+                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-bg-main shadow-2xl bg-zinc-800 flex-shrink-0">
                   <img
                     src={selectedImg || authUser.profilePic || "/avatar.png"}
                     alt="Profile"

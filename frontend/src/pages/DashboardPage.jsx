@@ -91,7 +91,7 @@ const DashboardPage = () => {
             <form onSubmit={handleSearch} className="flex gap-4 mb-6">
               <input
                 type="text"
-                className="input-field flex-1"
+                className="input-field pl-5 flex-1"
                 placeholder="Search by name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

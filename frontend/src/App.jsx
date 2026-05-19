@@ -52,7 +52,7 @@ const App = () => {
     );
 
   return (
-    <div className="h-screen flex flex-col bg-bg-main text-[#d1d7db] overflow-hidden">
+    <div className="h-screen flex flex-col bg-transparent text-white overflow-hidden">
       <Navbar />
       <CallManager />
 

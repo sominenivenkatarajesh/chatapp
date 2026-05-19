@@ -1,38 +1,60 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #00a884;
-  --color-bg-main: #0b141a;
-  --color-wa-panel: #202c33;
-  --color-wa-sidebar: #111b21;
-  --color-wa-incoming: #202c33;
-  --color-wa-outgoing: #005c4b;
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-bg-main: transparent;
+  --color-glass-bg: rgba(255, 255, 255, 0.03);
   --color-glass-border: rgba(255, 255, 255, 0.08);
-  --color-wa-primary: #f0f2f5;
-  --color-wa-secondary: #8696a0;
-  --color-wa-muted: #667781;
-  --color-wa-accent: #00a884;
-  --color-wa-border: #222e35;
-  --color-wa-hover: #202c33;
-  --color-wa-active: #2a3942;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+  --color-chat-incoming: #1e293b;
+  --color-chat-outgoing: #4f46e5;
+  
+  /* Compatibility with existing components */
+  --color-wa-panel: rgba(255, 255, 255, 0.02);
+  --color-wa-sidebar: transparent;
+  --color-wa-incoming: #1e293b;
+  --color-wa-outgoing: #4f46e5;
+  --color-wa-primary: #f8fafc;
+  --color-wa-secondary: #94a3b8;
+  --color-wa-muted: #64748b;
+  --color-wa-accent: #6366f1;
+  --color-wa-border: rgba(255, 255, 255, 0.08);
+  --color-wa-hover: rgba(255, 255, 255, 0.05);
+  --color-wa-active: rgba(255, 255, 255, 0.08);
+  --color-wa-bg: transparent;
 }
 
 :root {
-  --wa-bg: #0b141a;
-  --wa-panel-bg: #202c33;
-  --wa-sidebar-bg: #111b21;
-  --wa-header-bg: #202c33;
-  --wa-input-bg: #2a3942;
-  --wa-incoming: #202c33;
-  --wa-outgoing: #005c4b;
-  --wa-text-primary: #f0f2f5;
-  --wa-text-secondary: #8696a0;
-  --wa-text-muted: #667781;
-  --wa-accent: #00a884;
-  --wa-border: #222e35;
-  --wa-hover: #202c33;
-  --wa-active: #2a3942;
+  --app-bg: #09090b;
+  --panel-bg: rgba(255, 255, 255, 0.02);
+  --input-bg: rgba(255, 255, 255, 0.04);
+  --chat-incoming: #1e293b;
+  --chat-outgoing: #4f46e5;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #6366f1;
+  --border: rgba(255, 255, 255, 0.08);
+  --hover-bg: rgba(255, 255, 255, 0.05);
+
+  --wa-bg: transparent;
+  --wa-panel-bg: rgba(255, 255, 255, 0.02);
+  --wa-sidebar-bg: transparent;
+  --wa-header-bg: rgba(255, 255, 255, 0.02);
+  --wa-input-bg: rgba(255, 255, 255, 0.04);
+  --wa-incoming: #1e293b;
+  --wa-outgoing: #4f46e5;
+  --wa-text-primary: #f8fafc;
+  --wa-text-secondary: #94a3b8;
+  --wa-text-muted: #64748b;
+  --wa-accent: #6366f1;
+  --wa-border: rgba(255, 255, 255, 0.08);
+  --wa-hover: rgba(255, 255, 255, 0.05);
+  --wa-active: rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -42,20 +64,20 @@
 }
 
 body {
-  background-color: var(--wa-bg);
+  background-color: var(--app-bg);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(0, 168, 132, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.05) 0px, transparent 50%);
-  color: var(--wa-text-primary);
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+    radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08) 0px, transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.06) 0px, transparent 40%);
+  color: var(--text-primary);
+  font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
 /* Scrollbar Styling - Clean & Modern */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -63,80 +85,154 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 99px;
   transition: all 0.3s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 168, 132, 0.3);
+  background: rgba(99, 102, 241, 0.5);
 }
 
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
 /* Auth Pages Luxury Glassmorphism Container */
 .glass-morphism {
-  background: rgba(22, 33, 41, 0.75);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 
-    0 4px 30px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-morphism:hover {
-  border-color: rgba(0, 168, 132, 0.2);
+  border-color: rgba(99, 102, 241, 0.3);
   box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(0, 168, 132, 0.05);
+    0 30px 60px -12px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(99, 102, 241, 0.1);
 }
 
 /* Input Fields - Luxury & Responsive */
 .input-field {
   width: 100%;
-  padding: 0.85rem 1.25rem;
-  background: rgba(17, 27, 33, 0.6) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+  padding-right: 1.25rem;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid var(--border);
   border-radius: 1rem;
-  color: var(--wa-text-primary);
+  color: var(--text-primary);
   outline: none;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 0.95rem;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+/* --- Pure CSS Input Groups --- */
+.input-group {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 16px 12px 46px; /* 46px left padding for icon */
+  height: 52px; /* Specific height requested */
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  outline: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.input-group.has-right input {
+  padding-right: 48px; /* Extra padding for the right eye icon */
+}
+
+.input-group input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.input-group .left-icon {
+  position: absolute;
+  left: 16px;
+  color: #a1a1aa;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  transition: color 0.3s ease;
+  z-index: 2;
+}
+
+.input-group:focus-within .left-icon {
+  color: #6366f1;
+}
+
+.input-group .right-icon {
+  position: absolute;
+  right: 16px;
+  color: #a1a1aa;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+  z-index: 2;
+}
+
+.input-group .right-icon:hover {
+  color: white;
+}
+
 .input-field:focus {
-  border-color: var(--wa-accent);
-  background: rgba(17, 27, 33, 0.9) !important;
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.06) !important;
   box-shadow: 
-    0 0 0 3px rgba(0, 168, 132, 0.15),
+    0 0 0 3px rgba(99, 102, 241, 0.15),
     0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Primary Button with Premium Linear Gradient */
 .btn-primary {
-  background: linear-gradient(135deg, #00b884 0%, #00d6a8 100%) !important;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
   color: white !important;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-weight: 700;
   letter-spacing: 0.02em;
   border: none !important;
   border-radius: 1rem !important;
-  box-shadow: 0 6px 20px rgba(0, 168, 132, 0.25);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   cursor: pointer;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 168, 132, 0.35);
-  filter: brightness(1.05);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.4);
+  filter: brightness(1.1);
 }
 
 .btn-primary:active {
@@ -166,12 +262,12 @@ body {
 
 /* Secondary Typography Mapping Classes */
 .text-text-muted {
-  color: var(--wa-text-muted);
+  color: var(--text-muted);
   font-weight: 500;
 }
 
 .text-text-secondary {
-  color: var(--wa-text-secondary);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -185,21 +281,21 @@ body {
 
 .tail-out {
   right: -8px;
-  background-color: var(--wa-outgoing);
+  background-color: var(--chat-outgoing);
   clip-path: polygon(0 0, 0% 100%, 100% 0);
 }
 
 .tail-in {
   left: -8px;
-  background-color: var(--wa-incoming);
+  background-color: var(--chat-incoming);
   clip-path: polygon(0 0, 100% 100%, 100% 0);
 }
 
-/* WhatsApp Icon Button */
-.wa-icon-btn {
+/* Icon Button */
+.wa-icon-btn, .icon-btn {
   padding: 10px;
   border-radius: 50%;
-  color: var(--wa-text-secondary);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,14 +303,14 @@ body {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.wa-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--wa-text-primary);
+.wa-icon-btn:hover, .icon-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
-.wa-icon-btn.active {
-  color: var(--wa-accent);
-  background: rgba(0, 168, 132, 0.08);
+.wa-icon-btn.active, .icon-btn.active {
+  color: var(--accent);
+  background: rgba(99, 102, 241, 0.1);
 }
 
 /* Premium Animations */
@@ -224,7 +320,7 @@ body {
 }
 
 .animate-in {
-  animation: fadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: fadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes shimmer {
@@ -233,26 +329,233 @@ body {
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 37%, rgba(255, 255, 255, 0.03) 63%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.06) 37%, rgba(255, 255, 255, 0.02) 63%);
   background-size: 200% 100%;
-  animation: shimmer 1.4s infinite ease-in-out;
+  animation: shimmer 1.5s infinite ease-in-out;
 }
 
 /* Navigation Link Active State Indicator */
 .nav-link-active {
   color: white !important;
-  background: rgba(0, 168, 132, 0.08) !important;
-  border: 1px solid rgba(0, 168, 132, 0.15) !important;
+  background: rgba(99, 102, 241, 0.1) !important;
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
 }
 
 /* Layout Specific Overrides for Perfect Alignment */
 .profile-card-glow {
   box-shadow: 
     0 10px 40px rgba(0, 0, 0, 0.4),
-    0 0 30px rgba(0, 168, 132, 0.03);
+    0 0 30px rgba(99, 102, 241, 0.05);
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 20px rgba(0, 168, 132, 0.1);
-  border-color: rgba(0, 168, 132, 0.3);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* --- Pure CSS Layout for Auth Pages --- */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  padding: 3rem 2rem;
+  box-sizing: border-box;
+}
+
+.auth-glow-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-glow-1 {
+  position: absolute;
+  top: 20%;
+  left: 15%;
+  width: 400px;
+  height: 400px;
+  background: rgba(99, 102, 241, 0.15);
+  border-radius: 50%;
+  filter: blur(120px);
+  animation: pulse 4s infinite;
+}
+
+.auth-glow-2 {
+  position: absolute;
+  bottom: 20%;
+  right: 15%;
+  width: 450px;
+  height: 450px;
+  background: rgba(168, 85, 247, 0.1);
+  border-radius: 50%;
+  filter: blur(140px);
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+  margin: auto;
+}
+
+.login-section, .signup-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.preview-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.auth-card, .signup-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem 2rem 1.5rem 2rem; /* Reduced padding */
+  border-radius: 2rem; /* Reduced radius */
+  box-sizing: border-box;
+  height: auto;
+  min-height: unset;
+  max-height: 90vh; /* Ensure fits inside screen */
+  overflow-y: auto; /* Scrollable if screen is really tiny */
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; /* Replaces large Tailwind spacing */
+}
+
+/* Custom scrollbar for auth card */
+.auth-card::-webkit-scrollbar, .signup-card::-webkit-scrollbar {
+  width: 6px;
+}
+.auth-card::-webkit-scrollbar-thumb, .signup-card::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+}
+
+.auth-form-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Replaces space-y-5 */
+}
+
+.auth-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* Replaces space-y-2 */
+}
+
+.auth-submit-btn {
+  height: 52px; /* Specific height requested */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.auth-footer {
+  margin-top: 14px;
+  padding-bottom: 6px;
+  text-align: center;
+  font-size: 15px;
+  color: rgba(255,255,255,0.7);
+}
+
+.auth-footer a {
+  color: #8b5cf6;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 6px;
+  transition: color 0.3s ease;
+}
+
+.auth-footer a:hover {
+  color: #a855f7;
+  text-decoration: underline;
+}
+
+.mockup-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+}
+
+.chat-preview {
+  width: 100%;
+  max-width: 330px; /* Reduced further so both sections fit better */
+  border-radius: 1.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.preview-content {
+  text-align: center;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.preview-content h2 {
+  font-size: 1.75rem; /* Reduced to align perfectly */
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(to right, #ffffff, #e0e7ff, rgba(199, 210, 254, 0.7));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+
+.preview-content p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 992px) {
+  .auth-container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .auth-page {
+    padding: 2rem 1rem;
+    align-items: flex-start; /* Prevent clipping at top when scrolling */
+  }
+
+  .preview-section {
+    display: flex; /* Keep visible but stack it below */
+    margin-top: 2rem;
+  }
+
+  .auth-card, .signup-card {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .preview-section {
+    display: none; /* Hide interactive mockup on small mobile for cleaner login */
+  }
 }

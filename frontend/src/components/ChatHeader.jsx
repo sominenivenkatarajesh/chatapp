@@ -28,11 +28,11 @@ const ChatHeader = () => {
   };
 
   return (
-    <div className="h-[60px] px-4 border-b border-[#313d45] bg-[#202c33] z-20 flex items-center justify-between">
+    <div className="h-[60px] px-4 border-b border-white/5 bg-transparent z-20 flex items-center justify-between">
       <div className="flex items-center gap-2 sm:gap-4 flex-1">
         {/* Back Button (Mobile only) */}
         <button 
-          className="lg:hidden p-2 -ml-2 text-[#aebac1] hover:bg-white/5 rounded-full transition-colors"
+          className="lg:hidden p-2 -ml-2 text-indigo-200/70 hover:bg-white/5 rounded-full transition-colors"
           onClick={() => setSelectedUser(null)}
         >
           <ArrowLeft className="size-6" />
@@ -50,22 +50,22 @@ const ChatHeader = () => {
 
         {/* User info */}
         <div className="flex flex-col min-w-0">
-          <h3 className="font-medium text-[#d1d7db] text-[16px] leading-tight truncate">{selectedUser.fullName}</h3>
-          <p className={`text-[13px] mt-0.5 ${onlineUsers.includes(selectedUser._id) ? "text-[#00a884]" : "text-[#8696a0]"}`}>
+          <h3 className="font-bold text-white text-[16px] leading-tight truncate">{selectedUser.fullName}</h3>
+          <p className={`text-[13px] mt-0.5 ${onlineUsers.includes(selectedUser._id) ? "text-indigo-400" : "text-indigo-200/60"}`}>
             {onlineUsers.includes(selectedUser._id) ? "online" : "offline"}
           </p>
         </div>
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center gap-3 text-[#aebac1]">
+      <div className="flex items-center gap-3 text-indigo-200/70">
         <button className="p-2 rounded-full hover:bg-white/5 transition-colors" onClick={handleCall} title="Voice Call">
           <Phone className="size-5" />
         </button>
         <button className="p-2 rounded-full hover:bg-white/5 transition-colors" onClick={handleCall} title="Video Call">
           <Video className="size-6" />
         </button>
-        <div className="w-px h-6 bg-[#313d45] mx-1"></div>
+        <div className="w-px h-6 bg-white/10 mx-1"></div>
         <button className="p-2 rounded-full hover:bg-white/5 transition-colors" title="Search Message">
           <Search className="size-5" />
         </button>

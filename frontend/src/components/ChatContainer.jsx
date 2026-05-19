@@ -42,16 +42,7 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-wa-bg relative border-l border-wa-border">
-      {/* WhatsApp Background Pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.06] pointer-events-none z-0" 
-        style={{ 
-          backgroundImage: `url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')`,
-          backgroundSize: '400px'
-        }}
-      ></div>
-      
+    <div className="flex-1 flex flex-col overflow-hidden bg-transparent relative border-l border-white/5">
       <ChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 md:px-16 space-y-2 custom-scrollbar relative z-10">
@@ -74,8 +65,8 @@ const ChatContainer = () => {
                 <div
                   className={`relative shadow-sm rounded-lg overflow-hidden ${
                     isSentByMe
-                      ? "bg-[#005c4b] text-[#d1d7db]"
-                      : "bg-[#202c33] text-[#d1d7db]"
+                      ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg"
+                      : "bg-[#1e293b] text-white border border-white/5 shadow-md"
                   } ${isLastInGroup ? (isSentByMe ? "rounded-tr-none" : "rounded-tl-none") : ""}`}
                 >
                   {/* Image Content - WhatsApp Style */}
@@ -96,7 +87,7 @@ const ChatContainer = () => {
                               {formatMessageTime(message.createdAt)}
                             </span>
                             {isSentByMe && (
-                              <span className="text-[#53bdeb]">
+                              <span className="text-indigo-200">
                                 <svg viewBox="0 0 16 15" width="15" height="14" fill="currentColor"><path d="M15.01 3.316l-.478-.372a.365.365 0 00-.51.063L8.666 9.879c-.566.733-.705 1.019-1.493 1.019-.3 0-.601-.02-.747-.034l-.177-.015c-.631-.047-1.114-.116-1.574-.633l-.113-.131L2.09 7.427a.364.364 0 00-.511-.044l-.507.412a.364.364 0 00-.044.51l3.52 4.314c.489.6 1.066 1.016 1.936 1.016.892 0 1.488-.349 2.038-1.06l6.044-7.76c.144-.185.109-.451-.056-.558zm-4.321.391l-.478-.372a.365.365 0 00-.51.063L4.345 10.27c-.121.156-.241.312-.34.453l.113.131c.46.517.943.586 1.574.633l.177.015c.146.014.447.034.747.034.788 0 .927-.286 1.493-1.019l5.141-6.59a.365.365 0 00-.06-.523z"></path></svg>
                               </span>
                             )}
@@ -137,7 +128,7 @@ const ChatContainer = () => {
                           {formatMessageTime(message.createdAt)}
                         </span>
                         {isSentByMe && (
-                          <span className={`${message.isSeen ? "text-[#53bdeb]" : "text-wa-muted"}`}>
+                          <span className={`${message.isSeen ? "text-indigo-200" : "text-white/40"}`}>
                             {message.isSeen ? (
                               <svg viewBox="0 0 16 15" width="16" height="15" fill="currentColor"><path d="M15.01 3.316l-.478-.372a.365.365 0 00-.51.063L8.666 9.879c-.566.733-.705 1.019-1.493 1.019-.3 0-.601-.02-.747-.034l-.177-.015c-.631-.047-1.114-.116-1.574-.633l-.113-.131L2.09 7.427a.364.364 0 00-.511-.044l-.507.412a.364.364 0 00-.044.51l3.52 4.314c.489.6 1.066 1.016 1.936 1.016.892 0 1.488-.349 2.038-1.06l6.044-7.76c.144-.185.109-.451-.056-.558zm-4.321.391l-.478-.372a.365.365 0 00-.51.063L4.345 10.27c-.121.156-.241.312-.34.453l.113.131c.46.517.943.586 1.574.633l.177.015c.146.014.447.034.747.034.788 0 .927-.286 1.493-1.019l5.141-6.59a.365.365 0 00-.06-.523z"></path></svg>
                             ) : (

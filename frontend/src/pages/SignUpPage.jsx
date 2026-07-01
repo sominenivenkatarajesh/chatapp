@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
@@ -8,7 +8,9 @@ import { motion } from "framer-motion";
 const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
+    username: "",
+    phoneNumber: "",
+    gender: "",
     email: "",
     password: "",
   });
@@ -16,7 +18,9 @@ const SignUpPage = () => {
   const { signup, isSigningUp } = useAuthStore();
 
   const validateForm = () => {
-    if (!formData.fullName.trim()) return toast.error("Full name is required");
+    if (!formData.username.trim()) return toast.error("Username is required");
+    if (!formData.phoneNumber.trim()) return toast.error("Phone number is required");
+    if (!formData.gender) return toast.error("Gender is required");
     if (!formData.email.trim()) return toast.error("Email is required");
     if (!/\S+@\S+\.\S+/.test(formData.email)) return toast.error("Invalid email format");
     if (!formData.password) return toast.error("Password is required");
@@ -68,16 +72,48 @@ const SignUpPage = () => {
 
           <form onSubmit={handleSubmit} className="auth-form-wrapper">
             <div className="auth-input-wrapper">
-              <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">Full Name</label>
+              <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">Username</label>
               <div className="input-group">
                 <User className="left-icon" />
                 <input
                   type="text"
-                  placeholder="John Doe"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  placeholder="johndoe"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   required
                 />
+              </div>
+            </div>
+
+            <div className="auth-input-wrapper">
+              <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">Phone Number</label>
+              <div className="input-group">
+                <Phone className="left-icon" />
+                <input
+                  type="text"
+                  placeholder="+1234567890"
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="auth-input-wrapper">
+              <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">Gender</label>
+              <div className="input-group">
+                <User className="left-icon" />
+                <select
+                  value={formData.gender}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                  required
+                >
+                  <option value="" disabled className="text-zinc-500 bg-zinc-800">Select gender</option>
+                  <option value="male" className="bg-zinc-800">Male</option>
+                  <option value="female" className="bg-zinc-800">Female</option>
+                  <option value="other" className="bg-zinc-800">Other</option>
+                  <option value="prefer_not_to_say" className="bg-zinc-800">Prefer not to say</option>
+                </select>
               </div>
             </div>
 
@@ -132,9 +168,11 @@ const SignUpPage = () => {
             </button>
           </form>
 
-          <div className="auth-footer">
-            <span>Already have an account?</span>
-            <Link to="/login">Sign in</Link>
+          <div className="mt-6 text-center text-sm text-zinc-400">
+            Already have an account?{" "}
+            <Link to="/login" className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+              Sign in
+            </Link>
           </div>
         </motion.div>
       </div>

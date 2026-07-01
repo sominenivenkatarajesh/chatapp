@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-react";
 import { motion } from "framer-motion";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
   const { login, isLoggingIn } = useAuthStore();
@@ -53,14 +53,14 @@ const LoginPage = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="auth-form-wrapper">
             <div className="auth-input-wrapper">
-              <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">Email Address</label>
+              <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">Username</label>
               <div className="input-group">
-                <Mail className="left-icon" />
+                <User className="left-icon" />
                 <input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  type="text"
+                  placeholder="johndoe"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   required
                 />
               </div>
@@ -87,6 +87,12 @@ const LoginPage = () => {
               </div>
             </div>
 
+            <div className="flex justify-end w-full mt-2 mb-4">
+              <Link to="/forgot-password" className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+                Forgot Password?
+              </Link>
+            </div>
+
             <button 
               type="submit" 
               className="btn btn-primary auth-submit-btn" 
@@ -103,9 +109,11 @@ const LoginPage = () => {
             </button>
           </form>
 
-          <div className="auth-footer">
-            <span>Don&apos;t have an account?</span>
-            <Link to="/signup">Create account</Link>
+          <div className="mt-6 text-center text-sm text-zinc-400">
+            Don&apos;t have an account?{" "}
+            <Link to="/signup" className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+              Create account
+            </Link>
           </div>
         </motion.div>
         </div>

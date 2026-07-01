@@ -7,14 +7,35 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    fullName: {
+    username: {
       type: String,
       required: true,
+      unique: true,
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    gender: {
+      type: String,
+      required: true,
+      enum: ["male", "female", "other", "prefer_not_to_say"],
+    },
+    bio: {
+      type: String,
+      default: "",
     },
     password: {
       type: String,
       required: true,
       minlength: 6,
+    },
+    resetOtp: {
+      type: String,
+    },
+    resetOtpExpire: {
+      type: Date,
     },
     profilePic: {
       type: String,

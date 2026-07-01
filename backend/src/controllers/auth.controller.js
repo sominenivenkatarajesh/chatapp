@@ -2,11 +2,12 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
+import nodemailer from "nodemailer";
 
 export const signup = async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const { username, phoneNumber, email, gender, password } = req.body;
   try {
-    if (!fullName || !email || !password) {
+    if (!username || !phoneNumber || !email || !gender || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -14,16 +15,23 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
-    const user = await User.findOne({ email });
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) return res.status(400).json({ message: "Email already exists" });
 
-    if (user) return res.status(400).json({ message: "Email already exists" });
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) return res.status(400).json({ message: "Username already exists" });
+
+    const existingPhone = await User.findOne({ phoneNumber });
+    if (existingPhone) return res.status(400).json({ message: "Phone number already exists" });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      fullName,
+      username,
+      phoneNumber,
       email,
+      gender,
       password: hashedPassword,
     });
 
@@ -34,7 +42,7 @@ export const signup = async (req, res) => {
 
       res.status(201).json({
         _id: newUser._id,
-        fullName: newUser.fullName,
+        username: newUser.username,
         email: newUser.email,
         profilePic: newUser.profilePic,
         token,
@@ -49,9 +57,9 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -66,13 +74,101 @@ export const login = async (req, res) => {
 
     res.status(200).json({
       _id: user._id,
-      fullName: user.fullName,
+      username: user.username,
       email: user.email,
       profilePic: user.profilePic,
       token,
     });
   } catch (error) {
     console.log("Error in login controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  const { identifier } = req.body;
+  try {
+    if (!identifier) {
+      return res.status(400).json({ message: "Username, email or phone number is required" });
+    }
+    
+    const user = await User.findOne({
+      $or: [
+        { username: identifier },
+        { email: identifier },
+        { phoneNumber: identifier }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetOtp = otp;
+    user.resetOtpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "sominenivenkatarajesh@gmail.com",
+        pass: "kboe xzjt vsiz txno"
+      }
+    });
+
+    const mailOptions = {
+      from: "sominenivenkatarajesh@gmail.com",
+      to: user.email,
+      subject: "Password Reset OTP",
+      text: `Your OTP for password reset is: ${otp}. It is valid for 10 minutes.`
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "OTP sent to your email!" });
+  } catch (error) {
+    console.log("Error in forgotPassword controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { identifier, otp, newPassword } = req.body;
+  try {
+    if (!identifier || !otp || !newPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const user = await User.findOne({ 
+      $or: [
+        { username: identifier },
+        { email: identifier },
+        { phoneNumber: identifier }
+      ],
+      resetOtp: otp,
+      resetOtpExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    user.resetOtp = undefined;
+    user.resetOtpExpire = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    console.log("Error in resetPassword controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -94,17 +190,68 @@ export const logout = (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic } = req.body;
     const userId = req.user._id;
+    const { 
+      profilePic, 
+      username, 
+      email, 
+      phoneNumber, 
+      gender, 
+      bio, 
+      currentPassword, 
+      newPassword 
+    } = req.body;
 
-    if (!profilePic) {
-      return res.status(400).json({ message: "Profile pic is required" });
+    const updateData = {};
+
+    if (profilePic && profilePic !== req.user.profilePic) {
+      const uploadResponse = await cloudinary.uploader.upload(profilePic);
+      updateData.profilePic = uploadResponse.secure_url;
     }
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    if (email && email !== req.user.email) {
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) return res.status(400).json({ message: "Email already exists" });
+      updateData.email = email;
+    }
+    
+    if (username && username !== req.user.username) {
+      const existingUsername = await User.findOne({ username });
+      if (existingUsername) return res.status(400).json({ message: "Username already exists" });
+      updateData.username = username;
+    }
+    
+    if (phoneNumber && phoneNumber !== req.user.phoneNumber) {
+      const existingPhone = await User.findOne({ phoneNumber });
+      if (existingPhone) return res.status(400).json({ message: "Phone number already exists" });
+      updateData.phoneNumber = phoneNumber;
+    }
+    
+    if (gender) updateData.gender = gender;
+    if (bio !== undefined) updateData.bio = bio;
+
+    if (currentPassword && newPassword) {
+      const user = await User.findById(userId);
+      const isPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
+      if (!isPasswordCorrect) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "New password must be at least 6 characters" });
+      }
+      const salt = await bcrypt.genSalt(10);
+      updateData.password = await bcrypt.hash(newPassword, salt);
+    } else if (newPassword || currentPassword) {
+      return res.status(400).json({ message: "Both current and new password are required to change password" });
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "No fields to update" });
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profilePic: uploadResponse.secure_url },
+      updateData,
       { new: true }
     );
 

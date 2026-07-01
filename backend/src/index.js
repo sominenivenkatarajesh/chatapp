@@ -27,7 +27,7 @@ app.use(cors({
     
     // Allow any vercel.app subdomain that contains 'chatapp' and 'sominenivenkatarajesh'
     const isVercel = origin.includes("chatapp") && origin.includes("vercel.app");
-    const isLocal = origin === "http://localhost:5173";
+    const isLocal = origin.startsWith("http://localhost:");
     
     if (isVercel || isLocal) {
       callback(null, true);

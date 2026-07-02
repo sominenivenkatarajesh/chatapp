@@ -54,15 +54,15 @@ const ChatContainer = () => {
           return (
             <div
               key={message._id}
-              className={`flex ${isSentByMe ? "justify-end" : "justify-start"} ${isLastInGroup ? "mb-2" : "mb-0.5"} animate-in`}
+              className={`flex ${isSentByMe ? "justify-end" : "justify-start"} ${isLastInGroup ? "mb-2" : "mb-0.5"} animate-msg`}
             >
-              <div className={`relative flex flex-col max-w-[85%] sm:max-w-[70%]`}>
+              <div className={`relative flex flex-col max-w-[85%] sm:max-w-[70%] hover-lift`}>
 
                 <div
-                  className={`relative overflow-hidden transition-all duration-300 ${
+                  className={`relative overflow-hidden transition-all duration-300 text-white ${
                     isSentByMe
-                      ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-[0_8px_20px_-6px_rgba(99,102,241,0.4)] border border-indigo-400/20"
-                      : "bg-white/5 backdrop-blur-xl text-white border border-white/10 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.2)]"
+                      ? "msg-bubble-out"
+                      : "msg-bubble-in"
                   } ${
                     isLastInGroup 
                       ? (isSentByMe ? "rounded-[1.5rem] rounded-br-[0.5rem]" : "rounded-[1.5rem] rounded-bl-[0.5rem]") 

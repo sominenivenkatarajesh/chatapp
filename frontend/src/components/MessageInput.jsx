@@ -105,7 +105,7 @@ const MessageInput = () => {
         </div>
       )}
 
-      <div className="flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-white/10 p-2 rounded-[2rem] shadow-lg">
+      <div className="flex items-center gap-2 glass-panel-light p-2 rounded-[2rem] shadow-lg">
         <div className="flex items-center gap-1 pl-2">
           <button
             type="button"

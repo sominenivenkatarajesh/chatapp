@@ -53,7 +53,7 @@ const App = () => {
     );
 
   return (
-    <div className="h-screen flex flex-col bg-transparent text-white overflow-hidden">
+    <div className="h-screen flex flex-col bg-mesh text-white overflow-hidden">
       <Navbar />
       <CallManager />
 

@@ -8,11 +8,10 @@ const HomePage = () => {
   const { selectedUser } = useChatStore();
 
   return (
-    <div className="h-full bg-wa-bg overflow-hidden">
-      <div className="flex items-center justify-center h-full">
-        <div className="bg-wa-sidebar w-full h-full lg:shadow-2xl flex overflow-hidden relative">
-          {/* Sidebar: Show on desktop always, on mobile only if NO user is selected */}
-          <div className={`${selectedUser ? "hidden lg:block" : "w-full"} lg:w-[400px] h-full`}>
+    <div className="h-full overflow-hidden p-0 sm:p-4 md:p-6 lg:p-8 flex items-center justify-center">
+      <div className="w-full max-w-7xl h-full glass-panel rounded-none sm:rounded-[2rem] flex overflow-hidden shadow-2xl relative">
+        {/* Sidebar: Show on desktop always, on mobile only if NO user is selected */}
+        <div className={`${selectedUser ? "hidden lg:block" : "w-full"} lg:w-[400px] h-full`}>
             <Sidebar />
           </div>
           

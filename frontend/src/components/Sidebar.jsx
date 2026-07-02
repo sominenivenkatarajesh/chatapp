@@ -47,7 +47,7 @@ const Sidebar = () => {
 
       {/* Search Bar */}
       <div className="px-5 py-4 border-b border-white/5 bg-transparent">
-        <div className="relative flex items-center bg-black/20 border border-white/5 rounded-2xl px-4 py-2.5 focus-within:bg-black/40 focus-within:border-indigo-500/50 focus-within:shadow-[0_0_15px_rgba(99,102,241,0.15)] transition-all">
+        <div className="relative flex items-center glass-panel-light rounded-2xl px-4 py-2.5 focus-within:bg-white/10 focus-within:border-indigo-500/50 focus-within:shadow-[0_0_15px_rgba(99,102,241,0.3)] transition-all">
           <Search className="size-4.5 text-white/40 mr-3" />
           <input
             type="text"
@@ -82,10 +82,10 @@ const Sidebar = () => {
               onClick={() => setSelectedUser(user)}
               className={`
                 w-full p-3 flex items-center gap-3 cursor-pointer rounded-2xl
-                transition-all duration-200 border border-transparent
+                hover-lift border
                 ${isSelected 
-                  ? "bg-white/10 border-white/10 shadow-lg backdrop-blur-md" 
-                  : "hover:bg-white/5 hover:border-white/5"}
+                  ? "bg-white/10 border-white/20 shadow-lg backdrop-blur-md" 
+                  : "border-transparent hover:glass-panel-light"}
               `}
             >
               <div className="relative flex-shrink-0">

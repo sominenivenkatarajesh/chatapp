@@ -50,7 +50,14 @@ io.on("connection", (socket) => {
   socket.on("answerCall", (data) => {
     const receiverSocketId = getReceiverSocketId(data.to);
     if (receiverSocketId) {
-      io.to(receiverSocketId).emit("callAccepted", data.signal);
+      io.to(receiverSocketId).emit("callAccepted", { signal: data.signal, from: userId });
+    }
+  });
+
+  socket.on("meshSignal", ({ userToSignal, signalData, from }) => {
+    const receiverSocketId = getReceiverSocketId(userToSignal);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("meshSignal", { signal: signalData, from });
     }
   });
 

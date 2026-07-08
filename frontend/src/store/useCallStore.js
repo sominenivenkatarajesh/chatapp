@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { useAuthStore } from "./useAuthStore";
 import Peer from "simple-peer";
+import toast from "react-hot-toast";
 
 export const useCallStore = create((set, get) => ({
   call: {},
@@ -23,10 +24,81 @@ export const useCallStore = create((set, get) => ({
       return currentStream;
     } catch (err) {
       console.error("Failed to get local stream", err);
+      toast.error("Failed to access camera/microphone");
     }
   },
 
+  setupSocketListeners: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket || socket.hasCallListeners) return;
+    
+    socket.hasCallListeners = true;
+
+    socket.on("callAccepted", ({ signal, from }) => {
+      console.log("Call accepted by:", from);
+      const peerObj = get().peers.find(p => p.userId === from);
+      if (peerObj && peerObj.peer && !peerObj.peer.destroyed) {
+        peerObj.peer.signal(signal);
+        set({ callAccepted: true });
+        
+        // When someone accepts, we could theoretically tell them to connect to others.
+        // But for a flexible group call where everyone can invite, 
+        // we keep the architecture decentralized. A calls B, A calls C. 
+        // A sees B and C. If B wants to see C, B can just invite C.
+      }
+    });
+
+    socket.on("meshSignal", ({ signal, from }) => {
+      console.log("Mesh signal received from:", from);
+      let peerObj = get().peers.find(p => p.userId === from);
+      
+      if (!peerObj) {
+        // We received a P2P connection request from someone in the mesh
+        const { stream } = get();
+        const authUser = useAuthStore.getState().authUser;
+        
+        const peer = new Peer({
+          initiator: false,
+          trickle: false,
+          stream,
+          config: {
+            iceServers: [
+              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:global.stun.twilio.com:3478' }
+            ]
+          }
+        });
+
+        peer.on("signal", (data) => {
+          socket.emit("meshSignal", {
+            userToSignal: from,
+            signalData: data,
+            from: authUser._id
+          });
+        });
+
+        peer.on("stream", (currentStream) => {
+          set((state) => ({
+            peers: state.peers.map(p => p.userId === from ? { ...p, stream: currentStream } : p)
+          }));
+        });
+
+        peer.signal(signal);
+
+        set((state) => ({
+          peers: [...state.peers, { peer, userId: from }]
+        }));
+      } else {
+        // We already have a peer object, just signal it
+        if (!peerObj.peer.destroyed) {
+          peerObj.peer.signal(signal);
+        }
+      }
+    });
+  },
+
   answerCall: (incomingCall) => {
+    get().setupSocketListeners();
     set({ callAccepted: true, callPartnerId: incomingCall.from });
     const { stream } = get();
     const socket = useAuthStore.getState().socket;
@@ -38,8 +110,7 @@ export const useCallStore = create((set, get) => ({
       config: {
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:global.stun.twilio.com:3478' },
-          { urls: 'stun:stun1.l.google.com:19302' }
+          { urls: 'stun:global.stun.twilio.com:3478' }
         ]
       }
     });
@@ -58,7 +129,6 @@ export const useCallStore = create((set, get) => ({
 
     peer.on("error", (err) => {
       console.error("Receiver: Peer error:", err);
-      toast.error("Connection error");
     });
 
     set((state) => ({
@@ -71,6 +141,7 @@ export const useCallStore = create((set, get) => ({
   },
 
   callUser: (id) => {
+    get().setupSocketListeners();
     if (get().peers.find(p => p.userId === id)) return;
 
     const { stream } = get();
@@ -86,19 +157,19 @@ export const useCallStore = create((set, get) => ({
       config: {
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:global.stun.twilio.com:3478' },
-          { urls: 'stun:stun1.l.google.com:19302' }
+          { urls: 'stun:global.stun.twilio.com:3478' }
         ]
       }
     });
 
     peer.on("signal", (data) => {
       console.log("Initiator: Signaling...");
+      // If we already have peers, this is an additional person being added.
       socket.emit("callUser", {
         userToCall: id,
         signalData: data,
         from: authUser._id,
-        name: authUser.fullName,
+        name: authUser.username,
       });
     });
 
@@ -111,17 +182,7 @@ export const useCallStore = create((set, get) => ({
 
     peer.on("error", (err) => {
       console.error("Initiator: Peer error:", err);
-      toast.error("Failed to connect");
     });
-
-    const handleCallAccepted = (signal) => {
-      console.log("Initiator: Call accepted by receiver");
-      if (peer.destroyed) return;
-      peer.signal(signal);
-      set({ callAccepted: true });
-    };
-
-    socket.once("callAccepted", handleCallAccepted);
 
     set((state) => ({
         peers: [...state.peers.filter(p => p.userId !== id), { peer, userId: id }],
@@ -134,19 +195,26 @@ export const useCallStore = create((set, get) => ({
     const { peers, stream, callAccepted } = get();
     const socket = useAuthStore.getState().socket;
 
-    // Notify all peers or a specific user (if declining)
     if (userId) {
+      const peerObj = peers.find(p => p.userId === userId);
+      if (peerObj && peerObj.peer) peerObj.peer.destroy();
+      
+      set((state) => ({
+        peers: state.peers.filter(p => p.userId !== userId)
+      }));
       socket.emit("endCall", { to: userId, accepted: false });
+      
+      if (get().peers.length === 0) {
+        get().resetCallState();
+      }
     } else {
       peers.forEach(({ peer, userId: pId }) => {
         if (peer) peer.destroy();
         socket.emit("endCall", { to: pId, accepted: callAccepted });
       });
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      get().resetCallState();
     }
-
-    if (stream) stream.getTracks().forEach(track => track.stop());
-    
-    get().resetCallState();
   },
 
   resetCallState: () => {

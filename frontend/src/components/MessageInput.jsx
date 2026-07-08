@@ -106,7 +106,7 @@ const MessageInput = () => {
       )}
 
       <div className="flex items-center gap-2 glass-panel-light p-2 rounded-[2rem] shadow-lg">
-        <div className="flex items-center gap-1 pl-2">
+        <div className="flex items-center gap-1 pl-2 shrink-0">
           <button
             type="button"
             className={`p-2 rounded-full transition-colors ${showEmojiPicker ? "bg-indigo-500/20 text-indigo-400" : "text-white/50 hover:bg-white/10 hover:text-white"}`}
@@ -149,7 +149,7 @@ const MessageInput = () => {
           />
         </div>
 
-        <div className="flex items-center justify-center pr-2">
+        <div className="flex items-center justify-center pr-2 shrink-0">
           {text.trim() || imagePreview || filePreview ? (
             <button
               onClick={handleSendMessage}

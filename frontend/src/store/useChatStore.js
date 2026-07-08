@@ -6,10 +6,24 @@ import { useAuthStore } from "./useAuthStore";
 export const useChatStore = create((set, get) => ({
   messages: [],
   users: [],
+  mutualFriends: [],
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  isMutualFriendsLoading: false,
   unreadCounts: {}, // { userId: count }
+
+  getMutualFriends: async (userId) => {
+    set({ isMutualFriendsLoading: true });
+    try {
+      const res = await axiosInstance.get(`/users/mutual-friends/${userId}`);
+      set({ mutualFriends: res.data });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch mutual friends");
+    } finally {
+      set({ isMutualFriendsLoading: false });
+    }
+  },
 
   getUsers: async () => {
     set({ isUsersLoading: true });

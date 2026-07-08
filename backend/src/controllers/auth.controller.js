@@ -59,10 +59,22 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   const { username, password } = req.body;
   try {
-    const user = await User.findOne({ username });
+    // Treat the incoming 'username' field as a generic identifier
+    const identifier = username.trim();
+    
+    // Escape special regex characters in the identifier
+    const escapedIdentifier = identifier.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    
+    const user = await User.findOne({
+      $or: [
+        { username: { $regex: `^${escapedIdentifier}$`, $options: 'i' } },
+        { email: { $regex: `^${escapedIdentifier}$`, $options: 'i' } },
+        { phoneNumber: identifier }
+      ]
+    });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid credentials (user not found)" });
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
@@ -193,6 +205,7 @@ export const updateProfile = async (req, res) => {
     const userId = req.user._id;
     const { 
       profilePic, 
+      bannerPic,
       username, 
       email, 
       phoneNumber, 
@@ -207,6 +220,11 @@ export const updateProfile = async (req, res) => {
     if (profilePic && profilePic !== req.user.profilePic) {
       const uploadResponse = await cloudinary.uploader.upload(profilePic);
       updateData.profilePic = uploadResponse.secure_url;
+    }
+
+    if (bannerPic && bannerPic !== req.user.bannerPic) {
+      const uploadResponse = await cloudinary.uploader.upload(bannerPic);
+      updateData.bannerPic = uploadResponse.secure_url;
     }
 
     if (email && email !== req.user.email) {

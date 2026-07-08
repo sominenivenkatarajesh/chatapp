@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Camera, Mail, User, Shield, Trash2, Calendar, Phone, Activity, Edit2, Check, X, Key } from "lucide-react";
+import { Camera, Mail, User, Shield, Trash2, Calendar, Phone, Edit2, Check, X, Key, Image as ImageIcon, MessageSquare, Users } from "lucide-react";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile, deleteAccount } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
+  const [selectedBanner, setSelectedBanner] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const bannerInputRef = useRef(null);
+  
   const [formData, setFormData] = useState({
     username: authUser?.username || "",
     email: authUser?.email || "",
@@ -23,7 +27,7 @@ const ProfilePage = () => {
     }
   };
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = async (e, type = "profile") => {
     const file = e.target.files[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
@@ -34,8 +38,13 @@ const ProfilePage = () => {
     reader.readAsDataURL(file);
     reader.onload = async () => {
       const base64Image = reader.result;
-      setSelectedImg(base64Image);
-      await updateProfile({ profilePic: base64Image });
+      if (type === "profile") {
+        setSelectedImg(base64Image);
+        await updateProfile({ profilePic: base64Image });
+      } else {
+        setSelectedBanner(base64Image);
+        await updateProfile({ bannerPic: base64Image });
+      }
     };
   };
 
@@ -64,239 +73,241 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bg-main py-8 px-4 sm:px-8 text-white flex justify-center overflow-y-auto">
-      <div className="w-full max-w-3xl flex flex-col gap-8 animate-in fade-in">
+    <div className="h-full bg-[#09090b] overflow-y-auto custom-scrollbar pb-20 relative">
+      
+      {/* Banner Section */}
+      <div className="w-full h-48 md:h-64 lg:h-72 relative bg-[#18181b] group">
+        {(selectedBanner || authUser?.bannerPic) ? (
+          <img 
+            src={selectedBanner || authUser?.bannerPic} 
+            className="w-full h-full object-cover" 
+            alt="Profile Banner" 
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-tr from-[#18181b] to-indigo-900/20" />
+        )}
         
-        {/* Header Title */}
-        <div className="text-center mt-4 relative flex justify-center items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Your Profile</h1>
-            <p className="text-text-secondary mt-2">Manage your account information</p>
-          </div>
-          <div className="absolute right-0">
-            {!isEditing ? (
-              <button 
-                onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500 hover:text-white rounded-xl transition-colors font-semibold"
-              >
-                <Edit2 size={18} />
-                <span className="hidden sm:inline">Edit Profile</span>
-              </button>
-            ) : (
-              <div className="flex gap-2">
-                <button 
-                  onClick={handleSave}
-                  disabled={isUpdatingProfile}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white hover:bg-green-600 rounded-xl transition-colors font-semibold disabled:opacity-50"
-                >
-                  <Check size={18} />
-                  <span className="hidden sm:inline">Save</span>
-                </button>
-                <button 
-                  onClick={() => {
-                    setIsEditing(false);
-                    setFormData({
-                      username: authUser?.username || "",
-                      email: authUser?.email || "",
-                      phone: authUser?.phone || authUser?.phoneNumber || "",
-                      gender: authUser?.gender || "",
-                      bio: authUser?.bio || "",
-                      currentPassword: "",
-                      newPassword: "",
-                    });
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-colors font-semibold"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            )}
-          </div>
+        {/* Banner Overlay & Edit Button */}
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-end p-4">
+          <label className="p-2 bg-black/50 hover:bg-black/70 backdrop-blur-md rounded-full cursor-pointer text-white transition-all shadow-lg border border-white/10">
+            <ImageIcon size={20} />
+            <input 
+              type="file" 
+              className="hidden" 
+              accept="image/*" 
+              onChange={(e) => handleImageUpload(e, "banner")}
+              disabled={isUpdatingProfile}
+            />
+          </label>
         </div>
+      </div>
 
-        {/* Profile Card Center */}
-        <div className="glass-morphism rounded-3xl p-8 shadow-xl flex flex-col items-center">
-          
-          {/* Avatar */}
-          <div className="relative group mb-6">
-            <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden border-4 border-indigo-500/30 bg-black/40 flex items-center justify-center">
-              {selectedImg || authUser?.profilePic ? (
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 -mt-16 sm:-mt-20">
+        
+        {/* Profile Header (Avatar & Top Actions) */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div className="relative inline-block group">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-[#09090b] bg-[#18181b] shadow-2xl relative">
+              {(selectedImg || authUser?.profilePic) ? (
                 <img
                   src={selectedImg || authUser.profilePic}
                   alt="Profile"
-                  className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <User className="w-16 h-16 sm:w-20 sm:h-20 text-zinc-500" />
+                <User className="w-16 h-16 text-zinc-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
               )}
               {isUpdatingProfile && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                  <div className="w-8 h-8 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
             </div>
             <label
-              htmlFor="avatar-upload"
               className={`
-                absolute bottom-2 right-2 
-                bg-indigo-500 hover:bg-indigo-400
-                p-3 sm:p-4 rounded-full cursor-pointer shadow-lg
-                transition-all duration-300 z-10 
-                ${isUpdatingProfile ? "pointer-events-none opacity-50" : "hover:scale-110 hover:-translate-y-1"}
+                absolute bottom-2 right-2 bg-indigo-500 hover:bg-indigo-400
+                p-2.5 rounded-full cursor-pointer shadow-lg
+                transition-transform z-10 border-[3px] border-[#09090b]
+                ${isUpdatingProfile ? "pointer-events-none opacity-50" : "hover:scale-110"}
               `}
             >
-              <Camera className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <Camera className="w-5 h-5 text-white" />
               <input
                 type="file"
-                id="avatar-upload"
                 className="hidden"
                 accept="image/*"
-                onChange={handleImageUpload}
+                onChange={(e) => handleImageUpload(e, "profile")}
                 disabled={isUpdatingProfile}
               />
             </label>
           </div>
 
-          {!isEditing ? (
-            <h2 className="text-2xl sm:text-3xl font-bold mb-1">@{authUser?.username}</h2>
-          ) : (
-            <input 
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              placeholder="Username"
-              className="text-2xl sm:text-3xl font-bold mb-1 bg-black/30 border border-indigo-500/50 rounded-lg px-4 py-2 text-center text-white outline-none focus:border-indigo-500 w-full max-w-sm"
-            />
-          )}
-          
-          <div className="flex flex-wrap gap-3 mt-3 justify-center items-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-              </span>
-              <span className="text-green-400 text-xs font-bold uppercase tracking-wider">Online</span>
-            </div>
+          <div className="flex items-center gap-3">
+            {!isEditing ? (
+              <button 
+                onClick={() => setIsEditing(true)}
+                className="px-6 py-2 bg-white/10 hover:bg-white/15 text-white rounded-full font-semibold transition-colors border border-white/5"
+              >
+                Edit Profile
+              </button>
+            ) : (
+              <>
+                <button 
+                  onClick={() => setIsEditing(false)}
+                  className="px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-full font-semibold transition-colors border border-white/5"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleSave}
+                  disabled={isUpdatingProfile}
+                  className="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full font-semibold transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50"
+                >
+                  Save Changes
+                </button>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Info Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
+        {/* Profile Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Personal Info */}
-          <div className="glass-morphism rounded-3xl p-6 shadow-lg hover:border-indigo-500/30 transition-all duration-300">
-            <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-indigo-300">
-              <User size={20} />
-              Personal Details
-            </h3>
-            <div className="space-y-4">
-              <InfoRow 
-                icon={Mail} label="Email" 
-                value={formData.email} name="email" 
-                isEditing={isEditing} onChange={handleChange} 
-              />
-              <InfoRow 
-                icon={Phone} label="Phone" 
-                value={formData.phone} name="phone" 
-                isEditing={isEditing} onChange={handleChange} 
-              />
+          {/* Left Column: Identity & Stats */}
+          <div className="lg:col-span-1 flex flex-col gap-6">
+            <div className="bg-[#18181b] p-6 rounded-3xl border border-white/5 shadow-xl">
               {!isEditing ? (
-                <InfoRow 
-                  icon={User} label="Gender" 
-                  value={formData.gender || "Not provided"} name="gender" 
-                  isEditing={false} capitalize={true} 
-                />
+                <h1 className="text-2xl font-bold text-white mb-1">
+                  {authUser?.username}
+                </h1>
               ) : (
-                <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-white/5">
-                  <div className="flex items-center gap-3 w-1/3">
-                    <User className="text-zinc-400" size={18} />
-                    <span className="text-sm font-medium text-zinc-400">Gender</span>
-                  </div>
-                  <select 
-                    name="gender" 
-                    value={formData.gender} 
-                    onChange={handleChange}
-                    className="w-2/3 bg-black/30 border border-indigo-500/50 rounded-lg px-3 py-1.5 text-sm font-semibold text-white outline-none focus:border-indigo-500"
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                    <option value="prefer_not_to_say">Prefer not to say</option>
-                  </select>
-                </div>
+                <input 
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="Username"
+                  className="text-2xl font-bold bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-indigo-500 w-full mb-3"
+                />
+              )}
+              
+              {!isEditing && (
+                <p className="text-zinc-400 text-sm mb-4">
+                  {formData.bio || "No bio yet."}
+                </p>
+              )}
+              {isEditing && (
+                <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  placeholder="Add a bio..."
+                  className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm text-white outline-none resize-none h-24 mb-4"
+                />
               )}
 
-              {/* Bio Field */}
-              <div className="flex flex-col gap-2 p-4 bg-black/20 rounded-xl border border-white/5">
-                <div className="flex items-center gap-3">
-                  <Activity className="text-zinc-400" size={18} />
-                  <span className="text-sm font-medium text-zinc-400">Bio</span>
+              <div className="flex items-center gap-2 mb-6">
+                <Calendar size={16} className="text-zinc-500" />
+                <span className="text-sm text-zinc-500">Joined {new Date(authUser?.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-6">
+                <div className="text-center">
+                  <div className="text-xl font-bold text-white">{authUser?.friends?.length || 0}</div>
+                  <div className="text-xs text-zinc-500 uppercase font-semibold">Friends</div>
                 </div>
-                {!isEditing ? (
-                  <p className="text-sm font-semibold text-white mt-1 whitespace-pre-wrap">
-                    {formData.bio || "No bio provided yet."}
-                  </p>
-                ) : (
-                  <textarea
-                    name="bio"
-                    value={formData.bio}
-                    onChange={handleChange}
-                    placeholder="Tell us about yourself..."
-                    className="w-full bg-black/30 border border-indigo-500/50 rounded-lg px-3 py-2 text-sm font-semibold text-white outline-none focus:border-indigo-500 resize-none h-24 mt-1"
-                  />
-                )}
+                <div className="text-center">
+                  <div className="text-xl font-bold text-white">Online</div>
+                  <div className="text-xs text-zinc-500 uppercase font-semibold">Status</div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Account Info & Security */}
-          <div className="glass-morphism rounded-3xl p-6 shadow-lg hover:border-indigo-500/30 transition-all duration-300 flex flex-col">
-            <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-indigo-300">
-              <Shield size={20} />
-              Security & Status
-            </h3>
-            <div className="space-y-4 flex-1">
-              <InfoRow icon={Calendar} label="Member Since" value={authUser?.createdAt ? new Date(authUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Unknown'} />
-              <InfoRow icon={Activity} label="Status" value="Active & Verified" valueColor="text-green-400" />
-              
-              {isEditing && (
-                <div className="mt-6 space-y-4 border-t border-white/10 pt-4">
-                  <h4 className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-                    <Key size={16} />
-                    Change Password
-                  </h4>
-                  <input
-                    type="password"
-                    name="currentPassword"
-                    value={formData.currentPassword}
-                    onChange={handleChange}
-                    placeholder="Current Password"
-                    className="w-full bg-black/30 border border-white/10 focus:border-indigo-500 rounded-lg px-4 py-2.5 text-sm text-white outline-none transition-colors"
-                  />
-                  <input
-                    type="password"
-                    name="newPassword"
-                    value={formData.newPassword}
-                    onChange={handleChange}
-                    placeholder="New Password (min 6 characters)"
-                    className="w-full bg-black/30 border border-white/10 focus:border-indigo-500 rounded-lg px-4 py-2.5 text-sm text-white outline-none transition-colors"
-                  />
-                  <p className="text-xs text-zinc-500">Leave blank if you don't want to change it.</p>
-                </div>
-              )}
-
-              <div className="pt-6 mt-auto">
-                <button
-                  onClick={handleDeleteAccount}
-                  className="w-full flex items-center justify-center gap-2 p-3 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border border-red-500/20 rounded-xl transition-all duration-300 font-bold group"
-                >
-                  <Trash2 size={18} className="transition-transform group-hover:scale-110" />
-                  Delete Account
-                </button>
+          {/* Right Column: Settings & Details */}
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            
+            <div className="bg-[#18181b] p-6 sm:p-8 rounded-3xl border border-white/5 shadow-xl">
+              <h3 className="text-lg font-bold text-white mb-6">Personal Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InfoRow icon={Mail} label="Email" value={formData.email} name="email" isEditing={isEditing} onChange={handleChange} />
+                <InfoRow icon={Phone} label="Phone" value={formData.phone} name="phone" isEditing={isEditing} onChange={handleChange} />
+                
+                {!isEditing ? (
+                  <InfoRow icon={User} label="Gender" value={formData.gender || "Not specified"} name="gender" isEditing={false} capitalize={true} />
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Gender</label>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+                      <select 
+                        name="gender" 
+                        value={formData.gender} 
+                        onChange={handleChange}
+                        className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl pl-12 pr-4 py-3 text-sm font-semibold text-white outline-none appearance-none"
+                      >
+                        <option value="" className="bg-zinc-900">Select Gender</option>
+                        <option value="male" className="bg-zinc-900">Male</option>
+                        <option value="female" className="bg-zinc-900">Female</option>
+                        <option value="other" className="bg-zinc-900">Other</option>
+                        <option value="prefer_not_to_say" className="bg-zinc-900">Prefer not to say</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
+
+            <AnimatePresence>
+              {isEditing && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-[#18181b] p-6 sm:p-8 rounded-3xl border border-white/5 shadow-xl overflow-hidden"
+                >
+                  <h3 className="text-lg font-bold text-white mb-6">Change Password</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Current Password</label>
+                      <input
+                        type="password"
+                        name="currentPassword"
+                        value={formData.currentPassword}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm text-white outline-none transition-all"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-bold text-zinc-500 uppercase ml-1">New Password</label>
+                      <input
+                        type="password"
+                        name="newPassword"
+                        value={formData.newPassword}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm text-white outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="bg-[#18181b] p-6 sm:p-8 rounded-3xl border border-red-500/10 shadow-xl mt-4">
+              <h3 className="text-lg font-bold text-red-400 mb-2">Danger Zone</h3>
+              <p className="text-sm text-zinc-500 mb-6">
+                Once you delete your account, there is no going back. Please be certain.
+              </p>
+              <button
+                onClick={handleDeleteAccount}
+                className="px-6 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-full font-semibold transition-colors border border-red-500/20 flex items-center gap-2"
+              >
+                <Trash2 size={18} /> Delete Account
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
@@ -304,25 +315,28 @@ const ProfilePage = () => {
   );
 };
 
-const InfoRow = ({ icon: Icon, label, value, name, isEditing, onChange, valueColor = "text-white", capitalize = false }) => (
-  <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-    <div className="flex items-center gap-3 w-1/3">
-      <Icon className="text-zinc-400" size={18} />
-      <span className="text-sm font-medium text-zinc-400">{label}</span>
-    </div>
-    
+const InfoRow = ({ icon: Icon, label, value, name, isEditing, onChange, capitalize = false }) => (
+  <div className="flex flex-col gap-2">
+    <label className="text-xs font-bold text-zinc-500 uppercase ml-1">{label}</label>
     {!isEditing || !onChange ? (
-      <span className={`w-2/3 text-right text-sm font-semibold truncate ${valueColor} ${capitalize ? 'capitalize' : ''}`}>
-        {value}
-      </span>
+      <div className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 flex items-center gap-3">
+        <Icon className="text-zinc-500 shrink-0" size={18} />
+        <span className={`text-sm font-semibold text-white/90 truncate flex-1 ${capitalize ? 'capitalize' : ''}`}>
+          {value || "Not provided"}
+        </span>
+      </div>
     ) : (
-      <input
-        type="text"
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-2/3 bg-black/30 border border-indigo-500/50 rounded-lg px-3 py-1.5 text-sm font-semibold text-right text-white outline-none focus:border-indigo-500"
-      />
+      <div className="relative flex items-center">
+        <Icon className="absolute left-4 text-zinc-500 pointer-events-none" size={18} />
+        <input
+          type="text"
+          name={name}
+          value={value}
+          onChange={onChange}
+          className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none transition-all"
+          placeholder={`Enter your ${label.toLowerCase()}`}
+        />
+      </div>
     )}
   </div>
 );

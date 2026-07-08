@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Loader, MessageSquare } from "lucide-react";
 import { Toaster } from "react-hot-toast";
@@ -16,8 +16,21 @@ import CallManager from "./components/CallManager";
 
 import { motion, AnimatePresence } from "framer-motion";
 
+const PageWrapper = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    exit={{ opacity: 0, y: -10, scale: 0.98 }}
+    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+    className="h-full w-full absolute inset-0"
+  >
+    {children}
+  </motion.div>
+);
+
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+  const location = useLocation();
 
   useEffect(() => {
     checkAuth();
@@ -53,26 +66,24 @@ const App = () => {
     );
 
   return (
-    <div className="h-screen flex flex-col bg-mesh text-white overflow-hidden">
-      <Navbar />
+    <div className="h-[100dvh] w-screen flex flex-col sm:flex-row bg-[#09090b] text-white overflow-hidden">
+      {authUser && <Navbar />}
       <CallManager />
 
-      <main className="flex-1 min-h-0 relative">
-        <Routes>
-          <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
-          <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
-          <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
-          <Route path="/forgot-password" element={!authUser ? <ForgotPasswordPage /> : <Navigate to="/" />} />
-          <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
-          <Route path="/dashboard" element={authUser ? <DashboardPage /> : <Navigate to="/login" />} />
-          {/* Fallback wildcard to redirect mistyped routes like /homepage */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+      <main className="flex-1 h-full min-w-0 relative overflow-hidden flex flex-col pb-16 sm:pb-0">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={authUser ? <PageWrapper><HomePage /></PageWrapper> : <Navigate to="/login" />} />
+            <Route path="/signup" element={!authUser ? <PageWrapper><SignUpPage /></PageWrapper> : <Navigate to="/" />} />
+            <Route path="/login" element={!authUser ? <PageWrapper><LoginPage /></PageWrapper> : <Navigate to="/" />} />
+            <Route path="/forgot-password" element={!authUser ? <PageWrapper><ForgotPasswordPage /></PageWrapper> : <Navigate to="/" />} />
+            <Route path="/profile" element={authUser ? <PageWrapper><ProfilePage /></PageWrapper> : <Navigate to="/login" />} />
+            <Route path="/dashboard" element={authUser ? <PageWrapper><DashboardPage /></PageWrapper> : <Navigate to="/login" />} />
+            {/* Fallback wildcard to redirect mistyped routes like /homepage */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </AnimatePresence>
       </main>
-
-
-
-
       <Toaster 
         toastOptions={{
           style: {

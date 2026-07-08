@@ -1,18 +1,42 @@
 import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { axiosInstance } from "../lib/axios";
-import { Search, UserPlus, Check, X, Users } from "lucide-react";
+import { Search, UserPlus, Check, X, Users, Compass, Activity, Clock } from "lucide-react";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 const DashboardPage = () => {
   const { authUser, checkAuth } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [discoverUsers, setDiscoverUsers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [activeTab, setActiveTab] = useState("discover"); // "discover", "requests"
+  const [selectedProfile, setSelectedProfile] = useState(null);
+
+  // Fetch all users for discover initially
+  useEffect(() => {
+    const fetchDiscover = async () => {
+      try {
+        const res = await axiosInstance.get(`/users/search?query=`);
+        // Filter out already friends
+        const nonFriends = res.data.filter(u => !authUser?.friends?.includes(u._id));
+        setDiscoverUsers(nonFriends);
+      } catch (error) {
+        console.error("Failed to fetch discover users");
+      }
+    };
+    if (authUser) {
+      fetchDiscover();
+    }
+  }, [authUser]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
     setIsSearching(true);
     try {
       const res = await axiosInstance.get(`/users/search?query=${searchQuery}`);
@@ -28,10 +52,29 @@ const DashboardPage = () => {
     try {
       await axiosInstance.post(`/users/request/${userId}`);
       toast.success("Friend request sent!");
-      // Update local state to immediately disable the button
-      setSearchResults(prev => prev.map(u => u._id === userId ? { ...u, requestSent: true } : u));
+      
+      // Update local state
+      const updateFn = prev => prev.map(u => u._id === userId ? { ...u, requestSent: true } : u);
+      setSearchResults(updateFn);
+      setDiscoverUsers(updateFn);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to send request");
+    }
+  };
+
+  const cancelRequest = async (userId) => {
+    try {
+      await axiosInstance.delete(`/users/request/cancel/${userId}`);
+      toast.success("Friend request cancelled");
+      
+      const updateFn = prev => prev.map(u => u._id === userId ? { ...u, requestSent: false } : u);
+      setSearchResults(updateFn);
+      setDiscoverUsers(updateFn);
+      if (selectedProfile && selectedProfile._id === userId) {
+        setSelectedProfile(prev => ({ ...prev, requestSent: false }));
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to cancel request");
     }
   };
 
@@ -45,157 +88,305 @@ const DashboardPage = () => {
     }
   };
 
+  const UserCard = ({ user, isFriend, isPending }) => (
+    <motion.div 
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      onClick={() => setSelectedProfile(user)}
+      className="glass-morphism p-5 rounded-2xl flex flex-col items-center gap-4 hover-lift group relative overflow-hidden cursor-pointer"
+    >
+      <div className="absolute top-0 w-full h-16 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+      
+      <div className="relative">
+        <img src={user.profilePic || "/avatar.svg"} alt="" className="size-20 rounded-[1.25rem] object-cover shadow-lg border border-white/10 group-hover:scale-105 transition-transform duration-500" />
+        <div className="absolute -bottom-2 -right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-full border border-white/10 flex items-center gap-1 shadow-xl">
+          <div className="size-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="text-[9px] font-bold uppercase tracking-wider text-green-400">Online</span>
+        </div>
+      </div>
+      
+      <div className="text-center w-full">
+        <h3 className="font-bold text-lg truncate px-2">{user.username}</h3>
+        <p className="text-xs text-text-secondary truncate mt-1 px-2">{user.email}</p>
+      </div>
+
+      <div className="w-full pt-2">
+        {isFriend ? (
+          <button 
+            onClick={async (e) => {
+              e.stopPropagation();
+              try {
+                await axiosInstance.delete(`/users/remove/${user._id}`);
+                toast.success("Friend removed");
+                checkAuth();
+              } catch (error) {
+                toast.error("Failed to remove friend");
+              }
+            }}
+            className="w-full btn bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white justify-center py-2.5 transition-colors"
+          >
+            Remove Friend
+          </button>
+        ) : (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              if (user.requestSent) {
+                cancelRequest(user._id);
+              } else if (!isPending) {
+                sendRequest(user._id);
+              }
+            }}
+            className={`w-full btn justify-center py-2.5 transition-all shadow-lg ${user.requestSent ? 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white' : isPending ? 'bg-white/10 text-white/50 cursor-not-allowed' : 'btn-primary'}`}
+            disabled={isPending && !user.requestSent}
+          >
+            {user.requestSent ? "Cancel Request" : isPending ? "Request Sent" : (
+              <>
+                <UserPlus size={18} /> Add Friend
+              </>
+            )}
+          </button>
+        )}
+      </div>
+    </motion.div>
+  );
+
+  const UserProfileModal = ({ user, onClose }) => {
+    if (!user) return null;
+    const isFriend = authUser?.friends?.includes(user._id);
+    const isPending = user.requestSent || authUser?.friendRequests?.some(r => r.from === user._id);
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          onClick={(e) => e.stopPropagation()}
+          className="bg-zinc-950 border border-white/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl relative"
+        >
+          <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors">
+            <X size={20} />
+          </button>
+          
+          <div className="flex flex-col items-center text-center">
+            <img src={user.profilePic || "/avatar.svg"} alt={user.username} className="size-28 rounded-full object-cover border-4 border-white/5 shadow-xl mb-4" />
+            <h2 className="text-2xl font-bold text-white">{user.username}</h2>
+            <p className="text-sm text-zinc-400 mt-2 font-medium bg-white/5 px-4 py-1.5 rounded-full">
+              {user.friends?.length || 0} Friends
+            </p>
+            {user.bio && (
+              <p className="mt-4 text-zinc-300 text-sm leading-relaxed max-w-[250px]">"{user.bio}"</p>
+            )}
+            
+            <div className="w-full mt-8">
+              {isFriend ? (
+                <button 
+                  onClick={async () => {
+                    try {
+                      await axiosInstance.delete(`/users/remove/${user._id}`);
+                      toast.success("Friend removed");
+                      checkAuth();
+                      onClose();
+                    } catch (error) {
+                      toast.error("Failed to remove friend");
+                    }
+                  }}
+                  className="w-full btn bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white justify-center py-3 rounded-xl transition-colors"
+                >
+                  Remove Friend
+                </button>
+              ) : (
+                <button 
+                  onClick={() => { 
+                    if (user.requestSent) {
+                      cancelRequest(user._id);
+                    } else if (!isPending) {
+                      sendRequest(user._id);
+                    }
+                  }}
+                  className={`w-full btn justify-center py-3 rounded-xl transition-all shadow-lg ${user.requestSent ? 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white' : isPending ? 'bg-white/10 text-white/50 cursor-not-allowed' : 'btn-primary'}`}
+                  disabled={isPending && !user.requestSent}
+                >
+                  {user.requestSent ? "Cancel Request" : isPending ? "Request Sent" : (
+                    <>
+                      <UserPlus size={18} className="mr-2" /> Add Friend
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  };
+
   return (
-    <div className="h-full py-8 bg-bg-main overflow-y-auto custom-scrollbar">
-      <div className="max-w-6xl mx-auto p-4 space-y-8">
+    <div className="h-full bg-[#09090b] overflow-y-auto custom-scrollbar">
+      <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
         
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="glass-morphism p-6 rounded-2xl border border-glass-border flex items-center gap-4 hover:border-primary/50 transition-colors">
-            <div className="p-4 bg-primary/10 text-primary rounded-xl">
-              <Users size={24} />
-            </div>
-            <div>
-              <p className="text-text-secondary text-sm">Total Friends</p>
-              <p className="text-2xl font-bold">{authUser?.friends?.length || 0}</p>
-            </div>
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Social Hub</h1>
+            <p className="text-zinc-400 mt-2 text-sm font-medium flex items-center gap-2">
+              <Activity size={16} className="text-primary" /> Connect with {discoverUsers.length} people worldwide
+            </p>
           </div>
           
-          <div className="glass-morphism p-6 rounded-2xl border border-glass-border flex items-center gap-4 hover:border-primary/50 transition-colors">
-            <div className="p-4 bg-yellow-500/10 text-yellow-500 rounded-xl">
-              <UserPlus size={24} />
-            </div>
-            <div>
-              <p className="text-text-secondary text-sm">Pending Requests</p>
-              <p className="text-2xl font-bold">{authUser?.friendRequests?.length || 0}</p>
-            </div>
-          </div>
-
-          <div className="glass-morphism p-6 rounded-2xl border border-glass-border flex items-center gap-4 hover:border-primary/50 transition-colors">
-            <div className="p-4 bg-green-500/10 text-green-500 rounded-xl">
-              <Check size={24} />
-            </div>
-            <div>
-              <p className="text-text-secondary text-sm">Profile Status</p>
-              <p className="text-2xl font-bold">Active</p>
-            </div>
+          <div className="flex bg-[#18181b] rounded-2xl p-1 border border-white/5 w-full md:w-auto">
+            <button 
+              onClick={() => setActiveTab("discover")}
+              className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${activeTab === "discover" ? "bg-white/10 text-white" : "text-zinc-500 hover:text-white hover:bg-white/5"}`}
+            >
+              <Compass size={18} /> Discover
+            </button>
+            <button 
+              onClick={() => setActiveTab("requests")}
+              className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${activeTab === "requests" ? "bg-white/10 text-white" : "text-zinc-500 hover:text-white hover:bg-white/5"}`}
+            >
+              <div className="relative">
+                <Users size={18} />
+                {(authUser?.friendRequests?.length > 0) && (
+                  <span className="absolute -top-1 -right-2 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                  </span>
+                )}
+              </div>
+              Requests
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Search Section */}
-          <section className="glass-morphism p-8 rounded-2xl border border-glass-border flex flex-col h-[500px]">
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <Search className="text-primary" /> Find People
-            </h2>
-            <form onSubmit={handleSearch} className="flex gap-4 mb-6">
-              <input
-                type="text"
-                className="input-field pl-5 flex-1"
-                placeholder="Search by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button type="submit" className="btn btn-primary px-6" disabled={isSearching}>
-                {isSearching ? "..." : "Search"}
-              </button>
-            </form>
+        {/* Global Search */}
+        <div className="bg-[#18181b] p-2 pl-6 rounded-[2rem] flex items-center border border-white/10 focus-within:border-primary/50 transition-all max-w-2xl">
+          <Search className="text-zinc-500" size={20} />
+          <form onSubmit={handleSearch} className="flex-1 flex gap-2 ml-4">
+            <input
+              type="text"
+              className="w-full bg-transparent border-none outline-none text-white placeholder-zinc-500 py-3 text-lg"
+              placeholder="Search users by username or email..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (e.target.value === "") setSearchResults([]);
+              }}
+            />
+            <button type="submit" className="btn btn-primary rounded-xl px-8" disabled={isSearching}>
+              {isSearching ? <span className="animate-pulse">...</span> : "Search"}
+            </button>
+          </form>
+        </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
-              {searchResults.length === 0 && !isSearching && (
-                <div className="h-full flex items-center justify-center text-text-secondary">
-                  Search for users to add them as friends
+        {/* Content Area */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={searchQuery ? "search" : activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="w-full"
+          >
+            {searchQuery ? (
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Search size={20} className="text-primary" /> 
+                  Search Results ({searchResults.length})
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                  {searchResults.map((user) => {
+                    const isFriend = authUser?.friends?.includes(user._id);
+                    const isPending = user.requestSent || authUser?.friendRequests?.some(r => r.from === user._id);
+                    return <UserCard key={user._id} user={user} isFriend={isFriend} isPending={isPending} />;
+                  })}
                 </div>
-              )}
-              {searchResults.map((user) => {
-                const isFriend = authUser?.friends?.includes(user._id);
-                // The user has sent a request to us, OR we have sent a request to them
-                const isPending = user.requestSent || authUser?.friendRequests?.some(r => r.from === user._id);
+                {searchResults.length === 0 && !isSearching && (
+                  <div className="text-center py-20 text-zinc-500">No users found matching "{searchQuery}"</div>
+                )}
+              </div>
+            ) : activeTab === "discover" ? (
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Compass size={20} className="text-primary" /> 
+                  People You Might Know
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                  {discoverUsers.map((user) => {
+                    const isFriend = authUser?.friends?.includes(user._id);
+                    const isPending = user.requestSent || authUser?.friendRequests?.some(r => r.from === user._id);
+                    return <UserCard key={user._id} user={user} isFriend={isFriend} isPending={isPending} />;
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Clock size={20} className="text-primary" /> 
+                  Pending Friend Requests
+                </h2>
                 
-                return (
-                  <div key={user._id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-glass-border hover:bg-white/10 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <img src={user.profilePic || "/avatar.png"} alt="" className="size-10 rounded-full object-cover" />
-                      <div>
-                        <div className="font-medium">{user.fullName}</div>
-                        <div className="text-xs text-text-secondary">{user.email}</div>
-                      </div>
+                {(!authUser?.friendRequests || authUser.friendRequests.length === 0) ? (
+                  <div className="glass-morphism p-12 rounded-3xl flex items-center justify-center text-text-secondary flex-col gap-4 max-w-2xl mx-auto mt-12 text-center">
+                    <div className="p-6 bg-white/5 rounded-full border border-white/10 shadow-2xl">
+                      <Users size={48} className="opacity-40" />
                     </div>
-                    <div className="flex gap-2">
-                      {isFriend ? (
-                        <button 
-                          onClick={async () => {
-                            try {
-                              await axiosInstance.delete(`/users/remove/${user._id}`);
-                              toast.success("Friend removed");
-                              checkAuth();
-                            } catch (error) {
-                              toast.error("Failed to remove friend");
-                            }
-                          }}
-                          className="btn btn-sm bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                        >
-                          Remove
-                        </button>
-                      ) : (
-                        <button 
-                          onClick={() => sendRequest(user._id)}
-                          className="btn btn-sm bg-primary/10 text-primary hover:bg-primary/20"
-                          disabled={isPending}
-                        >
-                          {isPending ? "Pending" : <UserPlus size={16} />}
-                        </button>
-                      )}
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-2">You're all caught up!</h3>
+                      <p>You have no pending friend requests at the moment. Try discovering new people.</p>
                     </div>
+                    <button onClick={() => setActiveTab("discover")} className="btn bg-white/10 hover:bg-white/20 mt-4 px-8 py-3 rounded-full">
+                      Browse Discover
+                    </button>
                   </div>
-                );
-              })}
-            </div>
-          </section>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {authUser.friendRequests.map((request) => (
+                      <motion.div 
+                        key={request._id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="glass-morphism p-5 rounded-2xl flex flex-col items-center gap-4 shadow-xl border border-white/10"
+                      >
+                        <img src={request.from?.profilePic || "/avatar.svg"} alt="" className="size-20 rounded-full object-cover shadow-lg border-2 border-primary/50" />
+                        <div className="text-center w-full">
+                          <h3 className="font-bold text-lg truncate px-2">{request.from?.username}</h3>
+                          <p className="text-xs text-primary font-medium mt-1">Wants to connect</p>
+                        </div>
+                        <div className="flex gap-3 w-full mt-2">
+                          <button 
+                            onClick={() => handleRequest(request._id, "rejected")}
+                            className="flex-1 btn bg-white/5 hover:bg-red-500 hover:text-white text-zinc-400 justify-center py-2.5 transition-colors border border-white/5"
+                          >
+                            <X size={18} />
+                          </button>
+                          <button 
+                            onClick={() => handleRequest(request._id, "accepted")}
+                            className="flex-1 btn bg-primary/20 text-indigo-300 hover:bg-primary hover:text-white justify-center py-2.5 transition-colors shadow-[0_0_15px_rgba(99,102,241,0.2)]"
+                          >
+                            <Check size={18} /> Accept
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
-          {/* Requests Section */}
-          <section className="glass-morphism p-8 rounded-2xl border border-glass-border flex flex-col h-[500px]">
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <Users className="text-primary" /> Friend Requests
-            </h2>
-            <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
-              {(!authUser?.friendRequests || authUser.friendRequests.length === 0) ? (
-                <div className="h-full flex items-center justify-center text-text-secondary flex-col gap-2">
-                  <div className="p-4 bg-white/5 rounded-full">
-                    <Users size={32} className="opacity-50" />
-                  </div>
-                  <p>No pending friend requests</p>
-                </div>
-              ) : (
-                authUser.friendRequests.map((request) => (
-                  <div key={request._id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-glass-border hover:bg-white/10 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <img src={request.from?.profilePic || "/avatar.png"} alt="" className="size-10 rounded-full object-cover" />
-                      <div>
-                        <div className="font-medium">{request.from?.fullName}</div>
-                        <div className="text-xs text-text-secondary">Wants to be friends</div>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleRequest(request._id, "accepted")}
-                        className="btn btn-sm bg-green-500/20 text-green-500 hover:bg-green-500/30"
-                      >
-                        <Check size={16} />
-                      </button>
-                      <button 
-                        onClick={() => handleRequest(request._id, "rejected")}
-                        className="btn btn-sm bg-red-500/20 text-red-500 hover:bg-red-500/30"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-        </div>
+        <AnimatePresence>
+          {selectedProfile && (
+            <UserProfileModal user={selectedProfile} onClose={() => setSelectedProfile(null)} />
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

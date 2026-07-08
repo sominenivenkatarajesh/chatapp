@@ -53,12 +53,12 @@ const LoginPage = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="auth-form-wrapper">
             <div className="auth-input-wrapper">
-              <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">Username</label>
+              <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">Username, Email, or Phone</label>
               <div className="input-group">
                 <User className="left-icon" />
                 <input
                   type="text"
-                  placeholder="johndoe"
+                  placeholder="johndoe or you@example.com"
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   required

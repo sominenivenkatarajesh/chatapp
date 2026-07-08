@@ -140,6 +140,20 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  updateChatSettings: async (friendId, data) => {
+    try {
+      const res = await axiosInstance.post(`/users/chat-settings/${friendId}`, data);
+      set((state) => {
+        if (!state.authUser) return state;
+        const newSettings = { ...state.authUser.chatSettings, [friendId]: res.data };
+        return { authUser: { ...state.authUser, chatSettings: newSettings } };
+      });
+      toast.success("Chat settings updated!");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update chat settings");
+    }
+  },
+
   deleteAccount: async () => {
     try {
       await axiosInstance.delete("/auth/delete-account");
@@ -171,17 +185,17 @@ export const useAuthStore = create((set, get) => ({
     });
 
     socket.on("newFriendRequest", ({ from }) => {
-      toast.success(`${from.fullName} sent you a friend request!`);
+      toast.success(`${from.username} sent you a friend request!`);
       get().checkAuth(); // Refresh user data to show the request
     });
 
-    socket.on("friendRequestAccepted", ({ fullName }) => {
-      toast.success(`You and ${fullName} have become friends!`);
+    socket.on("friendRequestAccepted", ({ username }) => {
+      toast.success(`You and ${username} have become friends!`);
       get().checkAuth(); // Refresh user data to update friend list
     });
 
-    socket.on("friendRequestRejected", ({ fullName }) => {
-      toast.error(`${fullName} rejected your friend request.`);
+    socket.on("friendRequestRejected", ({ username }) => {
+      toast.error(`${username} rejected your friend request.`);
       get().checkAuth();
     });
   },

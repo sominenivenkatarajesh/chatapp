@@ -33,7 +33,7 @@ const PeerVideo = ({ peerData, isMinimized }) => {
       {!isMinimized && (
         <div className="absolute bottom-4 left-4 px-3 py-1 bg-black/50 backdrop-blur-md rounded-lg text-xs border border-white/10 flex items-center gap-2">
           <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-          {user?.fullName || "Partner"}
+          {user?.username || "Partner"}
         </div>
       )}
     </div>
@@ -207,7 +207,7 @@ const CallManager = () => {
                   {isCameraOff ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-800">
                       <div className={`${isMinimized ? 'size-12 text-xl' : 'size-20 text-4xl'} rounded-full bg-zinc-700 flex items-center justify-center uppercase font-bold`}>
-                        {useAuthStore.getState().authUser?.fullName?.charAt(0)}
+                        {useAuthStore.getState().authUser?.username?.charAt(0)}
                       </div>
                       {!isMinimized && <p className="mt-4 text-zinc-400 font-medium">Camera Off</p>}
                     </div>
@@ -257,14 +257,14 @@ const CallManager = () => {
                               key={user._id}
                               onClick={() => {
                                 callUser(user._id);
-                                toast.success(`Calling ${user.fullName}...`);
+                                toast.success(`Calling ${user.username}...`);
                                 setShowAddFriend(false);
                               }}
                               className="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl transition-all group"
                             >
-                              <img src={user.profilePic || "/avatar.png"} className="size-10 rounded-full object-cover border border-white/10" />
+                              <img src={user.profilePic || "/avatar.svg"} className="size-10 rounded-full object-cover border border-white/10" />
                               <div className="flex flex-col text-left">
-                                <span className="text-sm font-medium">{user.fullName}</span>
+                                <span className="text-sm font-medium">{user.username}</span>
                                 <span className="text-[10px] text-green-500">Available</span>
                               </div>
                               <Phone className="size-4 ml-auto text-primary opacity-0 group-hover:opacity-100 transition-opacity" />

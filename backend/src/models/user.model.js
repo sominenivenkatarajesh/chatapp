@@ -41,6 +41,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    bannerPic: {
+      type: String,
+      default: "",
+    },
     friends: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -60,6 +64,14 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+    chatSettings: {
+      type: Map,
+      of: {
+        themeColor: { type: String, default: "" },
+        backgroundImage: { type: String, default: "" }
+      },
+      default: {}
+    },
   },
   { timestamps: true }
 );

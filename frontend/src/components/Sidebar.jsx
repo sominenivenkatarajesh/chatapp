@@ -15,7 +15,7 @@ const Sidebar = () => {
 
   // Sort and filter users
   const filteredUsers = users
-    .filter((user) => (user?.fullName || "").toLowerCase().includes((searchTerm || "").toLowerCase()))
+    .filter((user) => (user?.username || "").toLowerCase().includes((searchTerm || "").toLowerCase()))
     .sort((a, b) => {
       const aOnline = onlineUsers?.includes(a._id);
       const bOnline = onlineUsers?.includes(b._id);
@@ -29,7 +29,7 @@ const Sidebar = () => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full w-full lg:w-[360px] flex flex-col bg-[#0f0f13]/80 backdrop-blur-2xl z-10 border-r border-white/5 transition-all duration-300">
+    <aside className="h-full w-full flex flex-col z-10 transition-all duration-300">
       {/* Sidebar Header */}
       <div className="h-[72px] px-6 flex items-center justify-between border-b border-white/5 bg-transparent">
         <h2 className="text-white font-extrabold text-xl tracking-tight flex items-center gap-2">
@@ -90,8 +90,8 @@ const Sidebar = () => {
             >
               <div className="relative flex-shrink-0">
                 <img
-                  src={user.profilePic || "/avatar.png"}
-                  alt={user.fullName}
+                  src={user.profilePic || "/avatar.svg"}
+                  alt={user.username}
                   className={`size-12 object-cover rounded-2xl transition-transform duration-300 ${isSelected ? "scale-105 shadow-md" : ""}`}
                 />
                 {isOnline && (
@@ -102,7 +102,7 @@ const Sidebar = () => {
               <div className="flex flex-col text-left min-w-0 flex-1 justify-center pr-1">
                 <div className="flex justify-between items-center mb-0.5">
                   <span className={`font-semibold truncate text-[15px] ${isSelected ? "text-white" : "text-white/90"}`}>
-                    {user.fullName}
+                    {user.username}
                   </span>
                   <span className={`text-[11px] font-medium tracking-wide ${isOnline ? "text-emerald-400" : "text-white/30"}`}>
                     {isOnline ? "ONLINE" : "OFFLINE"}

@@ -256,8 +256,8 @@ const CallManager = () => {
                             <button
                               key={user._id}
                               onClick={() => {
-                                callUser(user._id);
-                                toast.success(`Calling ${user.username}...`);
+                                useCallStore.getState().inviteToGroupCall(user._id);
+                                toast.success(`Inviting ${user.username} to group...`);
                                 setShowAddFriend(false);
                               }}
                               className="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl transition-all group"

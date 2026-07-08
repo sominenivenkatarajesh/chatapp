@@ -2,6 +2,8 @@ import { Phone, Video, ArrowLeft, Search } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useCallStore } from "../store/useCallStore";
+import { useMusicStore } from "../store/useMusicStore";
+import { Music } from "lucide-react";
 
 const ChatHeader = ({ onProfileClick }) => {
   const { selectedUser, setSelectedUser } = useChatStore();
@@ -11,6 +13,17 @@ const ChatHeader = ({ onProfileClick }) => {
   const handleCall = async () => {
     await initiateStream();
     callUser(selectedUser._id);
+  };
+
+  const handleMusicInvite = () => {
+    const { roomId, createRoom, inviteUser } = useMusicStore.getState();
+    if (!roomId) {
+      createRoom();
+    }
+    // Small delay to ensure room is created on socket
+    setTimeout(() => {
+      inviteUser(selectedUser._id);
+    }, 100);
   };
 
   return (
@@ -65,6 +78,9 @@ const ChatHeader = ({ onProfileClick }) => {
         </button>
         <button className="p-2.5 rounded-full hover:bg-white/10 hover:text-white transition-all shadow-sm" onClick={handleCall} title="Video Call">
           <Video className="size-5" />
+        </button>
+        <button className="p-2.5 rounded-full hover:bg-primary/20 hover:text-primary transition-all shadow-sm" onClick={handleMusicInvite} title="Listen to Music Together">
+          <Music className="size-5" />
         </button>
         <div className="w-px h-6 bg-white/10 mx-1"></div>
         <button className="p-2.5 rounded-full hover:bg-white/10 hover:text-white transition-all shadow-sm" title="Search Message">

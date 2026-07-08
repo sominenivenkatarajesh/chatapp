@@ -13,7 +13,9 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 import { useAuthStore } from "./store/useAuthStore";
 import CallManager from "./components/CallManager";
-
+import MusicPlayer from "./components/MusicPlayer";
+import { useMusicStore } from "./store/useMusicStore";
+import { Music, Check, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const PageWrapper = ({ children }) => (
@@ -32,9 +34,18 @@ const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const location = useLocation();
 
+  const { inviteData, joinRoom, clearInvite } = useMusicStore();
+
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  // Handle music setup independently
+  useEffect(() => {
+    if (authUser) {
+      useMusicStore.getState().setupSocketListeners();
+    }
+  }, [authUser]);
 
   if (isCheckingAuth && !authUser)
     return (
@@ -69,6 +80,43 @@ const App = () => {
     <div className="h-[100dvh] w-screen flex flex-col sm:flex-row bg-[#09090b] text-white overflow-hidden">
       {authUser && <Navbar />}
       <CallManager />
+      <MusicPlayer />
+
+      <AnimatePresence>
+        {inviteData && (
+          <motion.div 
+            initial={{ y: -100, opacity: 0, x: "-50%" }}
+            animate={{ y: 0, opacity: 1, x: "-50%" }}
+            exit={{ y: -100, opacity: 0, x: "-50%" }}
+            className="fixed top-6 left-1/2 z-[200] w-[90%] max-w-md glass-morphism p-4 border border-glass-border shadow-2xl flex items-center justify-between gap-4 rounded-2xl bg-zinc-900/90 backdrop-blur-xl"
+          >
+            <div className="flex items-center gap-3">
+              <div className="size-12 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+                <Music className="text-primary size-6" />
+              </div>
+              <div>
+                <h4 className="font-bold text-sm truncate">{inviteData.name}</h4>
+                <p className="text-[10px] text-zinc-400 uppercase tracking-widest animate-pulse">invited you to listen</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => joinRoom(inviteData.roomId)}
+                className="size-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-all shadow-lg shadow-green-500/20"
+              >
+                <Check size={18} />
+              </button>
+              <button
+                onClick={clearInvite}
+                className="size-10 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all shadow-lg shadow-red-500/20"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="flex-1 h-full min-w-0 relative overflow-hidden flex flex-col pb-16 sm:pb-0">
         <AnimatePresence mode="wait">

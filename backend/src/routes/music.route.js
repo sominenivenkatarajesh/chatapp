@@ -1,8 +1,17 @@
 import express from "express";
 import { protectRoute } from "../middleware/auth.middleware.js";
-import ytSearch from "yt-search";
 
 const router = express.Router();
+
+function parseDuration(pt) {
+  const match = pt.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return "0:00";
+  const h = match[1] ? parseInt(match[1]) : 0;
+  const m = match[2] ? parseInt(match[2]) : 0;
+  const s = match[3] ? parseInt(match[3]) : 0;
+  if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
 
 router.get("/search", protectRoute, async (req, res) => {
   try {
@@ -11,14 +20,47 @@ router.get("/search", protectRoute, async (req, res) => {
       return res.status(400).json({ error: "Query is required" });
     }
 
-    const searchResults = await ytSearch(query);
-    // Return top 10 video results
-    const videos = searchResults.videos.slice(0, 10).map((v) => ({
-      videoId: v.videoId,
-      title: v.title,
-      thumbnail: v.thumbnail,
-      author: v.author.name,
-      duration: v.timestamp
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "YouTube API key is missing" });
+    }
+
+    // 1. Search for videos
+    const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${apiKey}`;
+    const searchResponse = await fetch(searchUrl);
+    const searchData = await searchResponse.json();
+
+    if (searchData.error) {
+      console.error("YouTube API Error:", searchData.error);
+      return res.status(500).json({ error: "YouTube API error" });
+    }
+
+    const videoIds = searchData.items.map(item => item.id.videoId).join(',');
+    
+    if (!videoIds) {
+      return res.status(200).json([]);
+    }
+
+    // 2. Get video details (for duration)
+    const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds}&key=${apiKey}`;
+    const detailsResponse = await fetch(detailsUrl);
+    const detailsData = await detailsResponse.json();
+
+    // 3. Map details by ID for easy lookup
+    const detailsMap = {};
+    if (detailsData.items) {
+      detailsData.items.forEach(item => {
+        detailsMap[item.id] = parseDuration(item.contentDetails.duration);
+      });
+    }
+
+    // 4. Format the final response to match the existing frontend expectations
+    const videos = searchData.items.map((item) => ({
+      videoId: item.id.videoId,
+      title: item.snippet.title,
+      thumbnail: item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url,
+      author: item.snippet.channelTitle,
+      duration: detailsMap[item.id.videoId] || "0:00"
     }));
 
     res.status(200).json(videos);

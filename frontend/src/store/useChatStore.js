@@ -38,6 +38,11 @@ export const useChatStore = create((set, get) => ({
         counts[user._id] = user.unreadCount || 0;
       });
       set({ unreadCounts: counts });
+
+      // Request browser notification permission if not already granted
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
@@ -87,12 +92,20 @@ export const useChatStore = create((set, get) => ({
     if (!socket) return;
 
     socket.on("newMessage", (newMessage) => {
-      const { selectedUser, messages, unreadCounts } = get();
+      const { selectedUser, messages, unreadCounts, users } = get();
       
-      if (selectedUser && newMessage.senderId === selectedUser._id) {
+      const isChatOpen = selectedUser && newMessage.senderId === selectedUser._id;
+      const isDocumentHidden = document.hidden;
+
+      if (isChatOpen && !isDocumentHidden) {
         set({ messages: [...messages, newMessage] });
         get().markMessagesAsSeen(selectedUser._id);
       } else {
+        if (isChatOpen) {
+          // If chat is open but document is hidden, just add the message
+          set({ messages: [...messages, newMessage] });
+        }
+        
         // Increment unread count for the sender
         set({
           unreadCounts: {
@@ -100,6 +113,24 @@ export const useChatStore = create((set, get) => ({
             [newMessage.senderId]: (unreadCounts[newMessage.senderId] || 0) + 1
           }
         });
+
+        // Trigger Browser Push Notification
+        if ("Notification" in window && Notification.permission === "granted") {
+          const sender = users.find(u => u._id === newMessage.senderId);
+          const senderName = sender ? sender.fullName : "Someone";
+          
+          let bodyText = newMessage.text;
+          if (!bodyText) {
+             if (newMessage.image) bodyText = "📷 Sent an image";
+             else if (newMessage.fileUrl) bodyText = "📎 Sent a file";
+             else bodyText = "Sent a new message";
+          }
+
+          new Notification(`New message from ${senderName}`, {
+            body: bodyText,
+            icon: sender?.profilePic || "/avatar.png", // fallback to default avatar
+          });
+        }
       }
     });
 

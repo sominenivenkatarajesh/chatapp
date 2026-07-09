@@ -3,6 +3,7 @@ import Message from "../models/message.model.js";
 
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
+import { sendOfflineEmailNotification } from "../lib/email.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -80,6 +81,12 @@ export const sendMessage = async (req, res) => {
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
+    } else {
+      // Receiver is offline. Send an email notification.
+      const receiver = await User.findById(receiverId);
+      if (receiver && receiver.email) {
+        sendOfflineEmailNotification(req.user.fullName, receiver.email, text);
+      }
     }
 
     res.status(201).json(newMessage);

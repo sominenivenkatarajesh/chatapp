@@ -16,10 +16,23 @@ export const getUsersForSidebar = async (req, res) => {
           senderId: friend._id,
           receiverId: loggedInUserId,
           isSeen: false,
-        });
-        return { ...friend.toObject(), unreadCount };
+        const latestMessage = await Message.findOne({
+          $or: [
+            { senderId: loggedInUserId, receiverId: friend._id },
+            { senderId: friend._id, receiverId: loggedInUserId },
+          ],
+        }).sort({ createdAt: -1 });
+
+        return { 
+          ...friend.toObject(), 
+          unreadCount,
+          lastMessageTime: latestMessage ? latestMessage.createdAt : new Date(0)
+        };
       })
     );
+
+    // Sort users so the most recent chat appears at the top
+    usersWithUnreadCounts.sort((a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime));
 
     res.status(200).json(usersWithUnreadCounts);
   } catch (error) {

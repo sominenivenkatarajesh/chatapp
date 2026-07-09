@@ -66,10 +66,17 @@ export const useChatStore = create((set, get) => ({
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser, messages } = get();
+    const { selectedUser, messages, users } = get();
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
       set({ messages: [...messages, res.data] });
+      
+      // Move the selectedUser to the top of the users list
+      const updatedUsers = users.filter(u => u._id !== selectedUser._id);
+      const userToMove = users.find(u => u._id === selectedUser._id);
+      if (userToMove) {
+        set({ users: [userToMove, ...updatedUsers] });
+      }
     } catch (error) {
       toast.error(error.response.data.message);
     }
@@ -113,6 +120,13 @@ export const useChatStore = create((set, get) => ({
             [newMessage.senderId]: (unreadCounts[newMessage.senderId] || 0) + 1
           }
         });
+
+        // Move the sender to the top of the users list
+        const updatedUsers = users.filter(u => u._id !== newMessage.senderId);
+        const userToMove = users.find(u => u._id === newMessage.senderId);
+        if (userToMove) {
+          set({ users: [userToMove, ...updatedUsers] });
+        }
 
         // Trigger Browser Push Notification
         if ("Notification" in window && Notification.permission === "granted") {

@@ -334,7 +334,7 @@ const DashboardPage = () => {
                   })}
                 </div>
               </div>
-            ) : (
+            ) : activeTab === "requests" ? (
               <div className="space-y-6">
                 <h2 className="text-xl font-bold flex items-center gap-2">
                   <Clock size={20} className="text-primary" /> 

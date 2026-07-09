@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useMusicStore } from "../store/useMusicStore";
 import { useAuthStore } from "../store/useAuthStore";
-import ReactPlayer from "react-player/youtube";
+import ReactPlayer from "react-player";
 import { Search, Play, Pause, SkipForward, X, Music, Plus, Loader } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

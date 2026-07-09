@@ -1,7 +1,7 @@
 import { useChatStore } from "../store/useChatStore";
 import { useCallStore } from "../store/useCallStore";
 import { useEffect, useRef, useState } from "react";
-import { PhoneMissed, PhoneCall } from "lucide-react";
+import { PhoneMissed, PhoneCall, Check, CheckCheck } from "lucide-react";
 
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
@@ -51,13 +51,22 @@ const ChatContainer = () => {
 
   return (
     <div 
-      className="flex-1 flex flex-col overflow-hidden relative border-l border-white/5 transition-colors duration-500"
-      style={{ backgroundColor: customThemeColor || "transparent" }}
+      className="flex-1 flex flex-col overflow-hidden relative border-l border-white/5 bg-[#09090b] transition-colors duration-500"
     >
+      {/* Background Soft Glow Overlay */}
+      {customThemeColor && customThemeColor !== "transparent" && (
+        <div 
+          className="absolute inset-0 z-0 opacity-15 pointer-events-none transition-all duration-500 mix-blend-screen"
+          style={{ 
+            background: `radial-gradient(circle at 50% 50%, ${customThemeColor} 0%, transparent 70%)` 
+          }}
+        />
+      )}
+
       {/* Background Image Overlay */}
       {customBgImage && (
         <div 
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20 pointer-events-none transition-all duration-500"
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-[0.03] pointer-events-none transition-all duration-500 mix-blend-luminosity"
           style={{ backgroundImage: `url(${customBgImage})` }}
         />
       )}
@@ -95,14 +104,14 @@ const ChatContainer = () => {
                   </div>
                 ) : (
                   <div
-                    className={`relative overflow-hidden transition-all duration-300 text-white ${
+                    className={`relative overflow-hidden transition-all duration-300 text-white shadow-sm ${
                       isSentByMe
-                        ? "msg-bubble-out"
-                        : "msg-bubble-in"
+                        ? "bg-indigo-600 text-white"
+                        : "bg-zinc-800/80 border border-white/5 backdrop-blur-sm"
                     } ${
                       isLastInGroup 
-                        ? (isSentByMe ? "rounded-[1.5rem] rounded-br-[0.5rem]" : "rounded-[1.5rem] rounded-bl-[0.5rem]") 
-                        : "rounded-[1.5rem]"
+                        ? (isSentByMe ? "rounded-2xl rounded-br-sm" : "rounded-2xl rounded-bl-sm") 
+                        : "rounded-2xl"
                     }`}
                   >
                     {/* Image Content - WhatsApp Style */}
@@ -155,20 +164,20 @@ const ChatContainer = () => {
 
                     {/* Text Content */}
                     {message.text && (
-                      <div className={`px-4 ${message.image || message.fileUrl ? 'pb-3 pt-2' : 'py-3'} flex flex-wrap items-end gap-3`}>
-                        <p className="text-[15px] tracking-wide leading-relaxed whitespace-pre-wrap break-words flex-1 min-w-[60px] font-light">
+                      <div className={`px-3 ${message.image || message.fileUrl ? 'pb-2 pt-1' : 'py-2'} flex items-end justify-between gap-3 min-w-[80px]`}>
+                        <p className="text-[14.5px] leading-relaxed whitespace-pre-wrap break-words font-normal">
                           {message.text}
                         </p>
-                        <div className="flex items-center gap-1.5 ml-auto pt-1 opacity-70">
-                          <span className="text-[10px] font-semibold uppercase tracking-wider">
+                        <div className="flex items-center gap-1 shrink-0 opacity-70 pb-0.5 mt-2 float-right">
+                          <span className="text-[10px] font-medium tracking-wide">
                             {formatMessageTime(message.createdAt)}
                           </span>
                           {isSentByMe && (
-                            <span className={`${message.isSeen ? "text-white" : "text-white/50"}`}>
+                            <span className={`${message.isSeen ? "text-[#38bdf8]" : "text-white/60"}`}>
                               {message.isSeen ? (
-                                <svg viewBox="0 0 16 15" width="16" height="15" fill="currentColor"><path d="M15.01 3.316l-.478-.372a.365.365 0 00-.51.063L8.666 9.879c-.566.733-.705 1.019-1.493 1.019-.3 0-.601-.02-.747-.034l-.177-.015c-.631-.047-1.114-.116-1.574-.633l-.113-.131L2.09 7.427a.364.364 0 00-.511-.044l-.507.412a.364.364 0 00-.044.51l3.52 4.314c.489.6 1.066 1.016 1.936 1.016.892 0 1.488-.349 2.038-1.06l6.044-7.76c.144-.185.109-.451-.056-.558zm-4.321.391l-.478-.372a.365.365 0 00-.51.063L4.345 10.27c-.121.156-.241.312-.34.453l.113.131c.46.517.943.586 1.574.633l.177.015c.146.014.447.034.747.034.788 0 .927-.286 1.493-1.019l5.141-6.59a.365.365 0 00-.06-.523z"></path></svg>
+                                <CheckCheck size={14} strokeWidth={2.5} />
                               ) : (
-                                <svg viewBox="0 0 16 15" width="16" height="15" fill="currentColor"><path d="M10.91 3.316l-.478-.372a.365.365 0 00-.51.063L4.566 9.879c-.566.733-.705 1.019-1.493 1.019-.3 0-.601-.02-.747-.034l-.177-.015c-.631-.047-1.114-.116-1.574-.633l-.113-.131L.421 8.271a.364.364 0 00-.511-.044l-.507.412a.364.364 0 00-.044.51l3.52 4.314c.489.6 1.066 1.016 1.936 1.016.892 0 1.488-.349 2.038-1.06l4.044-5.26c.144-.185.109-.451-.056-.558z"></path></svg>
+                                <Check size={14} strokeWidth={2.5} />
                               )}
                             </span>
                           )}

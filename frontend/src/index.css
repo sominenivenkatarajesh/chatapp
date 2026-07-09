@@ -93,14 +93,7 @@
   background-color: rgba(255, 255, 255, 0.03);
 }
 
-.msg-bubble-out {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-}
-
-.msg-bubble-in {
-  background: #18181b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+/* Replaced with Tailwind classes in ChatContainer */
 
 @keyframes slideInUp {
   from { opacity: 0; transform: translateY(10px); }

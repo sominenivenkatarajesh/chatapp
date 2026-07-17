@@ -318,6 +318,27 @@ io.on("connection", (socket) => {
       }
     }
 
+    // Remove from music rooms
+    let musicRoomsChanged = false;
+    for (const [roomId, room] of Object.entries(musicRooms)) {
+      if (room.members.has(userId)) {
+        room.members.delete(userId);
+        
+        // If host disconnects, destroy the room
+        if (userId === room.host) {
+          Array.from(room.members).forEach(memberId => {
+            const sId = getReceiverSocketId(memberId);
+            if (sId) io.to(sId).emit("musicRoomClosed");
+          });
+          delete musicRooms[roomId];
+        }
+        musicRoomsChanged = true;
+      }
+    }
+    if (musicRoomsChanged) {
+      broadcastMusicRooms();
+    }
+
     delete userSocketMap[userId];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });

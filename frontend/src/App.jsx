@@ -104,10 +104,9 @@ const App = () => {
     );
 
   return (
-    <div className="h-[100dvh] w-screen flex flex-col sm:flex-row bg-[#09090b] text-white overflow-hidden">
-      {authUser && <Navbar />}
-      <CallManager />
-      <MusicPlayer />
+    <>
+      <div className="h-[100dvh] w-screen flex flex-col sm:flex-row bg-[#09090b] text-white overflow-hidden">
+        {authUser && <Navbar />}
 
       <AnimatePresence>
         {inviteData && (
@@ -160,29 +159,32 @@ const App = () => {
           </Routes>
         </AnimatePresence>
       </main>
-      <Toaster 
-        toastOptions={{
-          style: {
-            background: '#262626',
-            color: '#fff',
-            borderRadius: '12px',
-            border: '1px solid #333',
-          },
-          success: {
-            iconTheme: {
-              primary: '#25D366',
-              secondary: '#fff',
+        <Toaster 
+          toastOptions={{
+            style: {
+              background: '#262626',
+              color: '#fff',
+              borderRadius: '12px',
+              border: '1px solid #333',
             },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ed4956',
-              secondary: '#fff',
+            success: {
+              iconTheme: {
+                primary: '#25D366',
+                secondary: '#fff',
+              },
             },
-          },
-        }}
-      />
-    </div>
+            error: {
+              iconTheme: {
+                primary: '#ed4956',
+                secondary: '#fff',
+              },
+            },
+          }}
+        />
+      </div>
+      <CallManager />
+      <MusicPlayer />
+    </>
   );
 };
 

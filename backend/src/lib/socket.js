@@ -70,19 +70,23 @@ io.on("connection", (socket) => {
   });
 
   // --- Music Events ---
-  socket.on("createMusicRoom", ({ name }) => {
-    if (!musicRooms[userId]) {
-      musicRooms[userId] = {
-        host: userId,
-        hostName: name || "User",
-        queue: [],
-        isPlaying: false,
-        currentTime: 0,
-        currentVideo: null,
-        members: new Set([userId])
-      };
-      broadcastMusicRooms();
-    }
+  socket.on("createMusicRoom", ({ name }, callback) => {
+    let roomId;
+    do {
+      roomId = Math.floor(100000 + Math.random() * 900000).toString();
+    } while (musicRooms[roomId]);
+
+    musicRooms[roomId] = {
+      host: userId,
+      hostName: name || "User",
+      queue: [],
+      isPlaying: false,
+      currentTime: 0,
+      currentVideo: null,
+      members: new Set([userId])
+    };
+    broadcastMusicRooms();
+    if (typeof callback === "function") callback({ roomId });
   });
 
   socket.on("joinMusicRoom", ({ roomId }) => {
@@ -93,6 +97,7 @@ io.on("connection", (socket) => {
         // Send current state to the joining user
         io.to(sId).emit("musicRoomState", {
           roomId,
+          host: musicRooms[roomId].host,
           queue: musicRooms[roomId].queue,
           isPlaying: musicRooms[roomId].isPlaying,
           currentTime: musicRooms[roomId].currentTime,
@@ -135,6 +140,7 @@ io.on("connection", (socket) => {
           if (sId) {
             io.to(sId).emit("musicRoomState", {
               roomId,
+              host: musicRooms[roomId].host,
               queue: musicRooms[roomId].queue,
               isPlaying,
               currentTime,
@@ -160,6 +166,7 @@ io.on("connection", (socket) => {
         if (sId) {
           io.to(sId).emit("musicRoomState", {
             roomId,
+            host: musicRooms[roomId].host,
             queue: musicRooms[roomId].queue,
             isPlaying: musicRooms[roomId].isPlaying,
             currentTime: musicRooms[roomId].currentTime,
@@ -188,6 +195,7 @@ io.on("connection", (socket) => {
           if (sId) {
             io.to(sId).emit("musicRoomState", {
               roomId,
+              host: musicRooms[roomId].host,
               queue: musicRooms[roomId].queue,
               isPlaying: musicRooms[roomId].isPlaying,
               currentTime: musicRooms[roomId].currentTime,

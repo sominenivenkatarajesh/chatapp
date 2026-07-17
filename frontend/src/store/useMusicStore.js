@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 
 export const useMusicStore = create((set, get) => ({
   roomId: null,
+  hostId: null,
   queue: [],
   isPlaying: false,
   currentTime: 0,
@@ -28,6 +29,7 @@ export const useMusicStore = create((set, get) => ({
     socket.on("musicRoomState", (state) => {
       if (get().roomId === state.roomId) {
         set({
+          hostId: state.host,
           queue: state.queue,
           isPlaying: state.isPlaying,
           currentTime: state.currentTime,
@@ -52,9 +54,10 @@ export const useMusicStore = create((set, get) => ({
     if (!socket) return;
     
     get().setupSocketListeners();
-    socket.emit("createMusicRoom", { name: authUser.username });
-    set({ roomId: authUser._id, isPlayerOpen: true });
-    toast.success("Music room created!");
+    socket.emit("createMusicRoom", { name: authUser.username }, (response) => {
+      set({ roomId: response.roomId, hostId: authUser._id, isPlayerOpen: true });
+      toast.success("Music room created!");
+    });
   },
 
   joinRoom: (roomId) => {
@@ -75,6 +78,7 @@ export const useMusicStore = create((set, get) => ({
     }
     set({
       roomId: null,
+      hostId: null,
       queue: [],
       isPlaying: false,
       currentTime: 0,

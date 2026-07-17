@@ -228,7 +228,7 @@ const MusicPage = () => {
                                 Now playing: {room.currentVideo.title}
                               </p>
                             )}
-                            {room.roomId === authUser._id ? (
+                            {room.host === authUser._id ? (
                               <div className="mt-4 w-full flex gap-2">
                                 <button 
                                   onClick={() => {

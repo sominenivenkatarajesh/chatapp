@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const MusicPlayer = () => {
   const { 
     roomId, 
+    hostId,
     queue, 
     isPlaying, 
     currentTime, 
@@ -24,21 +25,27 @@ const MusicPlayer = () => {
   } = useMusicStore();
 
   const authUser = useAuthStore((state) => state.authUser);
-  const isHost = roomId === authUser?._id;
+  const isHost = hostId === authUser?._id;
   
   const [query, setQuery] = useState("");
+  const [duration, setDuration] = useState(0);
   const playerRef = useRef(null);
 
   // Sync incoming state changes with the actual player if we are not the host
   // If we are the host, our local player drives the state
   const handleProgress = (state) => {
     if (isHost && isPlaying) {
-      // Sync state to others every ~5 seconds to prevent spam, or just rely on play/pause
-      // To keep it simple, we sync mostly on play/pause, but we can sync time here if needed
       if (Math.floor(state.playedSeconds) % 5 === 0) {
          syncState(true, state.playedSeconds);
       }
     }
+  };
+
+  const handleSeek = (e) => {
+    if (!isHost) return;
+    const time = parseFloat(e.target.value);
+    playerRef.current?.seekTo(time);
+    syncState(isPlaying, time);
   };
 
   const handlePlay = () => {
@@ -93,6 +100,7 @@ const MusicPlayer = () => {
                 url={`https://www.youtube.com/watch?v=${currentVideo.videoId}`}
                 playing={isPlaying}
                 onProgress={handleProgress}
+                onDuration={(d) => setDuration(d)}
                 onPlay={handlePlay}
                 onPause={handlePause}
                 onEnded={playNext}
@@ -120,19 +128,37 @@ const MusicPlayer = () => {
 
           {/* Controls */}
           {currentVideo && isHost && (
-            <div className="flex items-center justify-center gap-4 p-3 bg-zinc-900/50">
-              <button 
-                onClick={() => syncState(!isPlaying, playerRef.current?.getCurrentTime() || 0)}
-                className="p-3 bg-primary text-black rounded-full hover:bg-primary/90 transition-colors"
-              >
-                {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
-              </button>
-              <button 
-                onClick={playNext}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-              >
-                <SkipForward size={20} />
-              </button>
+            <div className="flex flex-col gap-2 p-3 bg-zinc-900/50">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-zinc-400 font-medium min-w-[30px] text-right">
+                  {Math.floor(currentTime / 60)}:{(Math.floor(currentTime % 60)).toString().padStart(2, '0')}
+                </span>
+                <input 
+                  type="range"
+                  min={0}
+                  max={duration || 0}
+                  value={currentTime || 0}
+                  onChange={handleSeek}
+                  className="flex-1 h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                />
+                <span className="text-[10px] text-zinc-400 font-medium min-w-[30px]">
+                  {Math.floor(duration / 60)}:{(Math.floor(duration % 60)).toString().padStart(2, '0')}
+                </span>
+              </div>
+              <div className="flex items-center justify-center gap-4 mt-1">
+                <button 
+                  onClick={() => syncState(!isPlaying, playerRef.current?.getCurrentTime() || 0)}
+                  className="p-3 bg-primary text-black rounded-full hover:bg-primary/90 transition-colors"
+                >
+                  {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+                </button>
+                <button 
+                  onClick={playNext}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  <SkipForward size={20} />
+                </button>
+              </div>
             </div>
           )}
 

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { LogOut, MessageSquare, User, Users } from "lucide-react";
+import { LogOut, MessageSquare, User, Users, Music } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Navbar = () => {
@@ -10,6 +10,7 @@ const Navbar = () => {
   const navItems = [
     { path: "/", icon: MessageSquare, label: "Chat" },
     { path: "/dashboard", icon: Users, label: "Social" },
+    { path: "/music", icon: Music, label: "Music" },
     { path: "/profile", icon: User, label: "Profile" }
   ];
 

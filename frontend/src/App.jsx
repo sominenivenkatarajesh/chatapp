@@ -9,6 +9,7 @@ import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import DashboardPage from "./pages/DashboardPage";
+import MusicPage from "./pages/MusicPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 import { useAuthStore } from "./store/useAuthStore";
@@ -127,6 +128,7 @@ const App = () => {
             <Route path="/forgot-password" element={!authUser ? <PageWrapper><ForgotPasswordPage /></PageWrapper> : <Navigate to="/" />} />
             <Route path="/profile" element={authUser ? <PageWrapper><ProfilePage /></PageWrapper> : <Navigate to="/login" />} />
             <Route path="/dashboard" element={authUser ? <PageWrapper><DashboardPage /></PageWrapper> : <Navigate to="/login" />} />
+            <Route path="/music" element={authUser ? <PageWrapper><MusicPage /></PageWrapper> : <Navigate to="/login" />} />
             {/* Fallback wildcard to redirect mistyped routes like /homepage */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

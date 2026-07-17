@@ -8,11 +8,15 @@ import { Music } from "lucide-react";
 const ChatHeader = ({ onProfileClick }) => {
   const { selectedUser, setSelectedUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
-  const { initiateStream, callUser } = useCallStore();
+  const { initiateStream, callUser, callGroup } = useCallStore();
 
   const handleCall = async () => {
-    await initiateStream();
-    callUser(selectedUser._id);
+    if (selectedUser.isGroup) {
+      await callGroup(selectedUser.members);
+    } else {
+      await initiateStream();
+      callUser(selectedUser._id);
+    }
   };
 
   const handleMusicInvite = () => {
@@ -43,8 +47,8 @@ const ChatHeader = ({ onProfileClick }) => {
           onClick={onProfileClick}
         >
           <img 
-            src={selectedUser.profilePic || "/avatar.svg"} 
-            alt={selectedUser.username} 
+            src={selectedUser.profilePic || selectedUser.avatar || (selectedUser.isGroup ? "/group-avatar.png" : "/avatar.svg")} 
+            alt={selectedUser.username || selectedUser.name} 
             className="size-11 rounded-2xl object-cover shadow-md shadow-black/20" 
           />
           {onlineUsers.includes(selectedUser._id) && (
@@ -52,14 +56,16 @@ const ChatHeader = ({ onProfileClick }) => {
           )}
         </div>
 
-        {/* User info */}
+        {/* User/Group info */}
         <div 
           className="flex flex-col min-w-0 justify-center cursor-pointer hover:opacity-80"
           onClick={onProfileClick}
         >
-          <h3 className="font-bold">{selectedUser.username}</h3>
+          <h3 className="font-bold">{selectedUser.username || selectedUser.name}</h3>
           <p className="text-[11px] font-semibold tracking-wide uppercase flex items-center gap-1.5 mt-0.5">
-            {onlineUsers.includes(selectedUser._id) ? (
+            {selectedUser.isGroup ? (
+              <span className="text-white/60">{selectedUser.members?.length || 0} Members</span>
+            ) : onlineUsers.includes(selectedUser._id) ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse"></span>
                 <span className="text-emerald-400">Online</span>

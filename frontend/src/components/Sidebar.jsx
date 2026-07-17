@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
-import { Search, User, MoreVertical, Pin, Archive, Trash2 } from "lucide-react";
+import { Search, User, MoreVertical, Pin, Archive, Trash2, Users, Plus, X } from "lucide-react";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 
 const Sidebar = () => {
@@ -9,6 +9,17 @@ const Sidebar = () => {
   const { onlineUsers } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeMenu, setActiveMenu] = useState(null);
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [groupName, setGroupName] = useState("");
+  const [selectedFriends, setSelectedFriends] = useState([]);
+
+  const handleCreateGroup = async () => {
+    if (!groupName.trim() || selectedFriends.length === 0) return;
+    await useChatStore.getState().createGroup(groupName, selectedFriends);
+    setShowGroupModal(false);
+    setGroupName("");
+    setSelectedFriends([]);
+  };
 
   useEffect(() => {
     getUsers();
@@ -33,6 +44,9 @@ const Sidebar = () => {
           Messages
         </h2>
         <div className="flex items-center gap-3 text-white/50">
+          <button onClick={() => setShowGroupModal(true)} className="hover:text-white hover:bg-white/10 p-2 rounded-full transition-all" title="Create Group">
+            <Users size={20} />
+          </button>
           <button className="hover:text-white hover:bg-white/10 p-2 rounded-full transition-all">
             <User size={20} />
           </button>
@@ -96,17 +110,20 @@ const Sidebar = () => {
                 <div className="flex flex-col text-left min-w-0 flex-1 justify-center pr-1">
                   <div className="flex justify-between items-center mb-0.5">
                     <span className={`font-semibold truncate text-[15px] flex items-center gap-1 ${isSelected ? "text-white" : "text-white/90"}`}>
-                      {user.username}
+                      {user.isGroup ? <Users size={14} className="text-indigo-400 mr-1" /> : null}
+                      {user.username || user.name}
                       {user.isPinned && <Pin size={12} className="text-indigo-400 fill-indigo-400" />}
                     </span>
-                    <span className={`text-[11px] font-medium tracking-wide ${isOnline ? "text-emerald-400" : "text-white/30"}`}>
-                      {isOnline ? "ONLINE" : "OFFLINE"}
-                    </span>
+                    {!user.isGroup && (
+                      <span className={`text-[11px] font-medium tracking-wide ${isOnline ? "text-emerald-400" : "text-white/30"}`}>
+                        {isOnline ? "ONLINE" : "OFFLINE"}
+                      </span>
+                    )}
                   </div>
                   
                   <div className="flex justify-between items-center">
                     <div className={`text-[13px] truncate flex-1 ${isSelected ? "text-indigo-200" : "text-white/50"}`}>
-                      {user.isArchived ? <span className="italic">Archived</span> : (isOnline ? "Active now" : "Last seen recently")}
+                      {user.isGroup ? `${user.members?.length || 0} members` : (user.isArchived ? <span className="italic">Archived</span> : (isOnline ? "Active now" : "Last seen recently"))}
                     </div>
                     {(unreadCounts?.[user._id] || 0) > 0 && (
                       <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[11px] font-bold min-w-[20px] h-[20px] rounded-full flex items-center justify-center px-1.5 shadow-[0_2px_8px_rgba(99,102,241,0.5)] animate-in zoom-in duration-300">
@@ -164,6 +181,70 @@ const Sidebar = () => {
           </div>
         )}
       </div>
+
+      {/* Create Group Modal */}
+      {showGroupModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#0f0f13] w-full max-w-md rounded-3xl border border-white/10 p-6 shadow-2xl relative">
+            <button onClick={() => setShowGroupModal(false)} className="absolute top-4 right-4 p-2 text-white/50 hover:text-white transition-colors">
+              <X size={20} />
+            </button>
+            <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <span className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400">
+                <Users size={24} />
+              </span>
+              Create Group
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-white/70 mb-1.5 block">Group Name</label>
+                <input 
+                  type="text" 
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
+                  placeholder="e.g. Weekend Vibes 🎉"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 outline-none focus:border-indigo-500/50 focus:bg-white/5 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-white/70 mb-1.5 block">Select Friends</label>
+                <div className="max-h-48 overflow-y-auto custom-scrollbar border border-white/5 rounded-xl bg-black/20 p-2 space-y-1">
+                  {users.filter(u => !u.isGroup).map(friend => (
+                    <div 
+                      key={friend._id}
+                      onClick={() => {
+                        setSelectedFriends(prev => 
+                          prev.includes(friend._id) 
+                            ? prev.filter(id => id !== friend._id)
+                            : [...prev, friend._id]
+                        )
+                      }}
+                      className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${selectedFriends.includes(friend._id) ? 'bg-indigo-500/20 border border-indigo-500/30' : 'hover:bg-white/5 border border-transparent'}`}
+                    >
+                      <img src={friend.profilePic || "/avatar.svg"} className="w-8 h-8 rounded-full object-cover" />
+                      <span className="text-white flex-1">{friend.username}</span>
+                      {selectedFriends.includes(friend._id) && <Check size={16} className="text-indigo-400" />}
+                    </div>
+                  ))}
+                  {users.filter(u => !u.isGroup).length === 0 && (
+                    <div className="p-4 text-center text-white/40 text-sm">No friends available</div>
+                  )}
+                </div>
+              </div>
+
+              <button 
+                onClick={handleCreateGroup}
+                disabled={!groupName.trim() || selectedFriends.length === 0}
+                className="w-full btn-primary py-3.5 rounded-xl text-[15px] shadow-[0_0_20px_rgba(99,102,241,0.2)] disabled:opacity-50 mt-4"
+              >
+                Create Group
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };

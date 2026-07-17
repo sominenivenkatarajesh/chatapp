@@ -260,6 +260,25 @@ export const useCallStore = create((set, get) => ({
     }));
   },
 
+  callGroup: async (memberIds) => {
+    get().setupSocketListeners();
+    const authUser = useAuthStore.getState().authUser;
+    
+    // Start local stream if not running
+    if (!get().stream) {
+      await get().initiateStream();
+    }
+    
+    set({ currentRoomId: authUser._id, showCallUI: true, isMinimized: false });
+    
+    // Invite all group members to this room
+    memberIds.forEach((id) => {
+      if (id !== authUser._id) {
+         get().inviteToGroupCall(id);
+      }
+    });
+  },
+
   inviteToGroupCall: (id) => {
     const socket = useAuthStore.getState().socket;
     const authUser = useAuthStore.getState().authUser;

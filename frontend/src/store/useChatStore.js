@@ -54,17 +54,31 @@ export const useChatStore = create((set, get) => ({
   },
 
 
-  getMessages: async (userId) => {
+  getMessages: async (userOrGroupId) => {
     set({ isMessagesLoading: true });
     try {
-      const res = await axiosInstance.get(`/messages/${userId}`);
+      const res = await axiosInstance.get(`/messages/${userOrGroupId}`);
       set({ messages: res.data });
-      // When opening chat, mark as seen
-      get().markMessagesAsSeen(userId);
+      // When opening chat, mark as seen (if it's a user chat)
+      get().markMessagesAsSeen(userOrGroupId);
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Failed to load messages");
     } finally {
       set({ isMessagesLoading: false });
+    }
+  },
+
+  createGroup: async (name, memberIds) => {
+    try {
+      const res = await axiosInstance.post("/groups", { name, members: memberIds });
+      set(state => ({
+        users: [res.data, ...state.users]
+      }));
+      toast.success("Group created!");
+      return res.data;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create group");
+      throw error;
     }
   },
 

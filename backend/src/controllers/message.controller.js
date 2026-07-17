@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
+import Group from "../models/group.model.js";
 
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
@@ -16,6 +17,8 @@ export const getUsersForSidebar = async (req, res) => {
           senderId: friend._id,
           receiverId: loggedInUserId,
           isSeen: false,
+        });
+
         const latestMessage = await Message.findOne({
           $or: [
             { senderId: loggedInUserId, receiverId: friend._id },
@@ -28,19 +31,41 @@ export const getUsersForSidebar = async (req, res) => {
           unreadCount,
           lastMessageTime: latestMessage ? latestMessage.createdAt : new Date(0),
           isPinned: user.pinnedChats.includes(friend._id),
-          isArchived: user.archivedChats.includes(friend._id)
+          isArchived: user.archivedChats.includes(friend._id),
+          isGroup: false
         };
       })
     );
 
-    // Sort users: Pinned chats first, then sort by recent message
-    usersWithUnreadCounts.sort((a, b) => {
+    const groups = await Group.find({ members: loggedInUserId }).populate("members", "-password");
+    
+    const groupsWithData = await Promise.all(
+      groups.map(async (group) => {
+        const latestMessage = await Message.findOne({
+          groupId: group._id
+        }).sort({ createdAt: -1 });
+
+        return {
+          ...group.toObject(),
+          unreadCount: 0, // Simplified for groups for now
+          lastMessageTime: latestMessage ? latestMessage.createdAt : group.createdAt,
+          isPinned: false,
+          isArchived: false,
+          isGroup: true
+        };
+      })
+    );
+
+    const allChats = [...usersWithUnreadCounts, ...groupsWithData];
+
+    // Sort: Pinned first, then by recent message
+    allChats.sort((a, b) => {
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
       return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
     });
 
-    res.status(200).json(usersWithUnreadCounts);
+    res.status(200).json(allChats);
   } catch (error) {
     console.error("Error in getUsersForSidebar: ", error.message);
     res.status(500).json({ message: "Internal server error" });
@@ -50,16 +75,27 @@ export const getUsersForSidebar = async (req, res) => {
 
 export const getMessages = async (req, res) => {
   try {
-    const { id: userToChatId } = req.params;
+    const { id: userOrGroupId } = req.params;
     const myId = req.user._id;
 
-    const messages = await Message.find({
-      $or: [
-        { senderId: myId, receiverId: userToChatId },
-        { senderId: userToChatId, receiverId: myId },
-      ],
-      deletedBy: { $ne: myId }
-    }).populate("replyTo", "text image fileUrl isDeleted");
+    // Check if it's a group
+    const group = await Group.findById(userOrGroupId);
+    
+    let messages;
+    if (group) {
+      messages = await Message.find({
+        groupId: userOrGroupId,
+        deletedBy: { $ne: myId }
+      }).populate("replyTo", "text image fileUrl isDeleted").populate("senderId", "fullName profilePic");
+    } else {
+      messages = await Message.find({
+        $or: [
+          { senderId: myId, receiverId: userOrGroupId },
+          { senderId: userOrGroupId, receiverId: myId },
+        ],
+        deletedBy: { $ne: myId }
+      }).populate("replyTo", "text image fileUrl isDeleted");
+    }
 
     res.status(200).json(messages);
   } catch (error) {
@@ -71,12 +107,11 @@ export const getMessages = async (req, res) => {
 export const sendMessage = async (req, res) => {
   try {
     const { text, image, file, fileName, replyTo } = req.body;
-    const { id: receiverId } = req.params;
+    const { id: receiverOrGroupId } = req.params;
     const senderId = req.user._id;
 
     let imageUrl;
     if (image) {
-      // Upload base64 image to cloudinary
       const uploadResponse = await cloudinary.uploader.upload(image);
       imageUrl = uploadResponse.secure_url;
     }
@@ -87,9 +122,12 @@ export const sendMessage = async (req, res) => {
       fileUrl = uploadResponse.secure_url;
     }
 
+    const isGroup = await Group.findById(receiverOrGroupId);
+
     const newMessage = new Message({
       senderId,
-      receiverId,
+      receiverId: isGroup ? undefined : receiverOrGroupId,
+      groupId: isGroup ? receiverOrGroupId : undefined,
       text,
       image: imageUrl,
       fileUrl,
@@ -99,19 +137,33 @@ export const sendMessage = async (req, res) => {
 
     await newMessage.save();
     
-    // Populate replyTo before emitting so client can render it
     if (newMessage.replyTo) {
       await newMessage.populate("replyTo", "text image fileUrl isDeleted");
     }
+    
+    if (isGroup) {
+      await newMessage.populate("senderId", "fullName profilePic");
+    }
 
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
+    if (isGroup) {
+      // Emit to all members of the group except sender
+      isGroup.members.forEach((memberId) => {
+        if (memberId.toString() !== senderId.toString()) {
+          const receiverSocketId = getReceiverSocketId(memberId);
+          if (receiverSocketId) {
+            io.to(receiverSocketId).emit("newMessage", newMessage);
+          }
+        }
+      });
     } else {
-      // Receiver is offline. Send an email notification.
-      const receiver = await User.findById(receiverId);
-      if (receiver && receiver.email) {
-        sendOfflineEmailNotification(req.user.fullName, receiver.email, text);
+      const receiverSocketId = getReceiverSocketId(receiverOrGroupId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newMessage", newMessage);
+      } else {
+        const receiver = await User.findById(receiverOrGroupId);
+        if (receiver && receiver.email) {
+          sendOfflineEmailNotification(req.user.fullName, receiver.email, text);
+        }
       }
     }
 

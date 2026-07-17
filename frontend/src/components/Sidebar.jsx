@@ -1,28 +1,22 @@
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
-import { Search, User } from "lucide-react";
+import { Search, User, MoreVertical, Pin, Archive, Trash2 } from "lucide-react";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 
 const Sidebar = () => {
-  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, unreadCounts } = useChatStore();
+  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, unreadCounts, pinChat, archiveChat, deleteConversation } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeMenu, setActiveMenu] = useState(null);
 
   useEffect(() => {
     getUsers();
   }, [getUsers]);
 
-  // Sort and filter users
+  // Filter users by search term
   const filteredUsers = users
-    .filter((user) => (user?.username || "").toLowerCase().includes((searchTerm || "").toLowerCase()))
-    .sort((a, b) => {
-      const aOnline = onlineUsers?.includes(a._id);
-      const bOnline = onlineUsers?.includes(b._id);
-      if (aOnline && !bOnline) return -1;
-      if (!aOnline && bOnline) return 1;
-      return 0;
-    });
+    .filter((user) => (user?.username || "").toLowerCase().includes((searchTerm || "").toLowerCase()));
 
   const onlineCount = users.filter(u => onlineUsers?.includes(u._id)).length;
 
@@ -77,50 +71,85 @@ const Sidebar = () => {
           const isSelected = selectedUser?._id === user._id;
           
           return (
-            <button
-              key={user._id}
-              onClick={() => setSelectedUser(user)}
-              className={`
-                w-full p-3 flex items-center gap-3 cursor-pointer rounded-2xl
-                hover-lift border
-                ${isSelected 
-                  ? "bg-white/10 border-white/20 shadow-lg backdrop-blur-md" 
-                  : "border-transparent hover:glass-panel-light"}
-              `}
-            >
-              <div className="relative flex-shrink-0">
-                <img
-                  src={user.profilePic || "/avatar.svg"}
-                  alt={user.username}
-                  className={`size-12 object-cover rounded-2xl transition-transform duration-300 ${isSelected ? "scale-105 shadow-md" : ""}`}
-                />
-                {isOnline && (
-                  <span className="absolute -bottom-1 -right-1 size-3.5 rounded-full bg-emerald-500 border-2 border-[#0f0f13] shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                )}
-              </div>
-
-              <div className="flex flex-col text-left min-w-0 flex-1 justify-center pr-1">
-                <div className="flex justify-between items-center mb-0.5">
-                  <span className={`font-semibold truncate text-[15px] ${isSelected ? "text-white" : "text-white/90"}`}>
-                    {user.username}
-                  </span>
-                  <span className={`text-[11px] font-medium tracking-wide ${isOnline ? "text-emerald-400" : "text-white/30"}`}>
-                    {isOnline ? "ONLINE" : "OFFLINE"}
-                  </span>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <div className={`text-[13px] truncate flex-1 ${isSelected ? "text-indigo-200" : "text-white/50"}`}>
-                    {isOnline ? "Active now" : "Last seen recently"}
-                  </div>
-                  {(unreadCounts?.[user._id] || 0) > 0 && (
-                    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[11px] font-bold min-w-[20px] h-[20px] rounded-full flex items-center justify-center px-1.5 shadow-[0_2px_8px_rgba(99,102,241,0.5)] animate-in zoom-in duration-300">
-                      {unreadCounts[user._id]}
-                    </div>
+            <div key={user._id} className="relative group/item">
+              <button
+                onClick={() => setSelectedUser(user)}
+                className={`
+                  w-full p-3 flex items-center gap-3 cursor-pointer rounded-2xl
+                  hover-lift border
+                  ${isSelected 
+                    ? "bg-white/10 border-white/20 shadow-lg backdrop-blur-md" 
+                    : "border-transparent hover:glass-panel-light"}
+                `}
+              >
+                <div className="relative flex-shrink-0">
+                  <img
+                    src={user.profilePic || "/avatar.svg"}
+                    alt={user.username}
+                    className={`size-12 object-cover rounded-2xl transition-transform duration-300 ${isSelected ? "scale-105 shadow-md" : ""}`}
+                  />
+                  {isOnline && (
+                    <span className="absolute -bottom-1 -right-1 size-3.5 rounded-full bg-emerald-500 border-2 border-[#0f0f13] shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                   )}
                 </div>
-              </div>
-            </button>
+
+                <div className="flex flex-col text-left min-w-0 flex-1 justify-center pr-1">
+                  <div className="flex justify-between items-center mb-0.5">
+                    <span className={`font-semibold truncate text-[15px] flex items-center gap-1 ${isSelected ? "text-white" : "text-white/90"}`}>
+                      {user.username}
+                      {user.isPinned && <Pin size={12} className="text-indigo-400 fill-indigo-400" />}
+                    </span>
+                    <span className={`text-[11px] font-medium tracking-wide ${isOnline ? "text-emerald-400" : "text-white/30"}`}>
+                      {isOnline ? "ONLINE" : "OFFLINE"}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <div className={`text-[13px] truncate flex-1 ${isSelected ? "text-indigo-200" : "text-white/50"}`}>
+                      {user.isArchived ? <span className="italic">Archived</span> : (isOnline ? "Active now" : "Last seen recently")}
+                    </div>
+                    {(unreadCounts?.[user._id] || 0) > 0 && (
+                      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[11px] font-bold min-w-[20px] h-[20px] rounded-full flex items-center justify-center px-1.5 shadow-[0_2px_8px_rgba(99,102,241,0.5)] animate-in zoom-in duration-300">
+                        {unreadCounts[user._id]}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+
+              <button 
+                onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === user._id ? null : user._id); }} 
+                className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-opacity ${activeMenu === user._id ? 'opacity-100' : 'opacity-0 group-hover/item:opacity-100'}`}
+              >
+                <MoreVertical size={18}/>
+              </button>
+              
+              {activeMenu === user._id && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setActiveMenu(null)}></div>
+                  <div className="absolute right-10 top-1/2 -translate-y-1/2 bg-zinc-800 rounded-xl shadow-2xl border border-white/10 p-1 z-50 min-w-[140px] animate-in zoom-in duration-200">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); pinChat(user._id); setActiveMenu(null); }} 
+                      className="w-full text-left px-3 py-2 text-sm text-white/90 hover:bg-white/10 rounded-lg flex items-center gap-2 transition-colors"
+                    >
+                      <Pin size={15} className={user.isPinned ? "text-indigo-400" : ""} /> {user.isPinned ? "Unpin Chat" : "Pin Chat"}
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); archiveChat(user._id); setActiveMenu(null); }} 
+                      className="w-full text-left px-3 py-2 text-sm text-white/90 hover:bg-white/10 rounded-lg flex items-center gap-2 transition-colors"
+                    >
+                      <Archive size={15} className={user.isArchived ? "text-amber-400" : ""} /> {user.isArchived ? "Unarchive" : "Archive"}
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); deleteConversation(user._id); setActiveMenu(null); }} 
+                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/20 rounded-lg flex items-center gap-2 transition-colors mt-1 border-t border-white/5 pt-2"
+                    >
+                      <Trash2 size={15}/> Delete Chat
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           );
         })}
 

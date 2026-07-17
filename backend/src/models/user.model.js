@@ -51,6 +51,18 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    pinnedChats: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    archivedChats: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     friendRequests: [
       {
         from: {

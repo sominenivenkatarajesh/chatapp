@@ -13,6 +13,8 @@ export const useChatStore = create((set, get) => ({
   isMutualFriendsLoading: false,
   unreadCounts: {}, // { userId: count }
   typingUsers: [], // Array of userIds currently typing
+  replyingToMessage: null,
+  editingMessage: null,
 
   getMutualFriends: async (userId) => {
     set({ isMutualFriendsLoading: true });
@@ -67,10 +69,26 @@ export const useChatStore = create((set, get) => ({
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser, messages, users } = get();
+    const { selectedUser, messages, users, replyingToMessage, editingMessage } = get();
     try {
+      if (editingMessage) {
+        const res = await axiosInstance.put(`/messages/${editingMessage._id}/edit`, { text: messageData.text });
+        set({
+          messages: messages.map(m => m._id === editingMessage._id ? res.data : m),
+          editingMessage: null
+        });
+        return;
+      }
+
+      if (replyingToMessage) {
+        messageData.replyTo = replyingToMessage._id;
+      }
+
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: [...messages, res.data] });
+      set({ 
+        messages: [...messages, res.data],
+        replyingToMessage: null 
+      });
       
       // Move the selectedUser to the top of the users list
       const updatedUsers = users.filter(u => u._id !== selectedUser._id);
@@ -79,7 +97,7 @@ export const useChatStore = create((set, get) => ({
         set({ users: [userToMove, ...updatedUsers] });
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Error sending message");
     }
   },
 
@@ -168,6 +186,30 @@ export const useChatStore = create((set, get) => ({
     socket.on("userStoppedTyping", ({ userId }) => {
       set({ typingUsers: get().typingUsers.filter(id => id !== userId) });
     });
+
+    socket.on("messageEdited", ({ messageId, text }) => {
+      set(state => ({
+        messages: state.messages.map(m => 
+          m._id === messageId ? { ...m, text, isEdited: true } : m
+        )
+      }));
+    });
+
+    socket.on("messageDeleted", ({ messageId }) => {
+      set(state => ({
+        messages: state.messages.map(m => 
+          m._id === messageId ? { ...m, isDeleted: true, text: "", image: "", fileUrl: "", fileName: "" } : m
+        )
+      }));
+    });
+
+    socket.on("messageReacted", ({ messageId, reactions }) => {
+      set(state => ({
+        messages: state.messages.map(m => 
+          m._id === messageId ? { ...m, reactions } : m
+        )
+      }));
+    });
   },
 
   unsubscribeFromMessages: () => {
@@ -177,6 +219,9 @@ export const useChatStore = create((set, get) => ({
       socket.off("messagesSeen");
       socket.off("userTyping");
       socket.off("userStoppedTyping");
+      socket.off("messageEdited");
+      socket.off("messageDeleted");
+      socket.off("messageReacted");
     }
   },
 
@@ -202,5 +247,81 @@ export const useChatStore = create((set, get) => ({
       socket.emit("stopTyping", { to: selectedUser._id });
     }
   },
+
+  setReplyingToMessage: (msg) => set({ replyingToMessage: msg, editingMessage: null }),
+  setEditingMessage: (msg) => set({ editingMessage: msg, replyingToMessage: null }),
+
+  deleteConversation: async (userId) => {
+    try {
+      await axiosInstance.delete(`/messages/conversation/${userId}`);
+      set(state => ({
+        messages: [],
+        users: state.users.filter(u => u._id !== userId)
+      }));
+      toast.success("Conversation deleted");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error deleting conversation");
+    }
+  },
+
+  deleteMessage: async (messageId) => {
+    try {
+      await axiosInstance.delete(`/messages/${messageId}`);
+      set(state => ({
+        messages: state.messages.map(m => 
+          m._id === messageId ? { ...m, isDeleted: true, text: "", image: "", fileUrl: "", fileName: "" } : m
+        )
+      }));
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error deleting message");
+    }
+  },
+
+  reactToMessage: async (messageId, emoji) => {
+    try {
+      const res = await axiosInstance.post(`/messages/${messageId}/react`, { emoji });
+      set(state => ({
+        messages: state.messages.map(m => 
+          m._id === messageId ? { ...m, reactions: res.data } : m
+        )
+      }));
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error reacting to message");
+    }
+  },
+
+  pinChat: async (userId) => {
+    try {
+      const res = await axiosInstance.post(`/messages/pin-chat/${userId}`);
+      const pinnedChats = res.data.pinnedChats;
+      set(state => ({
+        users: state.users.map(u => ({
+          ...u,
+          isPinned: pinnedChats.includes(u._id)
+        })).sort((a, b) => {
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
+        })
+      }));
+    } catch (error) {
+      toast.error("Error pinning chat");
+    }
+  },
+
+  archiveChat: async (userId) => {
+    try {
+      const res = await axiosInstance.post(`/messages/archive-chat/${userId}`);
+      const archivedChats = res.data.archivedChats;
+      set(state => ({
+        users: state.users.map(u => ({
+          ...u,
+          isArchived: archivedChats.includes(u._id)
+        }))
+      }));
+    } catch (error) {
+      toast.error("Error archiving chat");
+    }
+  }
 
 }));

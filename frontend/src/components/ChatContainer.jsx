@@ -1,7 +1,7 @@
 import { useChatStore } from "../store/useChatStore";
 import { useCallStore } from "../store/useCallStore";
 import { useEffect, useRef, useState } from "react";
-import { PhoneMissed, PhoneCall, Check, CheckCheck } from "lucide-react";
+import { PhoneMissed, PhoneCall, Check, CheckCheck, Reply, Edit2, Trash2 } from "lucide-react";
 
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
@@ -19,6 +19,10 @@ const ChatContainer = () => {
     subscribeToMessages,
     unsubscribeFromMessages,
     typingUsers,
+    setReplyingToMessage,
+    setEditingMessage,
+    deleteMessage,
+    reactToMessage
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
@@ -96,8 +100,18 @@ const ChatContainer = () => {
               key={message._id}
               className={`flex ${isSentByMe ? "justify-end" : "justify-start"} ${isLastInGroup ? "mb-2" : "mb-0.5"} animate-msg`}
             >
-              <div className={`relative flex flex-col max-w-[85%] sm:max-w-[70%] hover-lift`}>
+              <div className={`relative flex flex-col max-w-[85%] sm:max-w-[70%] group`}>
                 
+                {/* Quick Actions (Hover outside bubble) */}
+                <div className={`absolute top-1/2 -translate-y-1/2 ${isSentByMe ? "right-[100%] mr-2" : "left-[100%] ml-2"} opacity-0 group-hover:opacity-100 flex items-center gap-1 p-1 bg-zinc-800/90 backdrop-blur-md rounded-xl border border-white/10 shadow-xl z-20 transition-all duration-200`}>
+                  <button onClick={() => setReplyingToMessage(message)} className="p-2 hover:bg-indigo-500/20 rounded-lg text-white/70 hover:text-indigo-300 transition-colors" title="Reply"><Reply size={16}/></button>
+                  {!message.isDeleted && (
+                    <button onClick={() => reactToMessage(message._id, '❤️')} className="p-2 hover:bg-pink-500/20 rounded-lg text-white/70 hover:text-pink-400 transition-colors" title="Love">❤️</button>
+                  )}
+                  {isSentByMe && !message.isDeleted && <button onClick={() => setEditingMessage(message)} className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors" title="Edit"><Edit2 size={16}/></button>}
+                  {isSentByMe && !message.isDeleted && <button onClick={() => deleteMessage(message._id)} className="p-2 hover:bg-red-500/20 rounded-lg text-red-400 hover:text-red-300 transition-colors" title="Delete"><Trash2 size={16}/></button>}
+                </div>
+
                 {message.text === "Missed Video Call 📞" ? (
                   <div className={`relative overflow-hidden transition-all duration-300 p-5 flex flex-col items-center justify-center gap-3 min-w-[220px] rounded-3xl border shadow-2xl ${isSentByMe ? 'bg-zinc-900/90 border-red-500/30' : 'bg-red-500/10 border-red-500/20 backdrop-blur-md'}`}>
                     <div className="size-14 rounded-full bg-red-500/20 flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.2)]">
@@ -126,76 +140,107 @@ const ChatContainer = () => {
                         : "rounded-2xl"
                     }`}
                   >
-                    {/* Image Content - WhatsApp Style */}
-                    {message.image && message.image.trim() !== "" && (
-                      <div className="p-[3.5px]">
-                        <div className="rounded-[6px] overflow-hidden bg-black/10 relative">
-                          <img
-                            src={message.image}
-                            alt="Attachment"
-                            className="max-w-full max-h-[450px] w-auto h-auto object-contain cursor-pointer hover:opacity-95 transition-opacity block"
-                            onClick={() => window.open(message.image, '_blank')}
-                          />
-                          
-                          {/* Overlay Timestamp for Images */}
-                          {!message.text && (
-                            <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-[4px] bg-black/30 backdrop-blur-sm flex items-center gap-1">
-                              <span className="text-[10px] text-white/90 font-medium">
+                    {message.isDeleted ? (
+                      <div className="px-4 py-3 opacity-60 italic text-[14.5px] flex items-center gap-2">
+                        🚫 This message was deleted
+                      </div>
+                    ) : (
+                      <>
+                        {/* Reply Preview */}
+                        {message.replyTo && (
+                          <div className="mx-2 mt-2 p-2 bg-black/20 rounded-lg border-l-4 border-white/30 mb-1 opacity-90 cursor-pointer">
+                            <p className="text-xs text-white/70 font-semibold mb-0.5">Replying to message</p>
+                            <p className="text-sm truncate text-white/90">{message.replyTo.isDeleted ? "🚫 This message was deleted" : (message.replyTo.text || "Attachment")}</p>
+                          </div>
+                        )}
+
+                        {/* Image Content - WhatsApp Style */}
+                        {message.image && message.image.trim() !== "" && (
+                          <div className="p-[3.5px]">
+                            <div className="rounded-[6px] overflow-hidden bg-black/10 relative">
+                              <img
+                                src={message.image}
+                                alt="Attachment"
+                                className="max-w-full max-h-[450px] w-auto h-auto object-contain cursor-pointer hover:opacity-95 transition-opacity block"
+                                onClick={() => window.open(message.image, '_blank')}
+                              />
+                              
+                              {/* Overlay Timestamp for Images */}
+                              {!message.text && (
+                                <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-[4px] bg-black/30 backdrop-blur-sm flex items-center gap-1">
+                                  <span className="text-[10px] text-white/90 font-medium">
+                                    {formatMessageTime(message.createdAt)}
+                                  </span>
+                                  {isSentByMe && (
+                                    <span className="text-indigo-200">
+                                      <svg viewBox="0 0 16 15" width="15" height="14" fill="currentColor"><path d="M15.01 3.316l-.478-.372a.365.365 0 00-.51.063L8.666 9.879c-.566.733-.705 1.019-1.493 1.019-.3 0-.601-.02-.747-.034l-.177-.015c-.631-.047-1.114-.116-1.574-.633l-.113-.131L2.09 7.427a.364.364 0 00-.511-.044l-.507.412a.364.364 0 00-.044.51l3.52 4.314c.489.6 1.066 1.016 1.936 1.016.892 0 1.488-.349 2.038-1.06l6.044-7.76c.144-.185.109-.451-.056-.558zm-4.321.391l-.478-.372a.365.365 0 00-.51.063L4.345 10.27c-.121.156-.241.312-.34.453l.113.131c.46.517.943.586 1.574.633l.177.015c.146.014.447.034.747.034.788 0 .927-.286 1.493-1.019l5.141-6.59a.365.365 0 00-.06-.523z"></path></svg>
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* File Content */}
+                        {message.fileUrl && (
+                          <div className="p-2">
+                            <a
+                              href={message.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-3 p-3 bg-black/10 rounded-md hover:bg-black/20 transition-colors"
+                            >
+                              <div className="p-2 bg-wa-accent/20 rounded-full text-wa-accent">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-sm font-medium truncate">{message.fileName || "File"}</span>
+                                <span className="text-[10px] text-wa-secondary">Open</span>
+                              </div>
+                            </a>
+                          </div>
+                        )}
+
+                        {/* Text Content */}
+                        {message.text && (
+                          <div className={`px-3 ${message.image || message.fileUrl ? 'pb-2 pt-1' : 'py-2'} flex items-end justify-between gap-3 min-w-[80px]`}>
+                            <p className="text-[14.5px] leading-relaxed whitespace-pre-wrap break-words font-normal">
+                              {message.text}
+                              {message.isEdited && <span className="text-[10.5px] italic opacity-60 ml-1.5 align-baseline">(edited)</span>}
+                            </p>
+                            <div className="flex items-center gap-1 shrink-0 opacity-70 pb-0.5 mt-2 float-right">
+                              <span className="text-[10px] font-medium tracking-wide">
                                 {formatMessageTime(message.createdAt)}
                               </span>
                               {isSentByMe && (
-                                <span className="text-indigo-200">
-                                  <svg viewBox="0 0 16 15" width="15" height="14" fill="currentColor"><path d="M15.01 3.316l-.478-.372a.365.365 0 00-.51.063L8.666 9.879c-.566.733-.705 1.019-1.493 1.019-.3 0-.601-.02-.747-.034l-.177-.015c-.631-.047-1.114-.116-1.574-.633l-.113-.131L2.09 7.427a.364.364 0 00-.511-.044l-.507.412a.364.364 0 00-.044.51l3.52 4.314c.489.6 1.066 1.016 1.936 1.016.892 0 1.488-.349 2.038-1.06l6.044-7.76c.144-.185.109-.451-.056-.558zm-4.321.391l-.478-.372a.365.365 0 00-.51.063L4.345 10.27c-.121.156-.241.312-.34.453l.113.131c.46.517.943.586 1.574.633l.177.015c.146.014.447.034.747.034.788 0 .927-.286 1.493-1.019l5.141-6.59a.365.365 0 00-.06-.523z"></path></svg>
+                                <span className={`${message.isSeen ? "text-[#38bdf8]" : "text-white/60"}`}>
+                                  {message.isSeen ? (
+                                    <CheckCheck size={14} strokeWidth={2.5} />
+                                  ) : (
+                                    <Check size={14} strokeWidth={2.5} />
+                                  )}
                                 </span>
                               )}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* File Content */}
-                    {message.fileUrl && (
-                      <div className="p-2">
-                        <a
-                          href={message.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 bg-black/10 rounded-md hover:bg-black/20 transition-colors"
-                        >
-                          <div className="p-2 bg-wa-accent/20 rounded-full text-wa-accent">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
                           </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-sm font-medium truncate">{message.fileName || "File"}</span>
-                            <span className="text-[10px] text-wa-secondary">Open</span>
-                          </div>
-                        </a>
-                      </div>
+                        )}
+                      </>
                     )}
+                  </div>
+                )}
 
-                    {/* Text Content */}
-                    {message.text && (
-                      <div className={`px-3 ${message.image || message.fileUrl ? 'pb-2 pt-1' : 'py-2'} flex items-end justify-between gap-3 min-w-[80px]`}>
-                        <p className="text-[14.5px] leading-relaxed whitespace-pre-wrap break-words font-normal">
-                          {message.text}
-                        </p>
-                        <div className="flex items-center gap-1 shrink-0 opacity-70 pb-0.5 mt-2 float-right">
-                          <span className="text-[10px] font-medium tracking-wide">
-                            {formatMessageTime(message.createdAt)}
-                          </span>
-                          {isSentByMe && (
-                            <span className={`${message.isSeen ? "text-[#38bdf8]" : "text-white/60"}`}>
-                              {message.isSeen ? (
-                                <CheckCheck size={14} strokeWidth={2.5} />
-                              ) : (
-                                <Check size={14} strokeWidth={2.5} />
-                              )}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                {/* Reactions rendering */}
+                {message.reactions && message.reactions.length > 0 && (
+                  <div className={`absolute -bottom-2.5 ${isSentByMe ? "right-2" : "left-2"} bg-zinc-800 border border-white/10 rounded-full px-1.5 py-0.5 flex gap-1 shadow-lg z-20 text-[12px] animate-in zoom-in duration-200`}>
+                    {Array.from(new Set(message.reactions.map(r => r.emoji))).map((emoji, i) => (
+                      <span key={i} onClick={() => reactToMessage(message._id, emoji)} className="cursor-pointer hover:scale-110 flex items-center">
+                        {emoji} 
+                        {message.reactions.filter(r => r.emoji === emoji).length > 1 && (
+                          <span className="text-[10px] font-bold text-white/80 ml-0.5">{message.reactions.filter(r => r.emoji === emoji).length}</span>
+                        )}
+                      </span>
+                    ))}
                   </div>
                 )}
               </div>

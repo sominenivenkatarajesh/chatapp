@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
 import { Image, Send, X, Smile, Paperclip, FileText, Mic, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import EmojiPicker from "emoji-picker-react";
@@ -11,7 +12,14 @@ const MessageInput = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
-  const { sendMessage, emitTyping, emitStopTyping } = useChatStore();
+  const { sendMessage, emitTyping, emitStopTyping, replyingToMessage, editingMessage, setReplyingToMessage, setEditingMessage } = useChatStore();
+  const { authUser } = useAuthStore();
+
+  useEffect(() => {
+    if (editingMessage) {
+      setText(editingMessage.text);
+    }
+  }, [editingMessage]);
 
   useEffect(() => {
     return () => {
@@ -98,6 +106,33 @@ const MessageInput = () => {
 
   return (
     <div className="w-full p-4 relative z-40 flex flex-col bg-transparent">
+      
+      {/* Action Banner (Reply/Edit) */}
+      {(replyingToMessage || editingMessage) && (
+        <div className="absolute bottom-full left-0 right-0 p-4 bg-transparent border-t border-white/5 animate-in">
+          <div className="flex items-center justify-between glass-panel-light p-3 rounded-xl shadow-lg border-l-4 border-indigo-500 mx-auto w-full">
+            <div className="flex flex-col min-w-0 flex-1 pl-2">
+              <span className="text-indigo-400 font-bold text-xs mb-1 tracking-wide">
+                {editingMessage ? "Edit message" : `Replying to ${replyingToMessage.senderId === authUser._id ? "yourself" : "message"}`}
+              </span>
+              <span className="text-white/70 text-sm truncate font-medium">
+                {editingMessage?.text || replyingToMessage?.text || (replyingToMessage?.image ? "📸 Image" : "📎 File")}
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setReplyingToMessage(null);
+                setEditingMessage(null);
+                setText("");
+              }}
+              className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white ml-3 transition-colors shadow-sm"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Attachment Preview */}
       {(imagePreview || filePreview) && (
         <div className="absolute bottom-full left-0 right-0 p-4 bg-wa-bg border-t border-wa-border animate-in">

@@ -122,29 +122,59 @@ const MusicPage = () => {
               <div className="space-y-12">
                 {/* Actions */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="glass-morphism p-6 rounded-2xl border border-white/10 hover:border-primary/50 transition-all flex flex-col justify-center gap-4">
-                    <h3 className="text-xl font-bold">Start a New Party</h3>
-                    <p className="text-zinc-400 text-sm">Create a private room and invite your friends to listen together.</p>
-                    <button onClick={createRoom} className="btn btn-primary w-full py-3 rounded-xl shadow-lg mt-auto text-lg font-bold">
-                      <Plus size={20} className="mr-2" /> Create Room
-                    </button>
+                  {/* Create Party Card */}
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-3xl blur-xl transition-all duration-300 group-hover:opacity-100 opacity-50"></div>
+                    <div className="relative h-full glass-morphism p-8 rounded-3xl border border-white/10 hover:border-indigo-500/50 transition-all duration-300 flex flex-col justify-between gap-6 overflow-hidden">
+                      <div className="absolute top-0 right-0 p-4 opacity-10">
+                         <Music size={100} />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-4 text-indigo-400">
+                          <Plus size={24} />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white mb-2">Start a New Party</h3>
+                        <p className="text-zinc-400 text-sm leading-relaxed">
+                          Create a private listening room. Invite your friends, share the queue, and vibe together in real-time.
+                        </p>
+                      </div>
+                      <button onClick={createRoom} className="btn-primary w-full py-4 rounded-xl text-lg relative z-10 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all">
+                        Create Room
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="glass-morphism p-6 rounded-2xl border border-white/10 hover:border-primary/50 transition-all flex flex-col justify-center gap-4">
-                    <h3 className="text-xl font-bold">Join an Existing Party</h3>
-                    <p className="text-zinc-400 text-sm">Have a Room ID? Type it below to jump right in.</p>
-                    <form onSubmit={handleJoin} className="flex gap-2 mt-auto">
-                      <input 
-                        type="text" 
-                        placeholder="Enter Room ID..."
-                        value={joinInput}
-                        onChange={(e) => setJoinInput(e.target.value)}
-                        className="input bg-black/40 border-white/10 w-full"
-                      />
-                      <button type="submit" disabled={!joinInput.trim()} className="btn btn-primary px-6 rounded-xl shadow-lg">
-                        Join
-                      </button>
-                    </form>
+                  {/* Join Party Card */}
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur-xl transition-all duration-300 group-hover:opacity-100 opacity-50"></div>
+                    <div className="relative h-full glass-morphism p-8 rounded-3xl border border-white/10 hover:border-purple-500/50 transition-all duration-300 flex flex-col justify-between gap-6 overflow-hidden">
+                      <div className="absolute top-0 right-0 p-4 opacity-10">
+                         <Users size={100} />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-4 text-purple-400">
+                          <Users size={24} />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white mb-2">Join an Existing Party</h3>
+                        <p className="text-zinc-400 text-sm leading-relaxed">
+                          Already have a Room ID from a friend? Paste it below and jump right into the music.
+                        </p>
+                      </div>
+                      <form onSubmit={handleJoin} className="relative z-10 flex flex-col sm:flex-row gap-3">
+                        <div className="relative flex-1">
+                          <input 
+                            type="text" 
+                            placeholder="Enter Room ID..."
+                            value={joinInput}
+                            onChange={(e) => setJoinInput(e.target.value)}
+                            className="input-field w-full pl-4 bg-black/40 h-[52px]"
+                          />
+                        </div>
+                        <button type="submit" disabled={!joinInput.trim()} className="btn-primary px-8 h-[52px] rounded-xl flex-shrink-0 disabled:opacity-50">
+                          Join
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 </div>
 
@@ -156,13 +186,16 @@ const MusicPage = () => {
                   </h2>
                   
                   {activeMusicRooms.length === 0 ? (
-                    <div className="glass-morphism p-12 rounded-3xl flex items-center justify-center text-zinc-400 flex-col gap-4 max-w-2xl mx-auto mt-6 text-center">
-                      <div className="p-6 bg-white/5 rounded-full border border-white/10 shadow-2xl">
-                        <Music size={48} className="opacity-40" />
+                    <div className="glass-morphism p-12 rounded-3xl border-dashed border-2 border-white/10 flex items-center justify-center text-zinc-400 flex-col gap-5 max-w-3xl mx-auto mt-6 text-center hover:border-indigo-500/30 transition-colors">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl animate-pulse"></div>
+                        <div className="relative p-6 bg-zinc-900/80 rounded-full border border-white/10 shadow-2xl backdrop-blur-sm">
+                          <Music size={40} className="text-indigo-400/70" />
+                        </div>
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-white mb-2">It's quiet here...</h3>
-                        <p>No public parties are currently active. Why not start one?</p>
+                        <h3 className="text-2xl font-bold text-white mb-2">It's quiet here...</h3>
+                        <p className="text-zinc-500">No public parties are currently active. Be the first to start one!</p>
                       </div>
                     </div>
                   ) : (

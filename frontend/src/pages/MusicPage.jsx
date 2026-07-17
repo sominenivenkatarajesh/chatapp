@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useMusicStore } from "../store/useMusicStore";
-import { Music, Play, Plus, Users, Copy, Check, LogOut, Send } from "lucide-react";
+import { Music, Play, Plus, Users, Copy, Check, LogOut, Send, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 

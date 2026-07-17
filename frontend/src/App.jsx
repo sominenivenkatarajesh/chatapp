@@ -16,7 +16,6 @@ import { useAuthStore } from "./store/useAuthStore";
 import CallManager from "./components/CallManager";
 import MusicPlayer from "./components/MusicPlayer";
 import { useMusicStore } from "./store/useMusicStore";
-import { useThemeStore } from "./store/useThemeStore";
 import { Music, Check, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -34,7 +33,6 @@ const PageWrapper = ({ children }) => (
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
-  const { theme } = useThemeStore();
   const location = useLocation();
 
   const { inviteData, joinRoom, clearInvite } = useMusicStore();

@@ -16,6 +16,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import CallManager from "./components/CallManager";
 import MusicPlayer from "./components/MusicPlayer";
 import { useMusicStore } from "./store/useMusicStore";
+import { useThemeStore } from "./store/useThemeStore";
 import { Music, Check, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -33,6 +34,7 @@ const PageWrapper = ({ children }) => (
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+  const { theme } = useThemeStore();
   const location = useLocation();
 
   const { inviteData, joinRoom, clearInvite } = useMusicStore();
@@ -67,6 +69,32 @@ const App = () => {
             <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
               <div className="size-1.5 rounded-full bg-primary animate-pulse" />
               <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">Secure Session</span>
+              
+            <AnimatePresence>
+              {inviteData && (
+                <motion.div
+                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 50, scale: 0.9 }}
+                  className="fixed bottom-24 right-4 sm:bottom-8 sm:right-8 z-50 bg-zinc-950 border border-primary/30 p-4 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.3)] max-w-sm"
+                >
+                  <h3 className="font-bold text-white mb-1">{inviteData.name} invited you!</h3>
+                  <p className="text-sm text-zinc-400 mb-4">They started a Listening Party and want you to join.</p>
+                  <div className="flex gap-2">
+                    <button onClick={clearInvite} className="flex-1 btn bg-white/10 hover:bg-white/20 text-white rounded-xl py-2">Decline</button>
+                    <button 
+                      onClick={() => {
+                        joinRoom(inviteData.roomId);
+                        clearInvite();
+                      }}
+                      className="flex-1 btn btn-primary rounded-xl py-2"
+                    >
+                      Join Party
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
             </div>
           </div>
         </motion.div>

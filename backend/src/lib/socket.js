@@ -54,6 +54,21 @@ io.on("connection", (socket) => {
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
   broadcastMusicRooms(); // Send current rooms to newly connected user
 
+  // --- Typing Events ---
+  socket.on("typing", ({ to }) => {
+    const receiverSocketId = getReceiverSocketId(to);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("userTyping", { userId });
+    }
+  });
+
+  socket.on("stopTyping", ({ to }) => {
+    const receiverSocketId = getReceiverSocketId(to);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("userStoppedTyping", { userId });
+    }
+  });
+
   // --- Music Events ---
   socket.on("createMusicRoom", ({ name }) => {
     if (!musicRooms[userId]) {

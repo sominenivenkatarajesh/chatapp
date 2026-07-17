@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { Image, Send, X, Smile, Paperclip, FileText, Mic, Plus } from "lucide-react";
 import toast from "react-hot-toast";
@@ -10,7 +10,14 @@ const MessageInput = () => {
   const [filePreview, setFilePreview] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+  const typingTimeoutRef = useRef(null);
+  const { sendMessage, emitTyping, emitStopTyping } = useChatStore();
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    };
+  }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -44,6 +51,9 @@ const MessageInput = () => {
     if (e) e.preventDefault();
     if (!text.trim() && !imagePreview && !filePreview) return;
 
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    emitStopTyping();
+
     try {
       const messageData = { text: text.trim() };
       if (imagePreview) messageData.image = imagePreview;
@@ -73,6 +83,17 @@ const MessageInput = () => {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleTextChange = (e) => {
+    setText(e.target.value);
+    
+    emitTyping();
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      emitStopTyping();
+    }, 2000);
   };
 
   return (
@@ -144,7 +165,7 @@ const MessageInput = () => {
             placeholder="Type a message..."
             rows="1"
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={handleTextChange}
             onKeyDown={handleKeyDown}
           />
         </div>

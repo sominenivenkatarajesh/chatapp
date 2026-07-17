@@ -18,6 +18,7 @@ const ChatContainer = () => {
     selectedUser,
     subscribeToMessages,
     unsubscribeFromMessages,
+    typingUsers,
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
@@ -74,6 +75,17 @@ const ChatContainer = () => {
       <ChatHeader onProfileClick={() => setIsSidebarOpen(true)} />
 
       <div className="flex-1 overflow-y-auto p-4 md:px-16 space-y-2 custom-scrollbar relative z-10">
+        
+        {messages.length === 0 && (
+          <div className="h-full flex flex-col items-center justify-center text-center opacity-70 mt-10">
+            <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10 shadow-2xl">
+              <img src={selectedUser?.profilePic || "/avatar.svg"} alt="" className="w-16 h-16 rounded-full object-cover" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Say hi to {selectedUser?.fullName}!</h3>
+            <p className="text-zinc-400 max-w-sm text-sm">No conversations yet — start chatting with someone.</p>
+          </div>
+        )}
+
         {messages.map((message, index) => {
           const isSentByMe = message.senderId === authUser._id;
           const nextMessage = messages[index + 1];
@@ -190,6 +202,17 @@ const ChatContainer = () => {
             </div>
           );
         })}
+        
+        {typingUsers.includes(selectedUser?._id) && (
+          <div className="flex justify-start mb-2 animate-msg">
+            <div className="bg-zinc-800/80 border border-white/5 backdrop-blur-sm rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5 w-fit">
+              <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+              <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+              <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce"></span>
+            </div>
+          </div>
+        )}
+
         <div ref={messageEndRef} />
       </div>
 

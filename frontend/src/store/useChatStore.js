@@ -12,6 +12,7 @@ export const useChatStore = create((set, get) => ({
   isMessagesLoading: false,
   isMutualFriendsLoading: false,
   unreadCounts: {}, // { userId: count }
+  typingUsers: [], // Array of userIds currently typing
 
   getMutualFriends: async (userId) => {
     set({ isMutualFriendsLoading: true });
@@ -156,6 +157,17 @@ export const useChatStore = create((set, get) => ({
         });
       }
     });
+
+    socket.on("userTyping", ({ userId }) => {
+      const { typingUsers } = get();
+      if (!typingUsers.includes(userId)) {
+        set({ typingUsers: [...typingUsers, userId] });
+      }
+    });
+
+    socket.on("userStoppedTyping", ({ userId }) => {
+      set({ typingUsers: get().typingUsers.filter(id => id !== userId) });
+    });
   },
 
   unsubscribeFromMessages: () => {
@@ -163,6 +175,8 @@ export const useChatStore = create((set, get) => ({
     if (socket) {
       socket.off("newMessage");
       socket.off("messagesSeen");
+      socket.off("userTyping");
+      socket.off("userStoppedTyping");
     }
   },
 
@@ -170,6 +184,22 @@ export const useChatStore = create((set, get) => ({
     set({ selectedUser });
     if (selectedUser) {
       get().markMessagesAsSeen(selectedUser._id);
+    }
+  },
+
+  emitTyping: () => {
+    const socket = useAuthStore.getState().socket;
+    const { selectedUser } = get();
+    if (socket && selectedUser) {
+      socket.emit("typing", { to: selectedUser._id });
+    }
+  },
+
+  emitStopTyping: () => {
+    const socket = useAuthStore.getState().socket;
+    const { selectedUser } = get();
+    if (socket && selectedUser) {
+      socket.emit("stopTyping", { to: selectedUser._id });
     }
   },
 

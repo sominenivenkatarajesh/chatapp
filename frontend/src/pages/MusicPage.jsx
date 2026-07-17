@@ -195,12 +195,35 @@ const MusicPage = () => {
                                 Now playing: {room.currentVideo.title}
                               </p>
                             )}
-                            <button 
-                              onClick={() => joinRoom(room.roomId)}
-                              className="mt-4 w-full btn bg-primary/20 text-primary hover:bg-primary hover:text-black justify-center py-2 transition-colors shadow-lg"
-                            >
-                              <Play size={16} className="mr-2" /> Join Party
-                            </button>
+                            {room.roomId === authUser._id ? (
+                              <div className="mt-4 w-full flex gap-2">
+                                <button 
+                                  onClick={() => {
+                                    useMusicStore.setState({ roomId: room.roomId, isPlayerOpen: true });
+                                    // re-join the socket room to start receiving events again
+                                    useAuthStore.getState().socket.emit("joinMusicRoom", { roomId: room.roomId });
+                                  }}
+                                  className="w-full btn bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500 hover:text-white justify-center py-2 transition-colors shadow-lg"
+                                >
+                                  Return
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    useAuthStore.getState().socket.emit("leaveMusicRoom", { roomId: room.roomId });
+                                  }}
+                                  className="w-full btn bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white justify-center py-2 transition-colors shadow-lg"
+                                >
+                                  Close
+                                </button>
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => joinRoom(room.roomId)}
+                                className="mt-4 w-full btn bg-primary/20 text-primary hover:bg-primary hover:text-black justify-center py-2 transition-colors shadow-lg"
+                              >
+                                <Play size={16} className="mr-2" /> Join Party
+                              </button>
+                            )}
                           </div>
                         </motion.div>
                       ))}

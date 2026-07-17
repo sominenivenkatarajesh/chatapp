@@ -31,7 +31,7 @@ const ChatHeader = ({ onProfileClick }) => {
   };
 
   return (
-    <div className="h-[72px] px-6 border-b border-white/5 bg-white/5 backdrop-blur-md z-20 flex items-center justify-between shadow-sm">
+    <div className="h-[72px] px-6 border-b border-white/5 bg-white/5 backdrop-blur-md z-30 flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-3 sm:gap-4 flex-1">
         {/* Back Button (Mobile only) */}
         <button 
@@ -62,7 +62,7 @@ const ChatHeader = ({ onProfileClick }) => {
           onClick={onProfileClick}
         >
           <h3 className="font-bold">{selectedUser.username || selectedUser.name}</h3>
-          <p className="text-[11px] font-semibold tracking-wide uppercase flex items-center gap-1.5 mt-0.5">
+          <p className="text-xs font-semibold tracking-wide uppercase flex items-center gap-1.5 mt-0.5">
             {selectedUser.isGroup ? (
               <span className="text-white/60">{selectedUser.members?.length || 0} Members</span>
             ) : onlineUsers.includes(selectedUser._id) ? (

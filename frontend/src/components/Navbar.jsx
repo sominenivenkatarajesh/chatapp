@@ -17,7 +17,7 @@ const Navbar = () => {
   if (!authUser) return null;
 
   return (
-    <header className="z-50 bg-[#09090b] sm:bg-[#0f0f13] border-t sm:border-t-0 sm:border-r border-white/10 flex-shrink-0
+    <header className="z-50 bg-bg sm:bg-surface border-t sm:border-t-0 sm:border-r border-white/10 flex-shrink-0
       fixed sm:static bottom-0 left-0 w-full sm:w-20 lg:w-64 h-16 sm:h-full flex sm:flex-col justify-between"
     >
       <div className="hidden sm:flex items-center gap-3 p-6 group h-[72px] border-b border-white/5">

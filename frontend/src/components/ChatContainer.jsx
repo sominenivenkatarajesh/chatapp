@@ -9,6 +9,7 @@ import MessageSkeleton from "./skeletons/MessageSkeleton";
 import FriendProfileSidebar from "./FriendProfileSidebar";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
+import Avatar from "./Avatar";
 
 const ChatContainer = () => {
   const {
@@ -56,7 +57,7 @@ const ChatContainer = () => {
 
   return (
     <div 
-      className="flex-1 flex flex-col overflow-hidden relative border-l border-white/5 bg-[#09090b] transition-colors duration-500"
+      className="flex-1 flex flex-col overflow-hidden relative border-l border-white/5 bg-bg transition-colors duration-500"
     >
       {/* Background Soft Glow Overlay */}
       {customThemeColor && customThemeColor !== "transparent" && (
@@ -78,12 +79,12 @@ const ChatContainer = () => {
 
       <ChatHeader onProfileClick={() => setIsSidebarOpen(true)} />
 
-      <div className="flex-1 overflow-y-auto p-4 md:px-16 space-y-2 custom-scrollbar relative z-10">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:px-16 space-y-2 custom-scrollbar relative z-10">
         
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-center opacity-70 mt-10">
-            <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10 shadow-2xl">
-              <img src={selectedUser?.profilePic || "/avatar.svg"} alt="" className="w-16 h-16 rounded-full object-cover" />
+            <div className="mb-4">
+              <Avatar user={selectedUser} size="lg" />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">Say hi to {selectedUser?.fullName}!</h3>
             <p className="text-zinc-400 max-w-sm text-sm">No conversations yet — start chatting with someone.</p>
@@ -103,7 +104,7 @@ const ChatContainer = () => {
               <div className={`relative flex flex-col max-w-[85%] sm:max-w-[70%] group`}>
                 
                 {/* Quick Actions (Hover outside bubble) */}
-                <div className={`absolute top-1/2 -translate-y-1/2 ${isSentByMe ? "right-[100%] mr-2" : "left-[100%] ml-2"} opacity-0 group-hover:opacity-100 flex items-center gap-1 p-1 bg-zinc-800/90 backdrop-blur-md rounded-xl border border-white/10 shadow-xl z-20 transition-all duration-200`}>
+                <div className={`absolute -top-10 ${isSentByMe ? "right-0" : "left-0"} opacity-0 group-hover:opacity-100 flex items-center gap-1 p-1 bg-zinc-800/90 backdrop-blur-md rounded-xl border border-white/10 shadow-xl z-30 transition-all duration-200`}>
                   <button onClick={() => setReplyingToMessage(message)} className="p-2 hover:bg-indigo-500/20 rounded-lg text-white/70 hover:text-indigo-300 transition-colors" title="Reply"><Reply size={16}/></button>
                   {!message.isDeleted && (
                     <button onClick={() => reactToMessage(message._id, '❤️')} className="p-2 hover:bg-pink-500/20 rounded-lg text-white/70 hover:text-pink-400 transition-colors" title="Love">❤️</button>
@@ -113,13 +114,13 @@ const ChatContainer = () => {
                 </div>
 
                 {message.text === "Missed Video Call 📞" ? (
-                  <div className={`relative overflow-hidden transition-all duration-300 p-5 flex flex-col items-center justify-center gap-3 min-w-[220px] rounded-3xl border shadow-2xl ${isSentByMe ? 'bg-zinc-900/90 border-red-500/30' : 'bg-red-500/10 border-red-500/20 backdrop-blur-md'}`}>
+                  <div className={`relative overflow-hidden transition-all duration-300 p-5 flex flex-col items-center justify-center gap-3 min-w-[220px] rounded-2xl border shadow-2xl ${isSentByMe ? 'bg-zinc-900/90 border-red-500/30' : 'bg-red-500/10 border-red-500/20 backdrop-blur-md'}`}>
                     <div className="size-14 rounded-full bg-red-500/20 flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.2)]">
                       <PhoneMissed className="text-red-500" size={26} />
                     </div>
                     <div className="text-center">
                       <p className="text-white font-bold text-base tracking-wide">Missed Call</p>
-                      <p className="text-[10px] text-zinc-400 font-semibold mt-1 uppercase tracking-widest">{formatMessageTime(message.createdAt)}</p>
+                      <p className="text-xs text-zinc-400 font-semibold mt-1 uppercase tracking-widest">{formatMessageTime(message.createdAt)}</p>
                     </div>
                     <button 
                       onClick={() => useCallStore.getState().callUser(isSentByMe ? message.receiverId : message.senderId)}
@@ -141,7 +142,7 @@ const ChatContainer = () => {
                     }`}
                   >
                     {message.isDeleted ? (
-                      <div className="px-4 py-3 opacity-60 italic text-[14.5px] flex items-center gap-2">
+                      <div className="px-4 py-3 opacity-60 italic text-sm flex items-center gap-2">
                         🚫 This message was deleted
                       </div>
                     ) : (
@@ -168,7 +169,7 @@ const ChatContainer = () => {
                               {/* Overlay Timestamp for Images */}
                               {!message.text && (
                                 <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-[4px] bg-black/30 backdrop-blur-sm flex items-center gap-1">
-                                  <span className="text-[10px] text-white/90 font-medium">
+                                  <span className="text-xs text-white/90 font-medium">
                                     {formatMessageTime(message.createdAt)}
                                   </span>
                                   {isSentByMe && (
@@ -196,7 +197,7 @@ const ChatContainer = () => {
                               </div>
                               <div className="flex flex-col min-w-0">
                                 <span className="text-sm font-medium truncate">{message.fileName || "File"}</span>
-                                <span className="text-[10px] text-wa-secondary">Open</span>
+                                <span className="text-xs text-wa-secondary">Open</span>
                               </div>
                             </a>
                           </div>
@@ -205,16 +206,16 @@ const ChatContainer = () => {
                         {/* Text Content */}
                         {message.text && (
                           <div className={`px-3 ${message.image || message.fileUrl ? 'pb-2 pt-1' : 'py-2'} flex items-end justify-between gap-3 min-w-[80px]`}>
-                            <p className="text-[14.5px] leading-relaxed whitespace-pre-wrap break-words font-normal">
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap break-words font-normal">
                               {message.text}
-                              {message.isEdited && <span className="text-[10.5px] italic opacity-60 ml-1.5 align-baseline">(edited)</span>}
+                              {message.isEdited && <span className="text-xs italic opacity-60 ml-1.5 align-baseline">(edited)</span>}
                             </p>
                             <div className="flex items-center gap-1 shrink-0 opacity-70 pb-0.5 mt-2 float-right">
-                              <span className="text-[10px] font-medium tracking-wide">
+                              <span className="text-xs font-medium tracking-wide">
                                 {formatMessageTime(message.createdAt)}
                               </span>
                               {isSentByMe && (
-                                <span className={`${message.isSeen ? "text-[#38bdf8]" : "text-white/60"}`}>
+                                <span className={`${message.isSeen ? "text-accent" : "text-white/60"}`}>
                                   {message.isSeen ? (
                                     <CheckCheck size={14} strokeWidth={2.5} />
                                   ) : (
@@ -232,12 +233,12 @@ const ChatContainer = () => {
 
                 {/* Reactions rendering */}
                 {message.reactions && message.reactions.length > 0 && (
-                  <div className={`absolute -bottom-2.5 ${isSentByMe ? "right-2" : "left-2"} bg-zinc-800 border border-white/10 rounded-full px-1.5 py-0.5 flex gap-1 shadow-lg z-20 text-[12px] animate-in zoom-in duration-200`}>
+                  <div className={`absolute -bottom-2.5 ${isSentByMe ? "right-2" : "left-2"} bg-zinc-800 border border-white/10 rounded-full px-1.5 py-0.5 flex gap-1 shadow-lg z-30 text-xs animate-in zoom-in duration-200`}>
                     {Array.from(new Set(message.reactions.map(r => r.emoji))).map((emoji, i) => (
                       <span key={i} onClick={() => reactToMessage(message._id, emoji)} className="cursor-pointer hover:scale-110 flex items-center">
                         {emoji} 
                         {message.reactions.filter(r => r.emoji === emoji).length > 1 && (
-                          <span className="text-[10px] font-bold text-white/80 ml-0.5">{message.reactions.filter(r => r.emoji === emoji).length}</span>
+                          <span className="text-xs font-bold text-white/80 ml-0.5">{message.reactions.filter(r => r.emoji === emoji).length}</span>
                         )}
                       </span>
                     ))}

@@ -59,7 +59,10 @@ const MessageInput = () => {
     if (e) e.preventDefault();
     if (!text.trim() && !imagePreview && !filePreview) return;
 
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
     emitStopTyping();
 
     try {
@@ -96,11 +99,15 @@ const MessageInput = () => {
   const handleTextChange = (e) => {
     setText(e.target.value);
     
-    emitTyping();
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    if (!typingTimeoutRef.current) {
+      emitTyping();
+    } else {
+      clearTimeout(typingTimeoutRef.current);
+    }
     
     typingTimeoutRef.current = setTimeout(() => {
       emitStopTyping();
+      typingTimeoutRef.current = null;
     }, 2000);
   };
 
@@ -143,12 +150,12 @@ const MessageInput = () => {
               ) : (
                 <div className="w-24 h-24 bg-wa-bg rounded-lg flex flex-col items-center justify-center text-wa-primary p-2">
                   <FileText size={32} className="text-wa-accent mb-2" />
-                  <span className="text-[10px] truncate w-full text-center">{filePreview.name}</span>
+                  <span className="text-xs truncate w-full text-center">{filePreview.name}</span>
                 </div>
               )}
               <button
                 onClick={removeAttachment}
-                className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-[#ed4956] text-white flex items-center justify-center shadow-lg"
+                className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-danger text-white flex items-center justify-center shadow-lg"
               >
                 <X size={14} />
               </button>
@@ -161,7 +168,7 @@ const MessageInput = () => {
         </div>
       )}
 
-      <div className="flex items-center gap-2 glass-panel-light p-2 rounded-[2rem] shadow-lg">
+      <div className="flex items-center gap-2 glass-panel-light p-2 rounded-2xl shadow-lg">
         <div className="flex items-center gap-1 pl-2 shrink-0">
           <button
             type="button"
@@ -196,7 +203,7 @@ const MessageInput = () => {
           )}
           
           <textarea
-            className="w-full bg-transparent text-white px-2 py-2.5 outline-none resize-none max-h-32 text-[15px] placeholder-white/40"
+            className="w-full bg-transparent text-white px-2 py-2.5 outline-none resize-none max-h-32 text-base placeholder-white/40"
             placeholder="Type a message..."
             rows="1"
             value={text}

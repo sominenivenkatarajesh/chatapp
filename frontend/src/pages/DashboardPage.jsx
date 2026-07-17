@@ -4,6 +4,9 @@ import { axiosInstance } from "../lib/axios";
 import { Search, UserPlus, Check, X, Users, Compass, Activity, Clock } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import EmptyState from "../components/EmptyState";
+import UserCardSkeleton from "../components/skeletons/UserCardSkeleton";
+import Avatar from "../components/Avatar";
 
 const DashboardPage = () => {
   const { authUser, checkAuth } = useAuthStore();
@@ -11,6 +14,7 @@ const DashboardPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [discoverUsers, setDiscoverUsers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isDiscoverLoading, setIsDiscoverLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("discover"); // "discover", "requests"
   const [selectedProfile, setSelectedProfile] = useState(null);
 
@@ -24,6 +28,8 @@ const DashboardPage = () => {
         setDiscoverUsers(nonFriends);
       } catch (error) {
         console.error("Failed to fetch discover users");
+      } finally {
+        setIsDiscoverLoading(false);
       }
     };
     if (authUser) {
@@ -100,11 +106,7 @@ const DashboardPage = () => {
       <div className="absolute top-0 w-full h-16 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
       
       <div className="relative">
-        <img src={user.profilePic || "/avatar.svg"} alt="" className="size-20 rounded-[1.25rem] object-cover shadow-lg border border-white/10 group-hover:scale-105 transition-transform duration-500" />
-        <div className="absolute -bottom-2 -right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-full border border-white/10 flex items-center gap-1 shadow-xl">
-          <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[9px] font-bold uppercase tracking-wider text-green-400">Online</span>
-        </div>
+        <Avatar user={user} size="xl" isOnline={true} />
       </div>
       
       <div className="text-center w-full">
@@ -157,6 +159,7 @@ const DashboardPage = () => {
     if (!user) return null;
     const isFriend = authUser?.friends?.includes(user._id);
     const isPending = user.requestSent || authUser?.friendRequests?.some(r => r.from === user._id);
+    const isOnline = useAuthStore.getState().onlineUsers?.includes(user._id);
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
@@ -165,14 +168,16 @@ const DashboardPage = () => {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-zinc-950 border border-white/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl relative"
+          className="bg-zinc-950 border border-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl relative"
         >
           <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors">
             <X size={20} />
           </button>
           
           <div className="flex flex-col items-center text-center">
-            <img src={user.profilePic || "/avatar.svg"} alt={user.username} className="size-28 rounded-full object-cover border-4 border-white/5 shadow-xl mb-4" />
+            <div className="mb-4">
+              <Avatar user={user} size="2xl" isOnline={isOnline} />
+            </div>
             <h2 className="text-2xl font-bold text-white">{user.username}</h2>
             <p className="text-sm text-zinc-400 mt-2 font-medium bg-white/5 px-4 py-1.5 rounded-full">
               {user.friends?.length || 0} Friends
@@ -225,7 +230,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="h-full bg-[#09090b] overflow-y-auto custom-scrollbar">
+    <div className="h-full bg-bg overflow-y-auto custom-scrollbar">
       <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
         
         {/* Header Section */}
@@ -237,7 +242,7 @@ const DashboardPage = () => {
             </p>
           </div>
           
-          <div className="flex bg-[#18181b] rounded-2xl p-1 border border-white/5 w-full md:w-auto">
+          <div className="flex bg-surface rounded-2xl p-1 border border-white/5 w-full md:w-auto">
             <button 
               onClick={() => setActiveTab("discover")}
               className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${activeTab === "discover" ? "bg-white/10 text-white" : "text-zinc-500 hover:text-white hover:bg-white/5"}`}
@@ -263,7 +268,7 @@ const DashboardPage = () => {
         </div>
 
         {/* Global Search */}
-        <div className="bg-[#18181b] p-2 pl-6 rounded-[2rem] flex items-center border border-white/10 focus-within:border-primary/50 transition-all max-w-2xl">
+        <div className="bg-surface p-2 pl-6 rounded-2xl flex items-center border border-white/10 focus-within:border-primary/50 transition-all max-w-2xl">
           <Search className="text-zinc-500" size={20} />
           <form onSubmit={handleSearch} className="flex-1 flex gap-2 ml-4">
             <input
@@ -299,14 +304,22 @@ const DashboardPage = () => {
                   Search Results ({searchResults.length})
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                  {searchResults.map((user) => {
-                    const isFriend = authUser?.friends?.includes(user._id);
-                    const isPending = user.requestSent || authUser?.friendRequests?.some(r => r.from === user._id);
-                    return <UserCard key={user._id} user={user} isFriend={isFriend} isPending={isPending} />;
-                  })}
+                  {isSearching ? (
+                    Array(5).fill(0).map((_, i) => <UserCardSkeleton key={i} />)
+                  ) : (
+                    searchResults.map((user) => {
+                      const isFriend = authUser?.friends?.includes(user._id);
+                      const isPending = user.requestSent || authUser?.friendRequests?.some(r => r.from === user._id);
+                      return <UserCard key={user._id} user={user} isFriend={isFriend} isPending={isPending} />;
+                    })
+                  )}
                 </div>
                 {searchResults.length === 0 && !isSearching && (
-                  <div className="text-center py-20 text-zinc-500">No users found matching "{searchQuery}"</div>
+                  <EmptyState 
+                    icon={Search} 
+                    title="No users found" 
+                    message={`No one matched your search "${searchQuery}".`} 
+                  />
                 )}
               </div>
             ) : activeTab === "discover" ? (
@@ -316,11 +329,15 @@ const DashboardPage = () => {
                   People You Might Know
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                  {discoverUsers.map((user) => {
-                    const isFriend = authUser?.friends?.includes(user._id);
-                    const isPending = user.requestSent || authUser?.friendRequests?.some(r => r.from === user._id);
-                    return <UserCard key={user._id} user={user} isFriend={isFriend} isPending={isPending} />;
-                  })}
+                  {isDiscoverLoading ? (
+                    Array(5).fill(0).map((_, i) => <UserCardSkeleton key={i} />)
+                  ) : (
+                    discoverUsers.map((user) => {
+                      const isFriend = authUser?.friends?.includes(user._id);
+                      const isPending = user.requestSent || authUser?.friendRequests?.some(r => r.from === user._id);
+                      return <UserCard key={user._id} user={user} isFriend={isFriend} isPending={isPending} />;
+                    })
+                  )}
                 </div>
               </div>
             ) : activeTab === "requests" ? (
@@ -331,17 +348,14 @@ const DashboardPage = () => {
                 </h2>
                 
                 {(!authUser?.friendRequests || authUser.friendRequests.length === 0) ? (
-                  <div className="glass-morphism p-12 rounded-3xl flex items-center justify-center text-text-secondary flex-col gap-4 max-w-2xl mx-auto mt-12 text-center">
-                    <div className="p-6 bg-white/5 rounded-full border border-white/10 shadow-2xl">
-                      <Users size={48} className="opacity-40" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-2">You're all caught up!</h3>
-                      <p>You have no pending friend requests at the moment. Try discovering new people.</p>
-                    </div>
-                    <button onClick={() => setActiveTab("discover")} className="btn bg-white/10 hover:bg-white/20 mt-4 px-8 py-3 rounded-full">
-                      Browse Discover
-                    </button>
+                  <div className="pt-12">
+                    <EmptyState 
+                      icon={Users} 
+                      title="You're all caught up!" 
+                      message="You have no pending friend requests at the moment. Try discovering new people." 
+                      actionText="Browse Discover"
+                      onAction={() => setActiveTab("discover")}
+                    />
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -354,7 +368,7 @@ const DashboardPage = () => {
                         exit={{ opacity: 0, scale: 0.9 }}
                         className="glass-morphism p-5 rounded-2xl flex flex-col items-center gap-4 shadow-xl border border-white/10"
                       >
-                        <img src={request.from?.profilePic || "/avatar.svg"} alt="" className="size-20 rounded-full object-cover shadow-lg border-2 border-primary/50" />
+                        <Avatar user={request.from} size="xl" />
                         <div className="text-center w-full">
                           <h3 className="font-bold text-lg truncate px-2">{request.from?.username}</h3>
                           <p className="text-xs text-primary font-medium mt-1">Wants to connect</p>

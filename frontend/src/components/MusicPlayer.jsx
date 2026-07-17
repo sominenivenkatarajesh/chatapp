@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useMusicStore } from "../store/useMusicStore";
 import { useAuthStore } from "../store/useAuthStore";
 import ReactPlayer from "react-player";
-import { Search, Play, Pause, SkipForward, X, Music, Plus, Loader } from "lucide-react";
+import { Search, Play, Pause, SkipForward, SkipBack, X, Music, Plus, Loader } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const MusicPlayer = () => {
@@ -130,7 +130,7 @@ const MusicPlayer = () => {
           {currentVideo && isHost && (
             <div className="flex flex-col gap-2 p-3 bg-zinc-900/50">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-zinc-400 font-medium min-w-[30px] text-right">
+                <span className="text-xs text-zinc-400 font-medium min-w-[30px] text-right">
                   {Math.floor(currentTime / 60)}:{(Math.floor(currentTime % 60)).toString().padStart(2, '0')}
                 </span>
                 <input 
@@ -141,14 +141,24 @@ const MusicPlayer = () => {
                   onChange={handleSeek}
                   className="flex-1 h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-primary"
                 />
-                <span className="text-[10px] text-zinc-400 font-medium min-w-[30px]">
+                <span className="text-xs text-zinc-400 font-medium min-w-[30px]">
                   {Math.floor(duration / 60)}:{(Math.floor(duration % 60)).toString().padStart(2, '0')}
                 </span>
               </div>
               <div className="flex items-center justify-center gap-4 mt-1">
                 <button 
+                  onClick={() => {
+                    const newTime = Math.max(0, (playerRef.current?.getCurrentTime() || 0) - 10);
+                    playerRef.current?.seekTo(newTime);
+                    syncState(isPlaying, newTime);
+                  }}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  <SkipBack size={20} />
+                </button>
+                <button 
                   onClick={() => syncState(!isPlaying, playerRef.current?.getCurrentTime() || 0)}
-                  className="p-3 bg-primary text-black rounded-full hover:bg-primary/90 transition-colors"
+                  className="p-3 bg-primary text-black rounded-full hover:bg-primary/90 transition-colors shadow-[0_0_15px_rgba(99,102,241,0.5)]"
                 >
                   {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
                 </button>
@@ -183,7 +193,7 @@ const MusicPlayer = () => {
                   <img src={video.thumbnail} className="w-12 h-8 object-cover rounded" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold truncate">{video.title}</p>
-                    <p className="text-[10px] text-zinc-400">{video.duration}</p>
+                    <p className="text-xs text-zinc-400">{video.duration}</p>
                   </div>
                   <button 
                     onClick={() => addToQueue(video)}

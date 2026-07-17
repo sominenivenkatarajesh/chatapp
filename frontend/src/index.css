@@ -2,59 +2,37 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-bg-main: transparent;
-  --color-glass-bg: rgba(255, 255, 255, 0.03);
-  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-bg: #09090b;
+  --color-surface: #18181b;
+  --color-surface-light: rgba(255, 255, 255, 0.05);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(255, 255, 255, 0.2);
+  
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-2: #a855f7;
+  
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-success: #22c55e;
+  
   --color-text-primary: #f8fafc;
   --color-text-secondary: #94a3b8;
   --color-text-muted: #64748b;
+  
   --color-chat-incoming: #1e293b;
   --color-chat-outgoing: #4f46e5;
-  
-  /* Compatibility with existing components */
-  --color-wa-panel: rgba(255, 255, 255, 0.02);
-  --color-wa-sidebar: transparent;
-  --color-wa-incoming: #1e293b;
-  --color-wa-outgoing: #4f46e5;
-  --color-wa-primary: #f8fafc;
-  --color-wa-secondary: #94a3b8;
-  --color-wa-muted: #64748b;
-  --color-wa-accent: #6366f1;
-  --color-wa-border: rgba(255, 255, 255, 0.08);
-  --color-wa-hover: rgba(255, 255, 255, 0.05);
-  --color-wa-active: rgba(255, 255, 255, 0.08);
-  --color-wa-bg: transparent;
 }
 
 :root {
-  --app-bg: #09090b;
-  --panel-bg: rgba(255, 255, 255, 0.02);
-  --input-bg: rgba(255, 255, 255, 0.04);
-  --chat-incoming: #1e293b;
-  --chat-outgoing: #4f46e5;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent: #6366f1;
-  --border: rgba(255, 255, 255, 0.08);
-  --hover-bg: rgba(255, 255, 255, 0.05);
-
-  --wa-bg: transparent;
-  --wa-panel-bg: rgba(255, 255, 255, 0.02);
-  --wa-sidebar-bg: transparent;
-  --wa-header-bg: rgba(255, 255, 255, 0.02);
-  --wa-input-bg: rgba(255, 255, 255, 0.04);
-  --wa-incoming: #1e293b;
-  --wa-outgoing: #4f46e5;
-  --wa-text-primary: #f8fafc;
-  --wa-text-secondary: #94a3b8;
-  --wa-text-muted: #64748b;
-  --wa-accent: #6366f1;
-  --wa-border: rgba(255, 255, 255, 0.08);
-  --wa-hover: rgba(255, 255, 255, 0.05);
-  --wa-active: rgba(255, 255, 255, 0.08);
+  --app-bg: var(--color-bg);
+  --panel-bg: var(--color-surface);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --accent: var(--color-accent);
+  --border: var(--color-border);
+  --hover-bg: var(--color-surface-light);
 }
 
 * {
@@ -389,9 +367,11 @@ body {
 
 /* --- Pure CSS Layout for Auth Pages --- */
 .auth-page {
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   align-items: center;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
   justify-content: center;
   overflow-y: auto;
   overflow-x: hidden;

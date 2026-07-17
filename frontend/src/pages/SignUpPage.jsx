@@ -194,7 +194,7 @@ const SignUpPage = () => {
                   <div className="size-10 rounded-full bg-gradient-to-tr from-indigo-500/30 to-purple-500/30 flex items-center justify-center font-bold text-white text-sm border border-white/10">
                     SJ
                   </div>
-                  <span className="absolute bottom-0.5 right-0.5 size-2.5 bg-green-500 rounded-full border-2 border-[#09090b]" />
+                  <span className="absolute bottom-0.5 right-0.5 size-2.5 bg-green-500 rounded-full border-2 border-bg" />
                 </div>
                 <div>
                   <h3 className="font-bold text-white text-sm">Sarah Jenkins</h3>
@@ -216,21 +216,21 @@ const SignUpPage = () => {
                 <div className="size-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400 border border-white/5">
                   SJ
                 </div>
-                <div className="bg-[#1e293b] p-4.5 rounded-[1.25rem] rounded-bl-sm max-w-[80%] border border-white/5 shadow-md">
+                <div className="bg-chat-incoming p-4 rounded-2xl rounded-bl-sm max-w-[80%] border border-white/5 shadow-md">
                   <p className="text-zinc-200 text-sm leading-relaxed">
                     Hey! Did you check out the new design update? It looks incredible! 🔥
                   </p>
-                  <span className="text-[10px] text-zinc-500 font-semibold block text-right mt-1.5">09:41 AM</span>
+                  <span className="text-xs text-zinc-500 font-semibold block text-right mt-1.5">09:41 AM</span>
                 </div>
               </div>
 
               {/* Outgoing Message */}
               <div className="flex gap-3 items-end justify-end">
-                <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-4.5 rounded-[1.25rem] rounded-br-sm max-w-[80%] border border-white/5 shadow-md">
+                <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-4 rounded-2xl rounded-br-sm max-w-[80%] border border-white/5 shadow-md">
                   <p className="text-white text-sm leading-relaxed">
                     Oh wow! Just signing in. The smooth micro-animations and colors are absolutely top-tier! 🚀
                   </p>
-                  <span className="text-[10px] text-indigo-200/60 font-semibold block text-right mt-1.5">09:42 AM</span>
+                  <span className="text-xs text-indigo-200/60 font-semibold block text-right mt-1.5">09:42 AM</span>
                 </div>
               </div>
 
@@ -239,11 +239,11 @@ const SignUpPage = () => {
                 <div className="size-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400 border border-white/5">
                   SJ
                 </div>
-                <div className="bg-[#1e293b] p-4.5 rounded-[1.25rem] rounded-bl-sm max-w-[80%] border border-white/5 shadow-md">
+                <div className="bg-chat-incoming p-4 rounded-2xl rounded-bl-sm max-w-[80%] border border-white/5 shadow-md">
                   <p className="text-zinc-200 text-sm leading-relaxed">
                     Exactly! Real-time messaging has never felt this refined. Welcome back!
                   </p>
-                  <span className="text-[10px] text-zinc-500 font-semibold block text-right mt-1.5">09:42 AM</span>
+                  <span className="text-xs text-zinc-500 font-semibold block text-right mt-1.5">09:42 AM</span>
                 </div>
               </div>
             </div>

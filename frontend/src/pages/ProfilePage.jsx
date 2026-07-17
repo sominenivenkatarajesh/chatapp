@@ -73,10 +73,10 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="h-full bg-[#09090b] overflow-y-auto custom-scrollbar pb-20 relative">
+    <div className="h-full bg-bg overflow-y-auto custom-scrollbar pb-20 relative">
       
       {/* Banner Section */}
-      <div className="w-full h-48 md:h-64 lg:h-72 relative bg-[#18181b] group">
+      <div className="w-full h-48 md:h-64 lg:h-72 relative bg-surface group">
         {(selectedBanner || authUser?.bannerPic) ? (
           <img 
             src={selectedBanner || authUser?.bannerPic} 
@@ -107,7 +107,7 @@ const ProfilePage = () => {
         {/* Profile Header (Avatar & Top Actions) */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div className="relative inline-block group">
-            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-[#09090b] bg-[#18181b] shadow-2xl relative">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-bg bg-surface shadow-2xl relative">
               {(selectedImg || authUser?.profilePic) ? (
                 <img
                   src={selectedImg || authUser.profilePic}
@@ -127,7 +127,7 @@ const ProfilePage = () => {
               className={`
                 absolute bottom-2 right-2 bg-indigo-500 hover:bg-indigo-400
                 p-2.5 rounded-full cursor-pointer shadow-lg
-                transition-transform z-10 border-[3px] border-[#09090b]
+                transition-transform z-10 border-[3px] border-bg
                 ${isUpdatingProfile ? "pointer-events-none opacity-50" : "hover:scale-110"}
               `}
             >
@@ -175,7 +175,7 @@ const ProfilePage = () => {
           
           {/* Left Column: Identity & Stats */}
           <div className="lg:col-span-1 flex flex-col gap-6">
-            <div className="bg-[#18181b] p-6 rounded-3xl border border-white/5 shadow-xl">
+            <div className="bg-surface p-6 rounded-2xl border border-white/5 shadow-xl">
               {!isEditing ? (
                 <h1 className="text-2xl font-bold text-white mb-1">
                   {authUser?.username}
@@ -227,7 +227,7 @@ const ProfilePage = () => {
           {/* Right Column: Settings & Details */}
           <div className="lg:col-span-2 flex flex-col gap-6">
             
-            <div className="bg-[#18181b] p-6 sm:p-8 rounded-3xl border border-white/5 shadow-xl">
+            <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-white/5 shadow-xl">
               <h3 className="text-lg font-bold text-white mb-6">Personal Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InfoRow icon={Mail} label="Email" value={formData.email} name="email" isEditing={isEditing} onChange={handleChange} />
@@ -264,7 +264,7 @@ const ProfilePage = () => {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-[#18181b] p-6 sm:p-8 rounded-3xl border border-white/5 shadow-xl overflow-hidden"
+                  className="bg-surface p-6 sm:p-8 rounded-2xl border border-white/5 shadow-xl overflow-hidden"
                 >
                   <h3 className="text-lg font-bold text-white mb-6">Change Password</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -295,7 +295,7 @@ const ProfilePage = () => {
               )}
             </AnimatePresence>
 
-            <div className="bg-[#18181b] p-6 sm:p-8 rounded-3xl border border-red-500/10 shadow-xl mt-4">
+            <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-red-500/10 shadow-xl mt-4">
               <h3 className="text-lg font-bold text-red-400 mb-2">Danger Zone</h3>
               <p className="text-sm text-zinc-500 mb-6">
                 Once you delete your account, there is no going back. Please be certain.

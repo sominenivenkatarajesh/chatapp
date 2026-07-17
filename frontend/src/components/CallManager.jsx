@@ -5,6 +5,7 @@ import { Phone, PhoneOff, Video, VideoOff, Maximize2, Minimize2, UserPlus, X, Us
 import { useChatStore } from "../store/useChatStore";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import Avatar from "./Avatar";
 
 const PeerVideo = ({ peerData, isMinimized }) => {
   const videoRef = useRef();
@@ -104,7 +105,7 @@ const CallManager = () => {
             initial={{ y: -100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -100, opacity: 0 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-md"
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[160] w-[90%] max-w-md"
           >
             <div className="glass-morphism p-4 border border-glass-border shadow-2xl flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -113,7 +114,7 @@ const CallManager = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-sm truncate">{incomingCall.name}</h4>
-                  <p className="text-[10px] text-zinc-400 uppercase tracking-widest animate-pulse">Incoming Call...</p>
+                  <p className="text-xs text-zinc-400 uppercase tracking-widest animate-pulse">Incoming Call...</p>
                 </div>
               </div>
               
@@ -249,7 +250,7 @@ const CallManager = () => {
                     </button>
                     
                     {showAddFriend && (
-                      <div className="absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-80 glass-morphism p-4 border border-glass-border shadow-2xl z-[110] animate-in slide-in-from-bottom-2">
+                      <div className="absolute bottom-full mb-6 left-1/2 -translate-x-1/2 w-80 glass-morphism p-4 border border-glass-border shadow-2xl z-[155] animate-in slide-in-from-bottom-2">
                         <h4 className="text-sm font-semibold mb-4 border-b border-white/5 pb-3">Invite to Session</h4>
                         <div className="max-h-60 overflow-y-auto custom-scrollbar flex flex-col gap-2">
                           {users.filter(u => onlineUsers?.includes(u._id) && !peers.find(p => p.userId === u._id)).map(user => (
@@ -262,10 +263,10 @@ const CallManager = () => {
                               }}
                               className="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl transition-all group"
                             >
-                              <img src={user.profilePic || "/avatar.svg"} className="size-10 rounded-full object-cover border border-white/10" />
+                              <Avatar user={user} size="sm" className="border border-white/10" />
                               <div className="flex flex-col text-left">
                                 <span className="text-sm font-medium">{user.username}</span>
-                                <span className="text-[10px] text-green-500">Available</span>
+                                <span className="text-xs text-green-500">Available</span>
                               </div>
                               <Phone className="size-4 ml-auto text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                             </button>

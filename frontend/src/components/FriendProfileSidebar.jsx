@@ -83,7 +83,7 @@ const FriendProfileSidebar = ({ isOpen, onClose }) => {
             <img 
               src={selectedUser.profilePic || "/avatar.svg"} 
               alt={selectedUser.username}
-              className="size-24 rounded-3xl object-cover border-2 border-white/10"
+              className="size-24 rounded-2xl object-cover border-2 border-white/10"
             />
             {onlineUsers.includes(selectedUser._id) && (
               <span className="absolute bottom-1 right-1 size-4 rounded-full bg-emerald-500 border-2 border-zinc-950" />

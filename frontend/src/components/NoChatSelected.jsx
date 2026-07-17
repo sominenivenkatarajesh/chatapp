@@ -8,10 +8,10 @@ const NoChatSelected = () => {
         <div className="flex justify-center mb-6 relative group">
           <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full scale-150 group-hover:scale-175 transition-transform duration-500"></div>
           <div className="relative">
-            <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-indigo-500/20 to-purple-600/20 flex items-center justify-center border border-white/10 backdrop-blur-md rotate-3 group-hover:rotate-6 transition-transform duration-500">
+            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-600/20 flex items-center justify-center border border-white/10 backdrop-blur-md rotate-3 group-hover:rotate-6 transition-transform duration-500">
               <Laptop size={48} className="text-indigo-400" />
             </div>
-            <div className="absolute -bottom-3 -right-3 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center border-[4px] border-[#09090b] shadow-xl group-hover:scale-110 transition-transform duration-500">
+            <div className="absolute -bottom-3 -right-3 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center border-[4px] border-bg shadow-xl group-hover:scale-110 transition-transform duration-500">
               <MessageSquare size={20} className="text-white" />
             </div>
           </div>
@@ -22,12 +22,12 @@ const NoChatSelected = () => {
           Welcome to Messages
         </h2>
         <div className="space-y-2 px-4">
-          <p className="text-white/50 text-[15px] leading-relaxed font-light">
+          <p className="text-white/50 text-base leading-relaxed font-light">
             Select a conversation from the sidebar to start messaging. Experience fast, secure, and beautiful real-time communication.
           </p>
         </div>
 
-        <div className="pt-20 flex items-center justify-center gap-2 text-indigo-200/40 text-[12px]">
+        <div className="pt-20 flex items-center justify-center gap-2 text-indigo-200/40 text-xs">
           <Lock size={12} />
           <span>End-to-end encrypted</span>
         </div>

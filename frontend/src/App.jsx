@@ -59,14 +59,14 @@ const App = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="relative z-10 flex flex-col items-center gap-6"
         >
-          <div className="size-20 rounded-[2rem] bg-primary/10 flex items-center justify-center border border-primary/20 shadow-2xl shadow-primary/5">
+          <div className="size-20 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-2xl shadow-primary/5">
             <MessageSquare className="size-10 text-primary" />
           </div>
           <div className="flex flex-col items-center gap-2">
             <h1 className="text-3xl font-bold tracking-tight text-white">Chatly</h1>
             <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
               <div className="size-1.5 rounded-full bg-primary animate-pulse" />
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500">Secure Session</span>
+              <span className="text-xs uppercase tracking-[0.2em] font-bold text-zinc-500">Secure Session</span>
               
             <AnimatePresence>
               {inviteData && (
@@ -74,7 +74,7 @@ const App = () => {
                   initial={{ opacity: 0, y: 50, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 50, scale: 0.9 }}
-                  className="fixed bottom-24 right-4 sm:bottom-8 sm:right-8 z-50 bg-zinc-950 border border-primary/30 p-4 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.3)] max-w-sm"
+                  className="fixed bottom-24 right-4 sm:bottom-8 sm:right-8 z-[200] bg-zinc-950 border border-primary/30 p-4 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.3)] max-w-sm"
                 >
                   <h3 className="font-bold text-white mb-1">{inviteData.name} invited you!</h3>
                   <p className="text-sm text-zinc-400 mb-4">They started a Listening Party and want you to join.</p>
@@ -105,7 +105,7 @@ const App = () => {
 
   return (
     <>
-      <div className="h-[100dvh] w-screen flex flex-col sm:flex-row bg-[#09090b] text-white overflow-hidden">
+      <div className="h-[100dvh] w-screen flex flex-col sm:flex-row bg-bg text-white overflow-hidden">
         {authUser && <Navbar />}
 
       <AnimatePresence>
@@ -114,7 +114,7 @@ const App = () => {
             initial={{ y: -100, opacity: 0, x: "-50%" }}
             animate={{ y: 0, opacity: 1, x: "-50%" }}
             exit={{ y: -100, opacity: 0, x: "-50%" }}
-            className="fixed top-6 left-1/2 z-[200] w-[90%] max-w-md glass-morphism p-4 border border-glass-border shadow-2xl flex items-center justify-between gap-4 rounded-2xl bg-zinc-900/90 backdrop-blur-xl"
+            className="fixed top-6 left-1/2 z-[160] w-[90%] max-w-md glass-morphism p-4 border border-glass-border shadow-2xl flex items-center justify-between gap-4 rounded-2xl bg-zinc-900/90 backdrop-blur-xl"
           >
             <div className="flex items-center gap-3">
               <div className="size-12 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
@@ -122,7 +122,7 @@ const App = () => {
               </div>
               <div>
                 <h4 className="font-bold text-sm truncate">{inviteData.name}</h4>
-                <p className="text-[10px] text-zinc-400 uppercase tracking-widest animate-pulse">invited you to listen</p>
+                <p className="text-xs text-zinc-400 uppercase tracking-widest animate-pulse">invited you to listen</p>
               </div>
             </div>
             
@@ -160,22 +160,26 @@ const App = () => {
         </AnimatePresence>
       </main>
         <Toaster 
+          position="bottom-center"
           toastOptions={{
             style: {
-              background: '#262626',
+              background: 'rgba(24, 24, 27, 0.8)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
               color: '#fff',
-              borderRadius: '12px',
-              border: '1px solid #333',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
             },
             success: {
               iconTheme: {
-                primary: '#25D366',
+                primary: '#6366f1', // Indigo theme
                 secondary: '#fff',
               },
             },
             error: {
               iconTheme: {
-                primary: '#ed4956',
+                primary: '#ef4444',
                 secondary: '#fff',
               },
             },

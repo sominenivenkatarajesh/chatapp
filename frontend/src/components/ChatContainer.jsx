@@ -162,7 +162,7 @@ const ChatContainer = () => {
                               <img
                                 src={message.image}
                                 alt="Attachment"
-                                className="max-w-full max-h-[450px] w-auto h-auto object-contain cursor-pointer hover:opacity-95 transition-opacity block"
+                                className="max-w-full sm:max-w-[320px] max-h-[350px] w-auto h-auto object-cover cursor-pointer hover:opacity-95 transition-opacity block"
                                 onClick={() => window.open(message.image, '_blank')}
                               />
                               

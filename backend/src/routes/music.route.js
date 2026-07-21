@@ -1,5 +1,6 @@
 import express from "express";
 import { protectRoute } from "../middleware/auth.middleware.js";
+import User from "../models/user.model.js";
 
 const router = express.Router();
 
@@ -66,6 +67,109 @@ router.get("/search", protectRoute, async (req, res) => {
     res.status(200).json(videos);
   } catch (error) {
     console.error("Error in music search controller:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// GET /favorites
+router.get("/favorites", protectRoute, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.status(200).json(user.favoriteSongs || []);
+  } catch (error) {
+    console.error("Error fetching favorites:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// POST /favorites
+router.post("/favorites", protectRoute, async (req, res) => {
+  try {
+    const { video } = req.body;
+    const user = await User.findById(req.user._id);
+    
+    const existingIndex = user.favoriteSongs.findIndex(s => s.videoId === video.videoId);
+    if (existingIndex >= 0) {
+      // Remove if already favorited
+      user.favoriteSongs.splice(existingIndex, 1);
+    } else {
+      // Add to favorites
+      user.favoriteSongs.push(video);
+    }
+    
+    await user.save();
+    res.status(200).json(user.favoriteSongs);
+  } catch (error) {
+    console.error("Error updating favorites:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// GET /playlists
+router.get("/playlists", protectRoute, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.status(200).json(user.playlists || []);
+  } catch (error) {
+    console.error("Error fetching playlists:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// POST /playlists
+router.post("/playlists", protectRoute, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: "Playlist name is required" });
+
+    const user = await User.findById(req.user._id);
+    user.playlists.push({ name, songs: [] });
+    await user.save();
+    
+    res.status(201).json(user.playlists);
+  } catch (error) {
+    console.error("Error creating playlist:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// POST /playlists/:playlistId/songs
+router.post("/playlists/:playlistId/songs", protectRoute, async (req, res) => {
+  try {
+    const { playlistId } = req.params;
+    const { video } = req.body;
+    const user = await User.findById(req.user._id);
+    
+    const playlist = user.playlists.id(playlistId);
+    if (!playlist) return res.status(404).json({ error: "Playlist not found" });
+
+    if (!playlist.songs.find(s => s.videoId === video.videoId)) {
+      playlist.songs.push(video);
+      await user.save();
+    }
+    
+    res.status(200).json(user.playlists);
+  } catch (error) {
+    console.error("Error adding to playlist:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// DELETE /playlists/:playlistId/songs/:videoId
+router.delete("/playlists/:playlistId/songs/:videoId", protectRoute, async (req, res) => {
+  try {
+    const { playlistId, videoId } = req.params;
+    const user = await User.findById(req.user._id);
+    
+    const playlist = user.playlists.id(playlistId);
+    if (!playlist) return res.status(404).json({ error: "Playlist not found" });
+
+    playlist.songs = playlist.songs.filter(s => s.videoId !== videoId);
+    await user.save();
+    
+    res.status(200).json(user.playlists);
+  } catch (error) {
+    console.error("Error removing from playlist:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

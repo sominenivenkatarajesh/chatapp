@@ -84,6 +84,29 @@ const userSchema = new mongoose.Schema(
       },
       default: {}
     },
+    favoriteSongs: [
+      {
+        videoId: String,
+        title: String,
+        thumbnail: String,
+        author: String,
+        duration: String,
+      }
+    ],
+    playlists: [
+      {
+        name: { type: String, required: true },
+        songs: [
+          {
+            videoId: String,
+            title: String,
+            thumbnail: String,
+            author: String,
+            duration: String,
+          }
+        ]
+      }
+    ]
   },
   { timestamps: true }
 );

@@ -15,6 +15,8 @@ export const useMusicStore = create((set, get) => ({
   isSearching: false,
   isPlayerOpen: false,
   inviteData: null,
+  favorites: [],
+  playlists: [],
 
   setupSocketListeners: () => {
     const socket = useAuthStore.getState().socket;
@@ -97,6 +99,57 @@ export const useMusicStore = create((set, get) => ({
       console.error(error);
     } finally {
       set({ isSearching: false });
+    }
+  },
+
+  fetchFavorites: async () => {
+    try {
+      const res = await axiosInstance.get('/music/favorites');
+      set({ favorites: res.data });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  toggleFavorite: async (video) => {
+    try {
+      const res = await axiosInstance.post('/music/favorites', { video });
+      set({ favorites: res.data });
+      toast.success("Favorites updated");
+    } catch (error) {
+      toast.error("Failed to update favorites");
+      console.error(error);
+    }
+  },
+
+  fetchPlaylists: async () => {
+    try {
+      const res = await axiosInstance.get('/music/playlists');
+      set({ playlists: res.data });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  createPlaylist: async (name) => {
+    try {
+      const res = await axiosInstance.post('/music/playlists', { name });
+      set({ playlists: res.data });
+      toast.success("Playlist created");
+    } catch (error) {
+      toast.error("Failed to create playlist");
+      console.error(error);
+    }
+  },
+
+  addToPlaylist: async (playlistId, video) => {
+    try {
+      const res = await axiosInstance.post(`/music/playlists/${playlistId}/songs`, { video });
+      set({ playlists: res.data });
+      toast.success("Added to playlist");
+    } catch (error) {
+      toast.error("Failed to add to playlist");
+      console.error(error);
     }
   },
 

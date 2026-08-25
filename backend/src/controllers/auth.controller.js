@@ -74,7 +74,7 @@ export const login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials (user not found)" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
@@ -112,23 +112,22 @@ export const forgotPassword = async (req, res) => {
       ]
     });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    if (user) {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      user.resetOtp = otp;
+      user.resetOtpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+      await user.save();
+
+      await sendPasswordResetEmail(user.email, otp);
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.resetOtp = otp;
-    user.resetOtpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
-    await user.save();
-
-    await sendPasswordResetEmail(user.email, otp);
-
-    res.status(200).json({ message: "OTP sent to your email!" });
+    res.status(200).json({ message: "If an account exists for that identifier, an OTP has been sent." });
   } catch (error) {
     console.log("Error in forgotPassword controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 
 export const resetPassword = async (req, res) => {

@@ -52,7 +52,7 @@ export const sendOfflineEmailNotification = async (senderName, recipientEmail, m
     const shortMessage = messageText ? `"${messageText.length > 50 ? messageText.substring(0, 50) + '...' : messageText}"` : "Sent an attachment.";
 
     const info = await transporter.sendMail({
-      from: '"Chatly Notifications" <noreply@chatly.com>',
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER || '"Chatly Notifications" <noreply@chatly.com>',
       to: recipientEmail,
       subject: `New Message from ${senderName}`,
       html: `
@@ -82,3 +82,42 @@ export const sendOfflineEmailNotification = async (senderName, recipientEmail, m
     console.error("Error sending email notification:", error);
   }
 };
+
+export const sendPasswordResetEmail = async (toEmail, otp) => {
+  try {
+    await initTransporter();
+
+    if (!transporter) {
+      console.warn("Transporter not initialized, skipping password reset email.");
+      return;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER || '"Chatly Security" <noreply@chatly.com>',
+      to: toEmail,
+      subject: "Password Reset OTP",
+      text: `Your OTP for password reset is: ${otp}. It is valid for 10 minutes.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px; background-color: #f8fafc;">
+          <h2 style="color: #f59e0b; margin-bottom: 20px;">Password Reset Request</h2>
+          <p style="color: #334155; font-size: 16px;">You requested a password reset for your Chatly account.</p>
+          <div style="background-color: #ffffff; padding: 15px; border-left: 4px solid #f59e0b; border-radius: 4px; margin: 15px 0; color: #1e293b;">
+            <p style="margin: 0; font-size: 14px; color: #64748b;">Your One-Time Password (OTP):</p>
+            <h1 style="margin: 10px 0; font-size: 32px; letter-spacing: 5px; color: #0f172a; font-family: monospace;">${otp}</h1>
+            <p style="margin: 0; font-size: 12px; color: #94a3b8;">Valid for 10 minutes. If you did not request this, please ignore this email.</p>
+          </div>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Password reset email sent: %s", info.messageId);
+
+    if (info.messageId && nodemailer.getTestMessageUrl(info)) {
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    }
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+  }
+};
+

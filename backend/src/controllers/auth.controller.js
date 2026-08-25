@@ -2,7 +2,7 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
-import nodemailer from "nodemailer";
+import { sendPasswordResetEmail } from "../lib/email.js";
 
 export const signup = async (req, res) => {
   const { username, phoneNumber, email, gender, password } = req.body;
@@ -121,22 +121,7 @@ export const forgotPassword = async (req, res) => {
     user.resetOtpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "sominenivenkatarajesh@gmail.com",
-        pass: "kboe xzjt vsiz txno"
-      }
-    });
-
-    const mailOptions = {
-      from: "sominenivenkatarajesh@gmail.com",
-      to: user.email,
-      subject: "Password Reset OTP",
-      text: `Your OTP for password reset is: ${otp}. It is valid for 10 minutes.`
-    };
-
-    await transporter.sendMail(mailOptions);
+    await sendPasswordResetEmail(user.email, otp);
 
     res.status(200).json({ message: "OTP sent to your email!" });
   } catch (error) {
@@ -144,6 +129,7 @@ export const forgotPassword = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 export const resetPassword = async (req, res) => {
   const { identifier, otp, newPassword } = req.body;

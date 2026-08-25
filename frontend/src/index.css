@@ -383,11 +383,9 @@ body {
 
 /* --- Pure CSS Layout for Auth Pages --- */
 .auth-page {
-  min-height: 100vh;
+  height: 100%;
   display: flex;
   align-items: center;
-  padding-top: 4rem;
-  padding-bottom: 4rem;
   justify-content: center;
   overflow-y: auto;
   overflow-x: hidden;
@@ -395,6 +393,7 @@ body {
   padding: 3rem 2rem;
   box-sizing: border-box;
 }
+
 
 .auth-glow-wrapper {
   position: absolute;

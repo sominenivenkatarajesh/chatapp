@@ -14,3 +14,13 @@ export const generateToken = (userId, res) => {
 
   return token;
 };
+
+export const isGroupMember = (group, userId) => {
+  if (!group || !group.members || !userId) return false;
+  const targetId = userId.toString();
+  return group.members.some((member) => {
+    const memberId = member && member._id ? member._id.toString() : member.toString();
+    return memberId === targetId;
+  });
+};
+

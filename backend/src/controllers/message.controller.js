@@ -5,6 +5,7 @@ import Group from "../models/group.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 import { sendOfflineEmailNotification } from "../lib/email.js";
+import { isGroupMember } from "../lib/utils.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -83,6 +84,10 @@ export const getMessages = async (req, res) => {
     
     let messages;
     if (group) {
+      if (!isGroupMember(group, myId)) {
+        return res.status(403).json({ message: "You are not a member of this group" });
+      }
+
       messages = await Message.find({
         groupId: userOrGroupId,
         deletedBy: { $ne: myId }
@@ -110,6 +115,12 @@ export const sendMessage = async (req, res) => {
     const { id: receiverOrGroupId } = req.params;
     const senderId = req.user._id;
 
+    const isGroup = await Group.findById(receiverOrGroupId);
+
+    if (isGroup && !isGroupMember(isGroup, senderId)) {
+      return res.status(403).json({ message: "You are not a member of this group" });
+    }
+
     let imageUrl;
     if (image) {
       const uploadResponse = await cloudinary.uploader.upload(image);
@@ -121,8 +132,6 @@ export const sendMessage = async (req, res) => {
       const uploadResponse = await cloudinary.uploader.upload(file, { resource_type: "auto" });
       fileUrl = uploadResponse.secure_url;
     }
-
-    const isGroup = await Group.findById(receiverOrGroupId);
 
     const newMessage = new Message({
       senderId,
@@ -173,6 +182,7 @@ export const sendMessage = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const markMessagesAsSeen = async (req, res) => {
   try {

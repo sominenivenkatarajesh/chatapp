@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { Search, User, MoreVertical, Pin, Archive, Trash2, Users, Plus, X, Check } from "lucide-react";
@@ -36,33 +37,34 @@ const Sidebar = () => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full w-full flex flex-col z-10 transition-all duration-300">
+    <aside className="h-full w-full flex flex-col z-10">
       {/* Sidebar Header */}
       <div className="h-[72px] px-6 flex items-center justify-between border-b border-white/5 bg-transparent">
-        <h2 className="text-white font-extrabold text-xl tracking-tight flex items-center gap-2">
-          <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4 text-white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-          </span>
-          Messages
-        </h2>
-        <div className="flex items-center gap-3 text-white/50">
-          <button onClick={() => setShowGroupModal(true)} className="hover:text-white hover:bg-white/10 p-2 rounded-full transition-all" title="Create Group">
-            <Users size={20} />
-          </button>
-          <button className="hover:text-white hover:bg-white/10 p-2 rounded-full transition-all">
-            <User size={20} />
+        <div>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500/90 block mb-0.5">Inbox</span>
+          <h2 className="text-white font-extrabold text-xl tracking-tight flex items-center gap-2">
+            Messages
+          </h2>
+        </div>
+        <div className="flex items-center gap-2 text-zinc-400">
+          <button 
+            onClick={() => setShowGroupModal(true)} 
+            className="hover:text-amber-400 hover:bg-white/5 p-2 rounded-xl transition-all border border-transparent hover:border-white/10" 
+            title="Create Group"
+          >
+            <Users size={19} />
           </button>
         </div>
       </div>
 
       {/* Search Bar */}
-      <div className="px-5 py-4 border-b border-white/5 bg-transparent">
-        <div className="relative flex items-center glass-panel-light rounded-2xl px-4 py-2.5 focus-within:bg-white/10 focus-within:border-indigo-500/50 focus-within:shadow-[0_0_15px_rgba(99,102,241,0.3)] transition-all">
-          <Search className="size-4.5 text-white/40 mr-3" />
+      <div className="px-5 py-3.5 border-b border-white/5 bg-transparent">
+        <div className="relative flex items-center glass-panel-light rounded-xl px-3.5 py-2 focus-within:bg-white/5 focus-within:border-amber-500/40 focus-within:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all">
+          <Search className="size-4 text-zinc-500 mr-2.5 shrink-0" />
           <input
             type="text"
             placeholder="Search conversations..."
-            className="bg-transparent border-none outline-none text-white text-sm w-full placeholder-white/30"
+            className="bg-transparent border-none outline-none text-white text-sm w-full placeholder-zinc-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -70,9 +72,9 @@ const Sidebar = () => {
       </div>
 
       {/* Stats Summary */}
-      <div className="px-6 py-3 flex justify-between items-center text-xs font-semibold tracking-wider uppercase text-white/40 bg-transparent">
+      <div className="px-6 py-2.5 flex justify-between items-center text-[11px] font-semibold tracking-wider uppercase text-zinc-500 bg-transparent">
         <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
           {onlineCount} Online
         </span>
         <span>
@@ -92,36 +94,36 @@ const Sidebar = () => {
                 onClick={() => setSelectedUser(user)}
                 className={`
                   w-full p-3 flex items-center gap-3 cursor-pointer rounded-2xl
-                  hover-lift border
+                  hover-lift border text-left
                   ${isSelected 
-                    ? "bg-white/10 border-white/20 shadow-lg backdrop-blur-md" 
+                    ? "bg-amber-500/10 border-amber-500/30 shadow-lg backdrop-blur-md" 
                     : "border-transparent hover:glass-panel-light"}
                 `}
               >
-                <div className="relative flex-shrink-0">
-                  <Avatar user={user} size="md" isOnline={isOnline} className={isSelected ? "scale-105 shadow-md" : ""} />
+                <div className="relative shrink-0">
+                  <Avatar user={user} size="md" isOnline={isOnline} className={isSelected ? "ring-2 ring-amber-500/40" : ""} />
                 </div>
 
                 <div className="flex flex-col text-left min-w-0 flex-1 justify-center pr-1">
                   <div className="flex justify-between items-center mb-0.5">
-                    <span className={`font-semibold truncate text-base flex items-center gap-1 ${isSelected ? "text-white" : "text-white/90"}`}>
-                      {user.isGroup ? <Users size={14} className="text-indigo-400 mr-1" /> : null}
+                    <span className={`font-semibold truncate text-sm flex items-center gap-1.5 ${isSelected ? "text-white font-bold" : "text-zinc-200"}`}>
+                      {user.isGroup ? <Users size={14} className="text-amber-400 mr-0.5 shrink-0" /> : null}
                       {user.username || user.name}
-                      {user.isPinned && <Pin size={12} className="text-indigo-400 fill-indigo-400" />}
+                      {user.isPinned && <Pin size={12} className="text-amber-400 fill-amber-400 shrink-0" />}
                     </span>
                     {!user.isGroup && (
-                      <span className={`text-xs font-medium tracking-wide ${isOnline ? "text-emerald-400" : "text-white/30"}`}>
+                      <span className={`text-[10px] font-bold tracking-wider uppercase ${isOnline ? "text-emerald-400" : "text-zinc-600"}`}>
                         {isOnline ? "ONLINE" : "OFFLINE"}
                       </span>
                     )}
                   </div>
                   
-                  <div className="flex justify-between items-center">
-                    <div className={`text-sm truncate flex-1 ${isSelected ? "text-indigo-200" : "text-white/50"}`}>
+                  <div className="flex justify-between items-center gap-2">
+                    <div className={`text-xs truncate flex-1 ${isSelected ? "text-amber-200/80" : "text-zinc-400"}`}>
                       {user.isGroup ? `${user.members?.length || 0} members` : (user.isArchived ? <span className="italic">Archived</span> : (isOnline ? "Active now" : "Last seen recently"))}
                     </div>
                     {(unreadCounts?.[user._id] || 0) > 0 && (
-                      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold min-w-[20px] h-[20px] rounded-full flex items-center justify-center px-1.5 shadow-[0_2px_8px_rgba(99,102,241,0.5)] animate-in zoom-in duration-300">
+                      <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-black text-[11px] font-extrabold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 shadow-[0_2px_10px_rgba(245,158,11,0.4)] animate-in">
                         {unreadCounts[user._id]}
                       </div>
                     )}
@@ -131,32 +133,32 @@ const Sidebar = () => {
 
               <button 
                 onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === user._id ? null : user._id); }} 
-                className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-opacity ${activeMenu === user._id ? 'opacity-100' : 'opacity-0 group-hover/item:opacity-100'}`}
+                className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10 transition-opacity ${activeMenu === user._id ? 'opacity-100' : 'opacity-0 group-hover/item:opacity-100'}`}
               >
-                <MoreVertical size={18}/>
+                <MoreVertical size={16}/>
               </button>
               
               {activeMenu === user._id && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setActiveMenu(null)}></div>
-                  <div className="absolute right-10 top-1/2 -translate-y-1/2 bg-zinc-800 rounded-xl shadow-2xl border border-white/10 p-1 z-50 min-w-[140px] animate-in zoom-in duration-200">
+                  <div className="absolute right-10 top-1/2 -translate-y-1/2 bg-zinc-900 rounded-xl shadow-2xl border border-white/10 p-1 z-50 min-w-[140px] animate-in">
                     <button 
                       onClick={(e) => { e.stopPropagation(); pinChat(user._id); setActiveMenu(null); }} 
-                      className="w-full text-left px-3 py-2 text-sm text-white/90 hover:bg-white/10 rounded-lg flex items-center gap-2 transition-colors"
+                      className="w-full text-left px-3 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/10 rounded-lg flex items-center gap-2 transition-colors"
                     >
-                      <Pin size={15} className={user.isPinned ? "text-indigo-400" : ""} /> {user.isPinned ? "Unpin Chat" : "Pin Chat"}
+                      <Pin size={14} className={user.isPinned ? "text-amber-400" : ""} /> {user.isPinned ? "Unpin Chat" : "Pin Chat"}
                     </button>
                     <button 
                       onClick={(e) => { e.stopPropagation(); archiveChat(user._id); setActiveMenu(null); }} 
-                      className="w-full text-left px-3 py-2 text-sm text-white/90 hover:bg-white/10 rounded-lg flex items-center gap-2 transition-colors"
+                      className="w-full text-left px-3 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/10 rounded-lg flex items-center gap-2 transition-colors"
                     >
-                      <Archive size={15} className={user.isArchived ? "text-amber-400" : ""} /> {user.isArchived ? "Unarchive" : "Archive"}
+                      <Archive size={14} className={user.isArchived ? "text-amber-400" : ""} /> {user.isArchived ? "Unarchive" : "Archive"}
                     </button>
                     <button 
                       onClick={(e) => { e.stopPropagation(); deleteConversation(user._id); setActiveMenu(null); }} 
-                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/20 rounded-lg flex items-center gap-2 transition-colors mt-1 border-t border-white/5 pt-2"
+                      className="w-full text-left px-3 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/20 rounded-lg flex items-center gap-2 transition-colors mt-1 border-t border-white/5 pt-2"
                     >
-                      <Trash2 size={15}/> Delete Chat
+                      <Trash2 size={14}/> Delete Chat
                     </button>
                   </div>
                 </>
@@ -164,7 +166,6 @@ const Sidebar = () => {
             </div>
           );
         })}
-
 
         {filteredUsers.length === 0 && (
           <EmptyState 
@@ -175,54 +176,63 @@ const Sidebar = () => {
         )}
       </div>
 
-      {/* Create Group Modal */}
-      {showGroupModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-surface w-full max-w-md rounded-2xl border border-white/10 p-6 shadow-2xl relative">
-            <button onClick={() => setShowGroupModal(false)} className="absolute top-4 right-4 p-2 text-white/50 hover:text-white transition-colors">
-              <X size={20} />
+      {/* Create Group Modal (Rendered with React Portal to eliminate stacking context containment) */}
+      {showGroupModal && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in">
+          <div className="bg-zinc-950 w-full max-w-md rounded-2xl border border-white/10 p-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-amber-600"></div>
+            
+            <button 
+              onClick={() => setShowGroupModal(false)} 
+              className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+            >
+              <X size={18} />
             </button>
-            <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-              <span className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400">
-                <Users size={24} />
+            
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+              <span className="p-2 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/20">
+                <Users size={20} />
               </span>
               Create Group
             </h3>
             
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-white/70 mb-1.5 block">Group Name</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5 block">Group Name</label>
                 <input 
                   type="text" 
                   value={groupName}
                   onChange={(e) => setGroupName(e.target.value)}
-                  placeholder="e.g. Weekend Vibes 🎉"
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 outline-none focus:border-indigo-500/50 focus:bg-white/5 transition-all"
+                  placeholder="e.g. Project Apollo 🚀"
+                  className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-amber-500 focus:bg-white/5 transition-all text-sm font-medium"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-white/70 mb-1.5 block">Select Friends</label>
-                <div className="max-h-48 overflow-y-auto custom-scrollbar border border-white/5 rounded-xl bg-black/20 p-2 space-y-1">
-                  {users.filter(u => !u.isGroup).map(friend => (
-                    <div 
-                      key={friend._id}
-                      onClick={() => {
-                        setSelectedFriends(prev => 
-                          prev.includes(friend._id) 
-                            ? prev.filter(id => id !== friend._id)
-                            : [...prev, friend._id]
-                        )
-                      }}
-                      className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${selectedFriends.includes(friend._id) ? 'bg-indigo-500/20 border border-indigo-500/30' : 'hover:bg-white/5 border border-transparent'}`}
-                    >
-                      <Avatar user={friend} size="xs" />
-                      <span className="text-white flex-1">{friend.username}</span>
-                      {selectedFriends.includes(friend._id) && <Check size={16} className="text-indigo-400" />}
-                    </div>
-                  ))}
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5 block">Select Friends</label>
+                <div className="max-h-48 overflow-y-auto custom-scrollbar border border-white/10 rounded-xl bg-black/40 p-2 space-y-1">
+                  {users.filter(u => !u.isGroup).map(friend => {
+                    const isSelected = selectedFriends.includes(friend._id);
+                    return (
+                      <div 
+                        key={friend._id}
+                        onClick={() => {
+                          setSelectedFriends(prev => 
+                            prev.includes(friend._id) 
+                              ? prev.filter(id => id !== friend._id)
+                              : [...prev, friend._id]
+                          )
+                        }}
+                        className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all border ${isSelected ? 'bg-amber-500/15 border-amber-500/30' : 'hover:bg-white/5 border-transparent'}`}
+                      >
+                        <Avatar user={friend} size="xs" />
+                        <span className="text-sm font-medium text-white flex-1 truncate">{friend.username}</span>
+                        {isSelected && <Check size={16} className="text-amber-400" />}
+                      </div>
+                    );
+                  })}
                   {users.filter(u => !u.isGroup).length === 0 && (
-                    <div className="p-4 text-center text-white/40 text-sm">No friends available</div>
+                    <div className="p-4 text-center text-zinc-500 text-sm">No friends available</div>
                   )}
                 </div>
               </div>
@@ -230,19 +240,21 @@ const Sidebar = () => {
               <button 
                 onClick={handleCreateGroup}
                 disabled={!groupName.trim() || selectedFriends.length === 0}
-                className="w-full btn-primary py-3.5 rounded-xl text-base shadow-[0_0_20px_rgba(99,102,241,0.2)] disabled:opacity-50 mt-4"
+                className="w-full btn-primary py-3.5 rounded-xl text-sm font-bold shadow-[0_0_20px_rgba(245,158,11,0.25)] disabled:opacity-40 mt-4"
               >
-                Create Group
+                Create Group ({selectedFriends.length} selected)
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </aside>
   );
 };
 
 export default Sidebar;
+
 
 
 

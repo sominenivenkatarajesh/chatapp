@@ -3,25 +3,26 @@
 
 @theme {
   --color-bg: #09090b;
-  --color-surface: #18181b;
-  --color-surface-light: rgba(255, 255, 255, 0.05);
+  --color-surface: #141417;
+  --color-surface-light: rgba(255, 255, 255, 0.04);
   --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-hover: rgba(255, 255, 255, 0.2);
+  --color-border-hover: rgba(255, 255, 255, 0.18);
   
-  --color-accent: #6366f1;
-  --color-accent-hover: #4f46e5;
-  --color-accent-2: #a855f7;
+  --color-accent: #f59e0b;
+  --color-accent-hover: #d97706;
+  --color-accent-2: #b45309;
+  --color-primary: #f59e0b;
   
   --color-danger: #ef4444;
   --color-danger-hover: #dc2626;
-  --color-success: #22c55e;
+  --color-success: #10b981;
   
   --color-text-primary: #f8fafc;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
   
-  --color-chat-incoming: #1e293b;
-  --color-chat-outgoing: #4f46e5;
+  --color-chat-incoming: #18181b;
+  --color-chat-outgoing: #b45309;
 }
 
 :root {
@@ -44,41 +45,39 @@
 /* --- Premium Animations & Effects --- */
 
 .bg-mesh {
-  background-color: #09090b; /* Deep zinc-950 */
+  background-color: #09090b;
 }
 
 .glass-panel {
-  background: #18181b; /* zinc-900 */
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #141417;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-panel-light {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .hover-lift {
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease;
 }
 .hover-lift:hover {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
-/* Replaced with Tailwind classes in ChatContainer */
-
 @keyframes slideInUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-msg {
-  animation: slideInUp 0.3s ease forwards;
+  animation: slideInUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 body {
@@ -91,8 +90,8 @@ body {
 
 /* Scrollbar Styling - Clean & Modern */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -103,18 +102,18 @@ body {
   transition: all 0.3s;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(245, 158, 11, 0.4);
 }
 
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
 }
 
-/* Modern Components replacing Glassmorphism */
+/* Modern Components */
 .glass-morphism {
-  background: #18181b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #141417;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1rem;
   transition: all 0.2s ease;
   position: relative;
@@ -122,7 +121,7 @@ body {
 }
 
 .glass-morphism:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 /* Input Fields - Luxury & Responsive */
@@ -139,7 +138,7 @@ body {
   font-family: 'Outfit', sans-serif;
   font-size: 0.95rem;
   font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .input-field::placeholder {
@@ -156,47 +155,47 @@ body {
 
 .input-group input, .input-group select {
   width: 100%;
-  padding: 12px 16px 12px 46px; /* 46px left padding for icon */
-  height: 52px; /* Specific height requested */
+  padding: 12px 16px 12px 46px;
+  height: 52px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   color: white;
   outline: none;
   font-family: 'Outfit', sans-serif;
   font-size: 0.95rem;
   box-sizing: border-box;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .input-group.has-right input, .input-group.has-right select {
-  padding-right: 48px; /* Extra padding for the right eye icon */
+  padding-right: 48px;
 }
 
 .input-group input:focus, .input-group select:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
 }
 
 .input-group .left-icon {
   position: absolute;
   left: 16px;
-  color: #a1a1aa;
+  color: #71717a;
   width: 20px;
   height: 20px;
   pointer-events: none;
-  transition: color 0.3s ease;
+  transition: color 0.25s ease;
   z-index: 2;
 }
 
 .input-group:focus-within .left-icon {
-  color: #6366f1;
+  color: #f59e0b;
 }
 
 .input-group .right-icon {
   position: absolute;
   right: 16px;
-  color: #a1a1aa;
+  color: #71717a;
   width: 20px;
   height: 20px;
   cursor: pointer;
@@ -206,7 +205,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.3s ease;
+  transition: color 0.25s ease;
   z-index: 2;
 }
 
@@ -216,30 +215,30 @@ body {
 
 .input-field:focus {
   border-color: var(--accent);
-  background: rgba(255, 255, 255, 0.06) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
   box-shadow: 
-    0 0 0 3px rgba(99, 102, 241, 0.15),
-    0 8px 16px rgba(0, 0, 0, 0.2);
+    0 0 0 3px rgba(245, 158, 11, 0.15),
+    0 8px 16px rgba(0, 0, 0, 0.25);
 }
 
-/* Primary Button with Premium Linear Gradient */
+/* Primary Button with Warm Amber Gradient */
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
-  color: white !important;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  color: #09090b !important;
   font-family: 'Outfit', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   border: none !important;
   border-radius: 1rem !important;
-  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
   cursor: pointer;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.4);
-  filter: brightness(1.1);
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.35);
+  filter: brightness(1.06);
 }
 
 .btn-primary:active {
@@ -247,9 +246,26 @@ body {
 }
 
 .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   pointer-events: none;
   transform: none;
+}
+
+/* Secondary Button / Lighter Outlined Style */
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.04);
+  color: #e4e4e7;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-secondary:hover {
+  background: #f59e0b;
+  color: #09090b;
+  border-color: #f59e0b;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
 }
 
 /* General Buttons */
@@ -321,8 +337,8 @@ body {
 }
 
 .wa-icon-btn.active, .icon-btn.active {
-  color: var(--accent);
-  background: rgba(99, 102, 241, 0.1);
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
 }
 
 /* Premium Animations */
@@ -332,7 +348,7 @@ body {
 }
 
 .animate-in {
-  animation: fadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: fadeIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes shimmer {
@@ -341,7 +357,7 @@ body {
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.06) 37%, rgba(255, 255, 255, 0.02) 63%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.05) 37%, rgba(255, 255, 255, 0.02) 63%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite ease-in-out;
 }
@@ -349,20 +365,20 @@ body {
 /* Navigation Link Active State Indicator */
 .nav-link-active {
   color: white !important;
-  background: rgba(99, 102, 241, 0.1) !important;
-  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+  border: 1px solid rgba(245, 158, 11, 0.2) !important;
 }
 
-/* Layout Specific Overrides for Perfect Alignment */
+/* Layout Specific Overrides */
 .profile-card-glow {
   box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.4),
-    0 0 30px rgba(99, 102, 241, 0.05);
+    0 10px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(245, 158, 11, 0.04);
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
-  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
 }
 
 /* --- Pure CSS Layout for Auth Pages --- */
@@ -396,10 +412,9 @@ body {
   left: 15%;
   width: 400px;
   height: 400px;
-  background: rgba(99, 102, 241, 0.15);
+  background: rgba(245, 158, 11, 0.08);
   border-radius: 50%;
-  filter: blur(120px);
-  animation: pulse 4s infinite;
+  filter: blur(140px);
 }
 
 .auth-glow-2 {
@@ -408,9 +423,9 @@ body {
   right: 15%;
   width: 450px;
   height: 450px;
-  background: rgba(168, 85, 247, 0.1);
+  background: rgba(217, 119, 6, 0.06);
   border-radius: 50%;
-  filter: blur(140px);
+  filter: blur(160px);
 }
 
 .auth-container {
@@ -452,7 +467,6 @@ body {
   gap: 1.25rem;
 }
 
-/* Custom scrollbar for auth card */
 .auth-card::-webkit-scrollbar, .signup-card::-webkit-scrollbar {
   width: 6px;
 }
@@ -464,17 +478,17 @@ body {
 .auth-form-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* Replaces space-y-5 */
+  gap: 1rem;
 }
 
 .auth-input-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* Replaces space-y-2 */
+  gap: 0.5rem;
 }
 
 .auth-submit-btn {
-  height: 52px; /* Specific height requested */
+  height: 52px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -491,7 +505,7 @@ body {
 }
 
 .auth-footer a {
-  color: #8b5cf6;
+  color: #f59e0b;
   font-weight: 600;
   text-decoration: none;
   margin-left: 6px;
@@ -499,7 +513,7 @@ body {
 }
 
 .auth-footer a:hover {
-  color: #a855f7;
+  color: #fbbf24;
   text-decoration: underline;
 }
 
@@ -514,12 +528,12 @@ body {
 
 .chat-preview {
   width: 100%;
-  max-width: 330px; /* Reduced further so both sections fit better */
+  max-width: 330px;
   border-radius: 1.5rem;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 1.5rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
 }
 
 .preview-content {
@@ -529,10 +543,10 @@ body {
 }
 
 .preview-content h2 {
-  font-size: 1.75rem; /* Reduced to align perfectly */
+  font-size: 1.75rem;
   font-weight: 800;
   margin-bottom: 0.5rem;
-  background: linear-gradient(to right, #ffffff, #e0e7ff, rgba(199, 210, 254, 0.7));
+  background: linear-gradient(to right, #ffffff, #fef3c7, rgba(254, 243, 199, 0.7));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.2;
@@ -552,11 +566,11 @@ body {
   
   .auth-page {
     padding: 2rem 1rem;
-    align-items: flex-start; /* Prevent clipping at top when scrolling */
+    align-items: flex-start;
   }
 
   .preview-section {
-    display: flex; /* Keep visible but stack it below */
+    display: flex;
     margin-top: 2rem;
   }
 
@@ -567,6 +581,6 @@ body {
 
 @media (max-width: 768px) {
   .preview-section {
-    display: none; /* Hide interactive mockup on small mobile for cleaner login */
+    display: none;
   }
 }

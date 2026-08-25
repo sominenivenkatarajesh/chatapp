@@ -71,15 +71,16 @@ const ForgotPasswordPage = () => {
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-4 group">
               <div
-                className="size-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center group-hover:bg-indigo-500/20
-              transition-all duration-500 group-hover:rotate-6 group-hover:scale-105 border border-indigo-500/20"
+                className="size-14 rounded-2xl bg-amber-500/15 flex items-center justify-center group-hover:bg-amber-500/25
+              transition-all duration-500 group-hover:rotate-6 group-hover:scale-105 border border-amber-500/30 shadow-lg shadow-amber-500/10"
               >
-                <MessageSquare className="size-7 text-indigo-400" />
+                <MessageSquare className="size-7 text-amber-400" />
               </div>
-              <div className="space-y-1.5 mt-1">
+              <div className="space-y-1 mt-1">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500/90 block">Security</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-white">Reset Password</h1>
-                <p className="text-text-secondary text-sm">
-                  {step === 1 ? "Enter your details to receive an OTP" : "Enter the OTP sent to your email and your new password"}
+                <p className="text-zinc-400 text-sm">
+                  {step === 1 ? "Enter your details to receive an OTP code" : "Enter the OTP and set your new password"}
                 </p>
               </div>
             </div>
@@ -104,7 +105,7 @@ const ForgotPasswordPage = () => {
               ) : (
                 <>
                   <div className="auth-input-wrapper">
-                    <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">OTP</label>
+                    <label className="text-xs uppercase tracking-wider font-bold ml-1 text-zinc-400">OTP Code</label>
                     <div className="input-group">
                       <KeyRound className="left-icon" />
                       <input
@@ -172,17 +173,17 @@ const ForgotPasswordPage = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-5 animate-spin mr-2 inline" />
-                  {step === 1 ? "Sending..." : "Resetting..."}
+                  {step === 1 ? "Sending OTP..." : "Resetting..."}
                 </>
               ) : (
-                step === 1 ? "Send Reset Link" : "Reset Password"
+                step === 1 ? "Send OTP Code" : "Reset Password"
               )}
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm text-zinc-400">
             Remember your password?{" "}
-            <Link to="/login" className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+            <Link to="/login" className="font-semibold text-amber-400 hover:text-amber-300 transition-colors">
               Back to Login
             </Link>
           </div>
@@ -194,3 +195,4 @@ const ForgotPasswordPage = () => {
 };
 
 export default ForgotPasswordPage;
+

@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
-import { Image, Send, X, Smile, Paperclip, FileText, Mic, Plus } from "lucide-react";
+import { Send, X, Smile, Plus, FileText, Mic } from "lucide-react";
 import toast from "react-hot-toast";
 import EmojiPicker from "emoji-picker-react";
 
@@ -117,13 +117,13 @@ const MessageInput = () => {
       {/* Action Banner (Reply/Edit) */}
       {(replyingToMessage || editingMessage) && (
         <div className="absolute bottom-full left-0 right-0 p-4 bg-transparent border-t border-white/5 animate-in">
-          <div className="flex items-center justify-between glass-panel-light p-3 rounded-xl shadow-lg border-l-4 border-indigo-500 mx-auto w-full">
+          <div className="flex items-center justify-between bg-zinc-900/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-white/10 border-l-4 border-l-amber-500 mx-auto w-full">
             <div className="flex flex-col min-w-0 flex-1 pl-2">
-              <span className="text-indigo-400 font-bold text-xs mb-1 tracking-wide">
+              <span className="text-amber-400 font-bold text-xs mb-0.5 tracking-wide">
                 {editingMessage ? "Edit message" : `Replying to ${replyingToMessage.senderId === authUser._id ? "yourself" : "message"}`}
               </span>
-              <span className="text-white/70 text-sm truncate font-medium">
-                {editingMessage?.text || replyingToMessage?.text || (replyingToMessage?.image ? "📸 Image" : "📎 File")}
+              <span className="text-zinc-300 text-sm truncate font-medium">
+                {editingMessage?.text || replyingToMessage?.text || (replyingToMessage?.image ? "📸 Image Attachment" : "📎 File Document")}
               </span>
             </div>
             <button
@@ -132,9 +132,9 @@ const MessageInput = () => {
                 setEditingMessage(null);
                 setText("");
               }}
-              className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white ml-3 transition-colors shadow-sm"
+              className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white ml-3 transition-colors shadow-sm"
             >
-              <X size={16} />
+              <X size={15} />
             </button>
           </div>
         </div>
@@ -142,48 +142,52 @@ const MessageInput = () => {
 
       {/* Attachment Preview */}
       {(imagePreview || filePreview) && (
-        <div className="absolute bottom-full left-0 right-0 p-4 bg-wa-bg border-t border-wa-border animate-in">
-          <div className="flex items-center gap-4 bg-wa-panel p-4 rounded-xl shadow-2xl max-w-md">
-            <div className="relative">
+        <div className="absolute bottom-full left-0 right-0 p-4 bg-transparent animate-in">
+          <div className="flex items-center gap-4 bg-zinc-900/95 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 shadow-2xl max-w-md">
+            <div className="relative shrink-0">
               {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg border border-wa-border" />
+                <div className="size-20 rounded-xl overflow-hidden bg-black/40 border border-white/10">
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                </div>
               ) : (
-                <div className="w-24 h-24 bg-wa-bg rounded-lg flex flex-col items-center justify-center text-wa-primary p-2">
-                  <FileText size={32} className="text-wa-accent mb-2" />
-                  <span className="text-xs truncate w-full text-center">{filePreview.name}</span>
+                <div className="size-20 bg-black/40 rounded-xl border border-white/10 flex flex-col items-center justify-center text-white p-2">
+                  <FileText size={24} className="text-amber-400 mb-1" />
+                  <span className="text-[10px] text-zinc-400 truncate w-full text-center">{filePreview.name}</span>
                 </div>
               )}
               <button
                 onClick={removeAttachment}
-                className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-danger text-white flex items-center justify-center shadow-lg"
+                className="absolute -top-2 -right-2 size-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
               >
-                <X size={14} />
+                <X size={13} />
               </button>
             </div>
-            <div className="flex-1">
-              <p className="text-wa-primary text-sm font-medium">Ready to send</p>
-              <p className="text-wa-secondary text-xs mt-1">Add a caption or press send</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-xs font-bold uppercase tracking-wider">Attachment Ready</p>
+              <p className="text-zinc-400 text-xs mt-0.5 truncate">Type a message caption or hit send</p>
             </div>
           </div>
         </div>
       )}
 
-      <div className="flex items-center gap-2 glass-panel-light p-2 rounded-2xl shadow-lg">
-        <div className="flex items-center gap-1 pl-2 shrink-0">
+      <div className="flex items-center gap-2 bg-zinc-900/80 backdrop-blur-md border border-white/10 p-2 rounded-2xl shadow-xl focus-within:border-amber-500/40 focus-within:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all">
+        <div className="flex items-center gap-1 pl-1.5 shrink-0">
           <button
             type="button"
-            className={`p-2 rounded-full transition-colors ${showEmojiPicker ? "bg-indigo-500/20 text-indigo-400" : "text-white/50 hover:bg-white/10 hover:text-white"}`}
+            className={`p-2 rounded-xl transition-colors ${showEmojiPicker ? "bg-amber-500/20 text-amber-400" : "text-zinc-400 hover:bg-white/10 hover:text-white"}`}
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            title="Add emoji"
           >
-            <Smile size={22} />
+            <Smile size={20} />
           </button>
           
           <button
             type="button"
-            className="p-2 rounded-full text-white/50 hover:bg-white/10 hover:text-white transition-colors"
+            className="p-2 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
             onClick={() => fileInputRef.current?.click()}
+            title="Attach file or photo"
           >
-            <Plus size={22} />
+            <Plus size={20} />
           </button>
           <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
         </div>
@@ -203,7 +207,7 @@ const MessageInput = () => {
           )}
           
           <textarea
-            className="w-full bg-transparent text-white px-2 py-2.5 outline-none resize-none max-h-32 text-base placeholder-white/40"
+            className="w-full bg-transparent text-white px-2 py-2 outline-none resize-none max-h-32 text-sm placeholder-zinc-500"
             placeholder="Type a message..."
             rows="1"
             value={text}
@@ -212,16 +216,16 @@ const MessageInput = () => {
           />
         </div>
 
-        <div className="flex items-center justify-center pr-2 shrink-0">
+        <div className="flex items-center justify-center pr-1 shrink-0">
           {text.trim() || imagePreview || filePreview ? (
             <button
               onClick={handleSendMessage}
-              className="p-2.5 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white transition-all shadow-lg hover:shadow-indigo-500/25 hover:scale-105 active:scale-95"
+              className="p-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black transition-all shadow-lg hover:shadow-amber-500/25 hover:scale-105 active:scale-95 font-bold"
             >
-              <Send size={18} className="translate-x-[1px]" />
+              <Send size={16} className="translate-x-[1px]" />
             </button>
           ) : (
-            <button className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors">
+            <button className="p-2 rounded-xl text-zinc-500 hover:bg-white/5 hover:text-zinc-300 transition-colors">
               <Mic size={18} />
             </button>
           )}
@@ -232,5 +236,6 @@ const MessageInput = () => {
 };
 
 export default MessageInput;
+
 
 

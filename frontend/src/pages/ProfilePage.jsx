@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Camera, Mail, User, Shield, Trash2, Calendar, Phone, Edit2, Check, X, Key, Image as ImageIcon, MessageSquare, Users } from "lucide-react";
+import { Camera, Mail, User, Shield, Trash2, Calendar, Phone, Edit2, Check, X, Key, Image as ImageIcon, MessageSquare, Users, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -48,6 +48,11 @@ const ProfilePage = () => {
     };
   };
 
+  const handleRemoveBanner = async () => {
+    setSelectedBanner("");
+    await updateProfile({ bannerPic: "" });
+  };
+
   const handleSave = async () => {
     const dataToUpdate = {};
     if (formData.username !== authUser.username) dataToUpdate.username = formData.username;
@@ -72,25 +77,47 @@ const ProfilePage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const hasCustomBanner = Boolean(selectedBanner || authUser?.bannerPic);
+
   return (
     <div className="h-full bg-bg overflow-y-auto custom-scrollbar pb-20 relative">
       
-      {/* Banner Section */}
-      <div className="w-full h-48 md:h-64 lg:h-72 relative bg-surface group">
-        {(selectedBanner || authUser?.bannerPic) ? (
+      {/* Decorative Header Banner (Reduced from 40% height to sleek proportional header) */}
+      <div className="w-full h-36 sm:h-44 md:h-48 relative overflow-hidden bg-gradient-to-r from-zinc-950 via-zinc-900 to-amber-950/40 border-b border-white/5 group">
+        {hasCustomBanner ? (
           <img 
             src={selectedBanner || authUser?.bannerPic} 
             className="w-full h-full object-cover" 
             alt="Profile Banner" 
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-tr from-[#18181b] to-indigo-900/20" />
+          <div className="w-full h-full relative overflow-hidden flex items-center justify-between px-8">
+            {/* Subtle background ambient mesh */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent" />
+            <div className="absolute -top-24 -right-24 size-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative z-10 hidden sm:flex items-center gap-2 text-amber-500/40 text-xs font-mono uppercase tracking-widest">
+              <Sparkles size={14} /> Personal Profile
+            </div>
+          </div>
         )}
         
-        {/* Banner Overlay & Edit Button */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-end p-4">
-          <label className="p-2 bg-black/50 hover:bg-black/70 backdrop-blur-md rounded-full cursor-pointer text-white transition-all shadow-lg border border-white/10">
-            <ImageIcon size={20} />
+        {/* Banner Action Buttons */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          {hasCustomBanner && (
+            <button
+              onClick={handleRemoveBanner}
+              disabled={isUpdatingProfile}
+              className="px-3 py-1.5 bg-black/60 hover:bg-red-500/80 backdrop-blur-md rounded-xl text-xs font-semibold text-white/80 hover:text-white transition-all shadow-lg border border-white/10 flex items-center gap-1.5"
+              title="Remove Banner"
+            >
+              <Trash2 size={13} />
+              <span className="hidden sm:inline">Remove</span>
+            </button>
+          )}
+
+          <label className="px-3 py-1.5 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-xl cursor-pointer text-xs font-semibold text-white transition-all shadow-lg border border-white/15 flex items-center gap-1.5 hover:border-amber-500/50">
+            <ImageIcon size={14} className="text-amber-400" />
+            <span>{hasCustomBanner ? "Change Cover" : "Add Cover Photo"}</span>
             <input 
               type="file" 
               className="hidden" 
@@ -102,36 +129,39 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 -mt-16 sm:-mt-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 -mt-14 sm:-mt-16">
         
         {/* Profile Header (Avatar & Top Actions) */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div className="relative inline-block group">
-            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-bg bg-surface shadow-2xl relative">
+            <div className="size-28 sm:size-32 rounded-2xl overflow-hidden border-4 border-[#09090b] bg-surface shadow-2xl relative flex items-center justify-center">
               {(selectedImg || authUser?.profilePic) ? (
                 <img
                   src={selectedImg || authUser.profilePic}
                   alt="Profile"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-xl"
                 />
               ) : (
-                <User className="w-16 h-16 text-zinc-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                <div className="w-full h-full flex items-center justify-center font-bold text-2xl font-mono text-amber-300 bg-gradient-to-br from-zinc-850 to-amber-950/70">
+                  {(authUser?.username || "U").substring(0, 2).toUpperCase()}
+                </div>
               )}
               {isUpdatingProfile && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm">
+                  <div className="size-7 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
             </div>
             <label
               className={`
-                absolute bottom-2 right-2 bg-indigo-500 hover:bg-indigo-400
-                p-2.5 rounded-full cursor-pointer shadow-lg
-                transition-transform z-10 border-[3px] border-bg
-                ${isUpdatingProfile ? "pointer-events-none opacity-50" : "hover:scale-110"}
+                absolute -bottom-1 -right-1 bg-amber-500 hover:bg-amber-400
+                p-2 rounded-xl cursor-pointer shadow-lg
+                transition-transform z-10 border-2 border-[#09090b] text-black
+                ${isUpdatingProfile ? "pointer-events-none opacity-50" : "hover:scale-105 active:scale-95"}
               `}
+              title="Change Profile Photo"
             >
-              <Camera className="w-5 h-5 text-white" />
+              <Camera className="size-4" />
               <input
                 type="file"
                 className="hidden"
@@ -146,24 +176,24 @@ const ProfilePage = () => {
             {!isEditing ? (
               <button 
                 onClick={() => setIsEditing(true)}
-                className="px-6 py-2 bg-white/10 hover:bg-white/15 text-white rounded-full font-semibold transition-colors border border-white/5"
+                className="btn-secondary px-5 py-2 text-sm font-semibold flex items-center gap-2"
               >
-                Edit Profile
+                <Edit2 size={15} /> Edit Profile
               </button>
             ) : (
               <>
                 <button 
                   onClick={() => setIsEditing(false)}
-                  className="px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-full font-semibold transition-colors border border-white/5"
+                  className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl font-semibold transition-colors border border-white/10 text-sm"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleSave}
                   disabled={isUpdatingProfile}
-                  className="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full font-semibold transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50"
+                  className="btn-primary px-6 py-2 rounded-xl text-sm font-bold shadow-lg shadow-amber-500/20 disabled:opacity-50 flex items-center gap-1.5"
                 >
-                  Save Changes
+                  <Check size={16} /> Save Changes
                 </button>
               </>
             )}
@@ -176,24 +206,27 @@ const ProfilePage = () => {
           {/* Left Column: Identity & Stats */}
           <div className="lg:col-span-1 flex flex-col gap-6">
             <div className="bg-surface p-6 rounded-2xl border border-white/5 shadow-xl">
-              {!isEditing ? (
-                <h1 className="text-2xl font-bold text-white mb-1">
-                  {authUser?.username}
-                </h1>
-              ) : (
-                <input 
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  placeholder="Username"
-                  className="text-2xl font-bold bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-indigo-500 w-full mb-3"
-                />
-              )}
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500/90 block mb-1">Account</span>
+                {!isEditing ? (
+                  <h1 className="text-2xl font-extrabold tracking-tight text-white mb-1">
+                    {authUser?.username}
+                  </h1>
+                ) : (
+                  <input 
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    placeholder="Username"
+                    className="text-xl font-bold bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-500 w-full mb-3"
+                  />
+                )}
+              </div>
               
               {!isEditing && (
-                <p className="text-zinc-400 text-sm mb-4">
-                  {formData.bio || "No bio yet."}
+                <p className="text-zinc-400 text-sm mb-4 leading-relaxed">
+                  {formData.bio || "No bio added yet."}
                 </p>
               )}
               {isEditing && (
@@ -201,24 +234,27 @@ const ProfilePage = () => {
                   name="bio"
                   value={formData.bio}
                   onChange={handleChange}
-                  placeholder="Add a bio..."
-                  className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm text-white outline-none resize-none h-24 mb-4"
+                  placeholder="Tell people about yourself..."
+                  className="w-full bg-white/5 border border-white/10 focus:border-amber-500 rounded-xl px-3 py-2.5 text-sm text-white outline-none resize-none h-24 mb-4"
                 />
               )}
 
-              <div className="flex items-center gap-2 mb-6">
-                <Calendar size={16} className="text-zinc-500" />
-                <span className="text-sm text-zinc-500">Joined {new Date(authUser?.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+              <div className="flex items-center gap-2 mb-6 text-xs text-zinc-500">
+                <Calendar size={14} className="text-amber-500/80" />
+                <span>Joined {new Date(authUser?.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-6">
-                <div className="text-center">
-                  <div className="text-xl font-bold text-white">{authUser?.friends?.length || 0}</div>
-                  <div className="text-xs text-zinc-500 uppercase font-semibold">Friends</div>
+                <div className="text-center p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                  <div className="text-2xl font-extrabold text-white font-mono">{authUser?.friends?.length || 0}</div>
+                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold mt-0.5">Friends</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-xl font-bold text-white">Online</div>
-                  <div className="text-xs text-zinc-500 uppercase font-semibold">Status</div>
+                <div className="text-center p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                  <div className="text-2xl font-extrabold text-emerald-400 flex items-center justify-center gap-1.5">
+                    <span className="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="text-base font-bold font-mono">Live</span>
+                  </div>
+                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold mt-0.5">Status</div>
                 </div>
               </div>
             </div>
@@ -228,7 +264,9 @@ const ProfilePage = () => {
           <div className="lg:col-span-2 flex flex-col gap-6">
             
             <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-white/5 shadow-xl">
-              <h3 className="text-lg font-bold text-white mb-6">Personal Details</h3>
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                <User size={18} className="text-amber-400" /> Personal Details
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InfoRow icon={Mail} label="Email" value={formData.email} name="email" isEditing={isEditing} onChange={handleChange} />
                 <InfoRow icon={Phone} label="Phone" value={formData.phone} name="phone" isEditing={isEditing} onChange={handleChange} />
@@ -237,14 +275,14 @@ const ProfilePage = () => {
                   <InfoRow icon={User} label="Gender" value={formData.gender || "Not specified"} name="gender" isEditing={false} capitalize={true} />
                 ) : (
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Gender</label>
+                    <label className="text-xs font-bold text-zinc-400 uppercase ml-1">Gender</label>
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
                       <select 
                         name="gender" 
                         value={formData.gender} 
                         onChange={handleChange}
-                        className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl pl-12 pr-4 py-3 text-sm font-semibold text-white outline-none appearance-none"
+                        className="w-full bg-white/5 border border-white/10 focus:border-amber-500 rounded-xl pl-12 pr-4 py-3 text-sm font-semibold text-white outline-none appearance-none"
                       >
                         <option value="" className="bg-zinc-900">Select Gender</option>
                         <option value="male" className="bg-zinc-900">Male</option>
@@ -266,28 +304,30 @@ const ProfilePage = () => {
                   exit={{ opacity: 0, height: 0 }}
                   className="bg-surface p-6 sm:p-8 rounded-2xl border border-white/5 shadow-xl overflow-hidden"
                 >
-                  <h3 className="text-lg font-bold text-white mb-6">Change Password</h3>
+                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <Key size={18} className="text-amber-400" /> Change Password
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Current Password</label>
+                      <label className="text-xs font-bold text-zinc-400 uppercase ml-1">Current Password</label>
                       <input
                         type="password"
                         name="currentPassword"
                         value={formData.currentPassword}
                         onChange={handleChange}
                         placeholder="••••••••"
-                        className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm text-white outline-none transition-all"
+                        className="w-full bg-white/5 border border-white/10 focus:border-amber-500 rounded-xl px-4 py-3 text-sm text-white outline-none transition-all"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold text-zinc-500 uppercase ml-1">New Password</label>
+                      <label className="text-xs font-bold text-zinc-400 uppercase ml-1">New Password</label>
                       <input
                         type="password"
                         name="newPassword"
                         value={formData.newPassword}
                         onChange={handleChange}
                         placeholder="••••••••"
-                        className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm text-white outline-none transition-all"
+                        className="w-full bg-white/5 border border-white/10 focus:border-amber-500 rounded-xl px-4 py-3 text-sm text-white outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -295,16 +335,16 @@ const ProfilePage = () => {
               )}
             </AnimatePresence>
 
-            <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-red-500/10 shadow-xl mt-4">
+            <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-red-500/15 shadow-xl">
               <h3 className="text-lg font-bold text-red-400 mb-2">Danger Zone</h3>
               <p className="text-sm text-zinc-500 mb-6">
-                Once you delete your account, there is no going back. Please be certain.
+                Permanently delete your account and all associated message history.
               </p>
               <button
                 onClick={handleDeleteAccount}
-                className="px-6 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-full font-semibold transition-colors border border-red-500/20 flex items-center gap-2"
+                className="px-6 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-xl font-semibold transition-colors border border-red-500/20 flex items-center gap-2 text-sm"
               >
-                <Trash2 size={18} /> Delete Account
+                <Trash2 size={16} /> Delete Account
               </button>
             </div>
 
@@ -317,9 +357,9 @@ const ProfilePage = () => {
 
 const InfoRow = ({ icon: Icon, label, value, name, isEditing, onChange, capitalize = false }) => (
   <div className="flex flex-col gap-2">
-    <label className="text-xs font-bold text-zinc-500 uppercase ml-1">{label}</label>
+    <label className="text-xs font-bold text-zinc-400 uppercase ml-1">{label}</label>
     {!isEditing || !onChange ? (
-      <div className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 flex items-center gap-3">
+      <div className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 flex items-center gap-3">
         <Icon className="text-zinc-500 shrink-0" size={18} />
         <span className={`text-sm font-semibold text-white/90 truncate flex-1 ${capitalize ? 'capitalize' : ''}`}>
           {value || "Not provided"}
@@ -333,7 +373,7 @@ const InfoRow = ({ icon: Icon, label, value, name, isEditing, onChange, capitali
           name={name}
           value={value}
           onChange={onChange}
-          className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none transition-all"
+          className="w-full bg-white/5 border border-white/10 focus:border-amber-500 rounded-xl pl-12 pr-4 py-3 text-sm text-white outline-none transition-all font-medium"
           placeholder={`Enter your ${label.toLowerCase()}`}
         />
       </div>
@@ -342,3 +382,4 @@ const InfoRow = ({ icon: Icon, label, value, name, isEditing, onChange, capitali
 );
 
 export default ProfilePage;
+

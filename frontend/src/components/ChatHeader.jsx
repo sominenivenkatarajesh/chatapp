@@ -1,9 +1,9 @@
-import { Phone, Video, ArrowLeft, Search } from "lucide-react";
+import { Phone, Video, ArrowLeft, Search, Music } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { useCallStore } from "../store/useCallStore";
 import { useMusicStore } from "../store/useMusicStore";
-import { Music } from "lucide-react";
+import Avatar from "./Avatar";
 
 const ChatHeader = ({ onProfileClick }) => {
   const { selectedUser, setSelectedUser } = useChatStore();
@@ -24,18 +24,19 @@ const ChatHeader = ({ onProfileClick }) => {
     if (!roomId) {
       createRoom();
     }
-    // Small delay to ensure room is created on socket
     setTimeout(() => {
       inviteUser(selectedUser._id);
     }, 100);
   };
 
+  const isOnline = onlineUsers?.includes(selectedUser._id);
+
   return (
-    <div className="h-[72px] px-6 border-b border-white/5 bg-white/5 backdrop-blur-md z-30 flex items-center justify-between shadow-sm">
-      <div className="flex items-center gap-3 sm:gap-4 flex-1">
+    <div className="h-[72px] px-6 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md z-30 flex items-center justify-between shadow-sm">
+      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
         {/* Back Button (Mobile only) */}
         <button 
-          className="lg:hidden p-2.5 -ml-3 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-all"
+          className="lg:hidden p-2 -ml-2 text-zinc-400 hover:text-white hover:bg-white/10 rounded-xl transition-all"
           onClick={() => setSelectedUser(null)}
         >
           <ArrowLeft className="size-5" />
@@ -43,54 +44,47 @@ const ChatHeader = ({ onProfileClick }) => {
 
         {/* Avatar */}
         <div 
-          className="relative cursor-pointer hover:opacity-90 transition-all hover:scale-105"
+          className="cursor-pointer hover:opacity-90 transition-all shrink-0"
           onClick={onProfileClick}
         >
-          <img 
-            src={selectedUser.profilePic || selectedUser.avatar || (selectedUser.isGroup ? "/group-avatar.png" : "/avatar.svg")} 
-            alt={selectedUser.username || selectedUser.name} 
-            className="size-11 rounded-2xl object-cover shadow-md shadow-black/20" 
+          <Avatar 
+            user={selectedUser} 
+            size="md" 
+            isOnline={isOnline} 
           />
-          {onlineUsers.includes(selectedUser._id) && (
-            <span className="absolute -bottom-1 -right-1 size-3.5 rounded-full bg-emerald-500 border-2 border-[#1e1e24] shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-          )}
         </div>
 
         {/* User/Group info */}
         <div 
-          className="flex flex-col min-w-0 justify-center cursor-pointer hover:opacity-80"
+          className="flex flex-col min-w-0 justify-center cursor-pointer hover:opacity-85"
           onClick={onProfileClick}
         >
-          <h3 className="font-bold">{selectedUser.username || selectedUser.name}</h3>
-          <p className="text-xs font-semibold tracking-wide uppercase flex items-center gap-1.5 mt-0.5">
+          <h3 className="font-bold text-sm sm:text-base text-white truncate">{selectedUser.username || selectedUser.name}</h3>
+          <p className="text-[11px] font-semibold tracking-wide uppercase flex items-center gap-1.5 mt-0.5">
             {selectedUser.isGroup ? (
-              <span className="text-white/60">{selectedUser.members?.length || 0} Members</span>
-            ) : onlineUsers.includes(selectedUser._id) ? (
+              <span className="text-zinc-400">{selectedUser.members?.length || 0} Members</span>
+            ) : isOnline ? (
               <>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse"></span>
-                <span className="text-emerald-400">Online</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse"></span>
+                <span className="text-emerald-400 font-bold">Online</span>
               </>
             ) : (
-              <span className="text-white/40">Offline</span>
+              <span className="text-zinc-500 font-medium">Offline</span>
             )}
           </p>
         </div>
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center gap-2 sm:gap-3 text-white/50">
-        <button className="p-2.5 rounded-full hover:bg-white/10 hover:text-white transition-all shadow-sm" onClick={handleCall} title="Voice Call">
-          <Phone className="size-[18px]" />
+      <div className="flex items-center gap-1 sm:gap-2 text-zinc-400">
+        <button className="p-2 sm:p-2.5 rounded-xl hover:bg-white/5 hover:text-white transition-all" onClick={handleCall} title="Voice Call">
+          <Phone className="size-4 sm:size-[18px]" />
         </button>
-        <button className="p-2.5 rounded-full hover:bg-white/10 hover:text-white transition-all shadow-sm" onClick={handleCall} title="Video Call">
-          <Video className="size-5" />
+        <button className="p-2 sm:p-2.5 rounded-xl hover:bg-white/5 hover:text-white transition-all" onClick={handleCall} title="Video Call">
+          <Video className="size-4.5 sm:size-5" />
         </button>
-        <button className="p-2.5 rounded-full hover:bg-primary/20 hover:text-primary transition-all shadow-sm" onClick={handleMusicInvite} title="Listen to Music Together">
-          <Music className="size-5" />
-        </button>
-        <div className="w-px h-6 bg-white/10 mx-1"></div>
-        <button className="p-2.5 rounded-full hover:bg-white/10 hover:text-white transition-all shadow-sm" title="Search Message">
-          <Search className="size-[18px]" />
+        <button className="p-2 sm:p-2.5 rounded-xl hover:bg-amber-500/15 hover:text-amber-400 transition-all" onClick={handleMusicInvite} title="Listen to Music Together">
+          <Music className="size-4.5 sm:size-5" />
         </button>
       </div>
     </div>
@@ -98,4 +92,5 @@ const ChatHeader = ({ onProfileClick }) => {
 };
 
 export default ChatHeader;
+
 

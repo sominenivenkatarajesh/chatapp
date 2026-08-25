@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { Camera, Mail, User, Shield, Trash2, Calendar, Phone, Edit2, Check, X, Key, Image as ImageIcon, MessageSquare, Users, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import Avatar from "../components/Avatar";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile, deleteAccount } = useAuthStore();
@@ -30,20 +31,23 @@ const ProfilePage = () => {
   const handleImageUpload = async (e, type = "profile") => {
     const file = e.target.files[0];
     if (!file) return;
+
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size must be less than 5MB");
+      toast.error("Image must be less than 5MB");
       return;
     }
+
     const reader = new FileReader();
     reader.readAsDataURL(file);
+
     reader.onload = async () => {
       const base64Image = reader.result;
-      if (type === "profile") {
-        setSelectedImg(base64Image);
-        await updateProfile({ profilePic: base64Image });
-      } else {
+      if (type === "banner") {
         setSelectedBanner(base64Image);
         await updateProfile({ bannerPic: base64Image });
+      } else {
+        setSelectedImg(base64Image);
+        await updateProfile({ profilePic: base64Image });
       }
     };
   };
@@ -83,7 +87,7 @@ const ProfilePage = () => {
     <div className="h-full bg-bg overflow-y-auto custom-scrollbar pb-20 relative">
       
       {/* Decorative Header Banner (Reduced from 40% height to sleek proportional header) */}
-      <div className="w-full h-36 sm:h-44 md:h-48 relative overflow-hidden bg-gradient-to-r from-zinc-950 via-zinc-900 to-amber-950/40 border-b border-white/5 group">
+      <div className="w-full h-36 sm:h-44 md:h-48 relative overflow-hidden bg-gradient-to-r from-zinc-950 via-zinc-900 to-amber-950/40 border-b border-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)] group">
         {hasCustomBanner ? (
           <img 
             src={selectedBanner || authUser?.bannerPic} 
@@ -134,20 +138,18 @@ const ProfilePage = () => {
         {/* Profile Header (Avatar & Top Actions) */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div className="relative inline-block group">
-            <div className="size-28 sm:size-32 rounded-2xl overflow-hidden border-4 border-[#09090b] bg-surface shadow-2xl relative flex items-center justify-center">
-              {(selectedImg || authUser?.profilePic) ? (
-                <img
-                  src={selectedImg || authUser.profilePic}
-                  alt="Profile"
-                  className="w-full h-full object-cover rounded-xl"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center font-bold text-2xl font-mono text-amber-300 bg-gradient-to-br from-zinc-850 to-amber-950/70">
-                  {(authUser?.username || "U").substring(0, 2).toUpperCase()}
-                </div>
-              )}
+            <div className="relative rounded-2xl overflow-hidden border-4 border-[#09090b] shadow-2xl bg-surface">
+              <Avatar 
+                user={{
+                  ...authUser,
+                  profilePic: selectedImg || authUser?.profilePic,
+                  username: authUser?.username,
+                }} 
+                size="2xl" 
+                className="!size-28 sm:!size-32"
+              />
               {isUpdatingProfile && (
-                <div className="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm">
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm z-20">
                   <div className="size-7 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
@@ -156,7 +158,7 @@ const ProfilePage = () => {
               className={`
                 absolute -bottom-1 -right-1 bg-amber-500 hover:bg-amber-400
                 p-2 rounded-xl cursor-pointer shadow-lg
-                transition-transform z-10 border-2 border-[#09090b] text-black
+                transition-transform z-30 border-2 border-[#09090b] text-black
                 ${isUpdatingProfile ? "pointer-events-none opacity-50" : "hover:scale-105 active:scale-95"}
               `}
               title="Change Profile Photo"
@@ -205,7 +207,7 @@ const ProfilePage = () => {
           
           {/* Left Column: Identity & Stats */}
           <div className="lg:col-span-1 flex flex-col gap-6">
-            <div className="bg-surface p-6 rounded-2xl border border-white/5 shadow-xl">
+            <div className="bg-surface p-6 rounded-2xl border border-white/5 border-b-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06),0_10px_30px_rgba(0,0,0,0.3)]">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500/90 block mb-1">Account</span>
                 {!isEditing ? (
@@ -245,11 +247,11 @@ const ProfilePage = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-6">
-                <div className="text-center p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                <div className="text-center p-3 rounded-xl bg-white/[0.02] border border-white/5 border-b-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.04)]">
                   <div className="text-2xl font-extrabold text-white font-mono">{authUser?.friends?.length || 0}</div>
                   <div className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold mt-0.5">Friends</div>
                 </div>
-                <div className="text-center p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                <div className="text-center p-3 rounded-xl bg-white/[0.02] border border-white/5 border-b-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.04)]">
                   <div className="text-2xl font-extrabold text-emerald-400 flex items-center justify-center gap-1.5">
                     <span className="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span className="text-base font-bold font-mono">Live</span>
@@ -263,7 +265,7 @@ const ProfilePage = () => {
           {/* Right Column: Settings & Details */}
           <div className="lg:col-span-2 flex flex-col gap-6">
             
-            <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-white/5 shadow-xl">
+            <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-white/5 border-b-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06),0_10px_30px_rgba(0,0,0,0.3)]">
               <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
                 <User size={18} className="text-amber-400" /> Personal Details
               </h3>
@@ -302,7 +304,7 @@ const ProfilePage = () => {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-surface p-6 sm:p-8 rounded-2xl border border-white/5 shadow-xl overflow-hidden"
+                  className="bg-surface p-6 sm:p-8 rounded-2xl border border-white/5 border-b-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06),0_10px_30px_rgba(0,0,0,0.3)] overflow-hidden"
                 >
                   <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
                     <Key size={18} className="text-amber-400" /> Change Password
@@ -335,7 +337,7 @@ const ProfilePage = () => {
               )}
             </AnimatePresence>
 
-            <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-red-500/15 shadow-xl">
+            <div className="bg-surface p-6 sm:p-8 rounded-2xl border border-red-500/20 border-b-red-500/30 shadow-[inset_0_-1px_0_rgba(239,68,68,0.1),0_10px_30px_rgba(0,0,0,0.3)]">
               <h3 className="text-lg font-bold text-red-400 mb-2">Danger Zone</h3>
               <p className="text-sm text-zinc-500 mb-6">
                 Permanently delete your account and all associated message history.
@@ -359,7 +361,7 @@ const InfoRow = ({ icon: Icon, label, value, name, isEditing, onChange, capitali
   <div className="flex flex-col gap-2">
     <label className="text-xs font-bold text-zinc-400 uppercase ml-1">{label}</label>
     {!isEditing || !onChange ? (
-      <div className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 flex items-center gap-3">
+      <div className="w-full bg-white/[0.03] border border-white/5 border-b-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.04)] rounded-xl px-4 py-3 flex items-center gap-3">
         <Icon className="text-zinc-500 shrink-0" size={18} />
         <span className={`text-sm font-semibold text-white/90 truncate flex-1 ${capitalize ? 'capitalize' : ''}`}>
           {value || "Not provided"}
@@ -382,4 +384,3 @@ const InfoRow = ({ icon: Icon, label, value, name, isEditing, onChange, capitali
 );
 
 export default ProfilePage;
-

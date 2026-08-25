@@ -108,7 +108,7 @@ const DashboardPage = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
         onClick={() => setSelectedProfile(user)}
-        className="glass-morphism p-5 rounded-2xl flex flex-col items-center gap-4 hover-lift group relative overflow-hidden cursor-pointer border border-white/5 hover:border-amber-500/30"
+        className="glass-morphism p-5 rounded-2xl flex flex-col items-center gap-4 hover-lift group relative overflow-hidden cursor-pointer border border-white/5 border-b-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)] hover:border-amber-500/30"
       >
         <div className="absolute top-0 w-full h-16 bg-gradient-to-b from-amber-500/5 to-transparent pointer-events-none" />
         
@@ -134,7 +134,7 @@ const DashboardPage = () => {
                   toast.error("Failed to remove friend");
                 }
               }}
-              className="w-full py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 transition-all flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 border-b-red-500/30 transition-all flex items-center justify-center gap-1.5"
             >
               Remove Friend
             </button>
@@ -144,14 +144,14 @@ const DashboardPage = () => {
                 e.stopPropagation();
                 cancelRequest(user._id);
               }}
-              className="w-full py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 transition-all flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 border-b-red-500/30 transition-all flex items-center justify-center gap-1.5"
             >
               <X size={14} /> Cancel Request
             </button>
           ) : isPending ? (
             <button 
               disabled
-              className="w-full py-2.5 rounded-xl text-xs font-semibold bg-white/5 text-zinc-500 border border-white/5 cursor-not-allowed flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 rounded-xl text-xs font-semibold bg-white/5 text-zinc-500 border border-white/5 border-b-white/10 cursor-not-allowed flex items-center justify-center gap-1.5"
             >
               <UserCheck size={14} /> Pending
             </button>
@@ -162,7 +162,7 @@ const DashboardPage = () => {
                 e.stopPropagation();
                 sendRequest(user._id);
               }}
-              className="w-full py-2.5 rounded-xl text-xs font-semibold bg-white/[0.04] hover:bg-amber-500 text-zinc-300 hover:text-black border border-white/10 hover:border-amber-500 transition-all flex items-center justify-center gap-1.5 shadow-sm hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+              className="w-full py-2.5 rounded-xl text-xs font-semibold bg-white/[0.04] hover:bg-amber-500 text-zinc-300 hover:text-black border border-white/10 border-b-white/15 hover:border-amber-500 transition-all flex items-center justify-center gap-1.5 shadow-sm hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]"
             >
               <UserPlus size={15} /> Add Friend
             </button>
@@ -185,7 +185,7 @@ const DashboardPage = () => {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-zinc-950 border border-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl relative overflow-hidden"
+          className="bg-zinc-950 border border-white/10 border-b-white/20 shadow-[inset_0_-1px_0_rgba(255,255,255,0.08),0_25px_50px_-12px_rgba(0,0,0,0.7)] rounded-2xl p-8 max-w-sm w-full relative overflow-hidden"
         >
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-amber-600"></div>
           
@@ -220,7 +220,7 @@ const DashboardPage = () => {
                       toast.error("Failed to remove friend");
                     }
                   }}
-                  className="w-full py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white justify-center text-sm font-semibold transition-colors border border-red-500/20"
+                  className="w-full py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white justify-center text-sm font-semibold transition-colors border border-red-500/20 border-b-red-500/30"
                 >
                   Remove Friend
                 </button>
@@ -230,14 +230,14 @@ const DashboardPage = () => {
                     cancelRequest(user._id);
                     onClose();
                   }}
-                  className="w-full py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white justify-center text-sm font-semibold transition-colors border border-red-500/20"
+                  className="w-full py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white justify-center text-sm font-semibold transition-colors border border-red-500/20 border-b-red-500/30"
                 >
                   Cancel Request
                 </button>
               ) : isPending ? (
                 <button 
                   disabled
-                  className="w-full py-3 rounded-xl bg-white/5 text-zinc-500 justify-center text-sm font-semibold border border-white/5 cursor-not-allowed"
+                  className="w-full py-3 rounded-xl bg-white/5 text-zinc-500 justify-center text-sm font-semibold border border-white/5 border-b-white/10 cursor-not-allowed"
                 >
                   Request Pending
                 </button>
@@ -273,7 +273,7 @@ const DashboardPage = () => {
             </p>
           </div>
           
-          <div className="flex bg-surface rounded-2xl p-1 border border-white/5 w-full md:w-auto shadow-md">
+          <div className="flex bg-surface rounded-2xl p-1 border border-white/5 border-b-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)] w-full md:w-auto">
             <button 
               onClick={() => setActiveTab("discover")}
               className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === "discover" ? "bg-amber-500/15 text-amber-300 border border-amber-500/20" : "text-zinc-400 hover:text-white hover:bg-white/5"}`}
@@ -299,7 +299,7 @@ const DashboardPage = () => {
         </div>
 
         {/* Global Search Bar */}
-        <div className="bg-surface p-2 pl-5 rounded-2xl flex items-center border border-white/10 focus-within:border-amber-500/50 focus-within:shadow-[0_0_20px_rgba(245,158,11,0.1)] transition-all max-w-2xl">
+        <div className="bg-surface p-2 pl-5 rounded-2xl flex items-center border border-white/10 border-b-white/15 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)] focus-within:border-amber-500/50 focus-within:shadow-[0_0_20px_rgba(245,158,11,0.1)] transition-all max-w-2xl">
           <Search className="text-zinc-500 shrink-0" size={18} />
           <form onSubmit={handleSearch} className="flex-1 flex gap-2 ml-3">
             <input
@@ -405,7 +405,7 @@ const DashboardPage = () => {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="glass-morphism p-5 rounded-2xl flex flex-col items-center gap-4 shadow-xl border border-white/10"
+                        className="glass-morphism p-5 rounded-2xl flex flex-col items-center gap-4 shadow-xl border border-white/10 border-b-white/15"
                       >
                         <Avatar user={request.from} size="xl" />
                         <div className="text-center w-full">
@@ -415,7 +415,7 @@ const DashboardPage = () => {
                         <div className="flex gap-2.5 w-full mt-2">
                           <button 
                             onClick={() => handleRequest(request._id, "rejected")}
-                            className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-red-500 hover:text-white text-zinc-400 justify-center text-xs font-semibold transition-colors border border-white/5 flex items-center gap-1.5"
+                            className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-red-500 hover:text-white text-zinc-400 justify-center text-xs font-semibold transition-colors border border-white/5 border-b-white/10 flex items-center gap-1.5"
                           >
                             <X size={16} /> Decline
                           </button>
@@ -434,6 +434,7 @@ const DashboardPage = () => {
             ) : null}
           </motion.div>
         </AnimatePresence>
+
 
         <AnimatePresence>
           {selectedProfile && (

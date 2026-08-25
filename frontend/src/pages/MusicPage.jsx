@@ -123,7 +123,7 @@ const MusicPage = () => {
                         </button>
                       </div>
                     )) : (
-                      <div className="col-span-full text-zinc-500 p-6 bg-surface rounded-2xl border border-white/5 text-center text-sm">
+                      <div className="col-span-full text-zinc-500 p-6 bg-surface rounded-2xl border border-white/5 border-b-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)] text-center text-sm">
                         No friends available to invite. Add friends from the Social Hub.
                       </div>
                     )}
@@ -137,7 +137,7 @@ const MusicPage = () => {
                   {/* Create Party Card */}
                   <div className="relative group">
                     <div className="absolute inset-0 bg-amber-500/10 rounded-3xl blur-xl transition-all duration-500 group-hover:opacity-100 opacity-40"></div>
-                    <div className="relative h-full glass-morphism p-8 rounded-3xl border border-white/10 hover:border-amber-500/40 transition-all duration-300 flex flex-col justify-between gap-6 overflow-hidden">
+                    <div className="relative h-full glass-morphism p-8 rounded-3xl border border-white/10 border-b-white/15 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)] hover:border-amber-500/40 transition-all duration-300 flex flex-col justify-between gap-6 overflow-hidden">
                       <div className="relative z-10">
                         <div className="size-12 rounded-2xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center mb-5 text-amber-400">
                           <Plus size={22} />
@@ -159,7 +159,7 @@ const MusicPage = () => {
                   {/* Join Party Card */}
                   <div className="relative group">
                     <div className="absolute inset-0 bg-white/5 rounded-3xl blur-xl transition-all duration-500 group-hover:opacity-100 opacity-40"></div>
-                    <div className="relative h-full glass-morphism p-8 rounded-3xl border border-white/10 hover:border-white/20 transition-all duration-300 flex flex-col justify-between gap-6 overflow-hidden">
+                    <div className="relative h-full glass-morphism p-8 rounded-3xl border border-white/10 border-b-white/15 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)] hover:border-white/20 transition-all duration-300 flex flex-col justify-between gap-6 overflow-hidden">
                       <div className="relative z-10">
                         <div className="size-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5 text-zinc-300">
                           <Radio size={22} />
@@ -199,7 +199,7 @@ const MusicPage = () => {
                   </h2>
                   
                   {activeMusicRooms.length === 0 ? (
-                    <div className="glass-morphism p-10 rounded-3xl border border-white/5 flex items-center justify-center text-center">
+                    <div className="glass-morphism p-10 rounded-3xl border border-white/5 border-b-white/10 shadow-[inset_0_-1px_0_rgba(255,255,255,0.06)] flex items-center justify-center text-center">
                       <EmptyState
                         title="The party floor is quiet"
                         message="There are no public parties currently active. Start the first session and invite your crew!"
@@ -215,8 +215,9 @@ const MusicPage = () => {
                           layout
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="glass-morphism p-5 rounded-2xl flex flex-col items-center gap-4 shadow-xl border border-white/10 group overflow-hidden relative hover-lift"
+                          className="glass-morphism p-5 rounded-2xl flex flex-col items-center gap-4 shadow-xl border border-white/10 border-b-white/15 group overflow-hidden relative hover-lift"
                         >
+
                           {room.currentVideo && (
                             <div className="absolute inset-0 z-0 opacity-15">
                               <img src={room.currentVideo.thumbnail} className="w-full h-full object-cover blur-xl" alt="" />
